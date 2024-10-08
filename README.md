@@ -6,3 +6,4 @@
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![chat_dark](./docs/screenshots/chat_dark.png) | ![chat_dark](./docs/screenshots/chat_light.png) |
 
+![bidding.gif](./docs/screenshots/bidding.gif)
