@@ -1,0 +1,199 @@
+/* :root.dark-theme{
+    --bg-color: #F2EFDF;
+    --bg-blue: #ECF5ED;
+    --bg-green: #F3F5D9;
+    --bg-yellow: #FEF2D5;
+    --text-color: #5C6A72;
+    --blue: #3A94C5;
+    --green: #35A77C;
+    --red: #F85552;
+    --yellow: #DFA000;
+    --purple: #DF69BA;
+
+    --bg-dim: #1E2326;
+} */
+
+/* Tema chiaro */
+:root.light-theme {
+    --bg-dim: #F2EFDF;
+    --bg0: #FFFBEF;
+    --bg1: #F8F5E4;
+    --bg2: #F2EFDF;
+    --bg3: #EDEADA;
+    --bg4: #E8E6D5;
+    --bg5: #BEC5B2;
+
+    --bg-red: #FFE7DE;
+    --bg-visual: #F0F2D4;
+    --bg-yellow: #FEF2D5;
+    --bg-green: #F3F5D9;
+    --bg-blue: #ECF5ED;
+
+    --red: #F85552;
+    --orange: #F57D26;
+    --yellow: #DFA000;
+    --green: #8DA101;
+    --blue: #3A94C5;
+    --aqua: #35A77C;
+    --purple: #DF69BA;
+
+    --fg: #5C6A72;
+    --statusline1: #93B259;
+    --statusline2: #708089;
+    --statusline3: #E66868;
+    --gray: #A6B0A0;
+    --gray2: #939F91;
+    --gray3: #829181;
+}
+
+/* Tema scuro */
+:root.dark-theme {
+    --bg-dim: #1E2326;
+    --bg0: #272E33;
+    --bg1: #2E383C;
+    --bg2: #374145;
+    --bg3: #414B50;
+    --bg4: #495156;
+    --bg5: #4F5B58;
+
+    --bg-red: #4C3743;
+    --bg-visual: #493B40;
+    --bg-yellow: #45443C;
+    --bg-green: #3C4841;
+    --bg-blue: #384B55;
+
+    --red: #E67E80;
+    --orange: #E69875;
+    --yellow: #DBBC7F;
+    --green: #A7C080;
+    --blue: #7FBBB3;
+    --aqua: #83C092;
+    --purple: #D699B6;
+
+    --fg: #D3C6AA;
+    --statusline1: #A7C080;
+    --statusline2: #D3C6AA;
+    --statusline3: #E67E80;
+    --gray: #7A8478;
+    --gray2: #859289;
+    --gray3: #9DA9A0;
+}
+
+.theme-toggle-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: var(--bg-yellow);
+    color: var(--yellow);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.theme-toggle-button:hover {
+    background-color: var(--yellow);
+    color: var(--bg-yellow);
+}
+
+
+body {
+    font-family: Fira Code, sans-serif;
+    background-color: var(--fg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+}
+
+.chat-header {
+    text-align: center;
+    color: var(--bg-green);
+}
+
+.chat-container {
+    width: 60%;
+    height: 75%;
+    background-color: var(--bg-dim);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-window {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    border-bottom: 1px solid var(--fg);
+}
+
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-message {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 4px;
+    max-width: 80%;
+}
+
+.chat-message.user {
+    align-self: flex-end;
+    background-color: var(--aqua);
+    color: var(--bg-green);
+}
+
+.chat-message.bot {
+    align-self: flex-start;
+    background-color: var(--blue);
+    color: var(--bg-blue);
+}
+
+.chat-input {
+    padding: 10px;
+    display: flex;
+    border-top: 1px solid var(--fg);
+}
+
+.message-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--fg);
+    border-radius: 4px;
+    margin-right: 10px;
+    background-color: var(--bg4);
+    color: var(--fg);
+}
+
+.message-input[contenteditable]:empty:before {
+    content: attr(placeholder);
+    color: var(--gray);
+}
+
+#send-button {
+    padding: 8px 16px;
+    background-color: var(--green);
+    color: var(--bg-green);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#send-button:hover {
+    background-color: var(--bg-green);
+    color: var(--green);
+}
+
+.mention {
+    background-color: var(--yellow);
+    color: var(--bg-yellow);
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
