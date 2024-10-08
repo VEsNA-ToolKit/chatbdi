@@ -36,7 +36,9 @@ public class custom_list_useful_literals extends DefaultInternalAction {
                     System.out.println(contextStr);
                     List<String> groundTerms = new ArrayList<>();
         
-                    String regex = "\\b([a-z][a-zA-Z0-9_]*)\\s*(\\(([^()]|\\([^()]*\\))*\\))?\\b";
+                    // String regex = "\\b([a-z][a-zA-Z0-9_]*)\\s*(\\(([^()]|\\([^()]*\\))*\\))?\\b";
+                    String regex = "(?<!\\.)\\b[a-z]\\w*\\s*(\\([^()]*\\))?";
+
                     
                     Pattern pattern = Pattern.compile(regex);
                     Matcher matcher = pattern.matcher(contextStr);
