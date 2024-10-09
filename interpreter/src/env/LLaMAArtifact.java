@@ -46,7 +46,7 @@ public class LLaMAArtifact extends Artifact {
     }
 
     @OPERATION
-    public void translate_tell(String msg, Object beliefs, OpFeedbackParam<Literal> translated_msg) {
+    public void translate_ask(String msg, Object beliefs, OpFeedbackParam<Literal> translated_msg) {
         JSONObject input = new JSONObject();
         input.put("msg", msg);
         input.put("beliefs", new JSONArray(beliefs));
@@ -57,7 +57,7 @@ public class LLaMAArtifact extends Artifact {
     }
 
     @OPERATION
-    public void translate_ask(String msg, Object literals, OpFeedbackParam<Literal> translated_msg) {
+    public void translate_tell(String msg, Object literals, OpFeedbackParam<Literal> translated_msg) {
         JSONObject input = new JSONObject();
         input.put("msg", msg);
         input.put("literals", new JSONArray(literals));
