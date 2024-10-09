@@ -15,11 +15,11 @@
 
 // Instrument plan sends to Agent the provide_plans instructions and then asks the agent to achieve it.
 +!instrument(Agent)
-    :   true
+    :   .my_name(Me)
     <-  .plan_label(P3, provide_plans);
         .send(Agent, tellHow, P3);
         .wait(1000);
-        .send(Agent, achieve, provide_plans).
+        .send(Agent, achieve, provide_plans(Me)).
 
 // chat_bdi saves the received plans
 +!kqml_received(Sender, tell, triggers(Agent, Triggers), X)
@@ -47,11 +47,11 @@
 // The custom actions are necessary to have access to the Belief Base and to the plans body.
 // They also are needed to clean the lists from default internal actions that normally are not interesting for our purpose.
 @provide_plans
-+!provide_plans
++!provide_plans(Interpreter)
     :   .my_name(Me)
     <-  env.custom_list_plans(Plans);
-        .send(giacomo, tell, triggers(Me, Plans));
+        .send(Interpreter, tell, triggers(Me, Plans));
         env.custom_list_beliefs(Beliefs);
-        .send(giacomo, tell, beliefs(Me, Beliefs));
+        .send(Interpreter, tell, beliefs(Me, Beliefs));
         env.custom_list_useful_literals(Literals);
-        .send(giacomo, tell, literals(Me, Literals)).
+        .send(Interpreter, tell, literals(Me, Literals)).
