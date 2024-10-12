@@ -19,10 +19,12 @@ public class LLaMAArtifact extends Artifact {
 
     @OPERATION
     public void classify_performative(String msg, OpFeedbackParam<Literal> performative){
-        String answer = send_llama("classifier", msg);
-        JSONObject json = new JSONObject(answer);
-        Literal performativeAtom = Literal.parseLiteral(json.getString("performative"));
-        performative.set(performativeAtom);
+        // String answer = send_llama("classifier", msg);
+        String answer = send_llama("nl2performative", msg);
+        // JSONObject json = new JSONObject(answer);
+        // Literal performativeAtom = Literal.parseLiteral(json.getString("performative"));
+        // performative.set(performativeAtom);
+        performative.set(Literal.parseLiteral(answer));
     }
 
     @OPERATION
@@ -39,10 +41,12 @@ public class LLaMAArtifact extends Artifact {
         JSONObject input = new JSONObject();
         input.put("msg", msg);
         input.put("triggers", new JSONArray(triggers));
-        String answer = send_llama("translator_achieve", input.toString());
-        JSONObject json = new JSONObject(answer);
-        String translated = json.getString("action");
-        translated_msg.set(Literal.parseLiteral(translated));
+        // String answer = send_llama("translator_achieve", input.toString());
+        String answer = send_llama("nl2kqml", input.toString());
+        // JSONObject json = new JSONObject(answer);
+        // String translated = json.getString("action");
+        // translated_msg.set(Literal.parseLiteral(translated));
+        translated_msg.set(Literal.parseLiteral(answer));
     }
 
     @OPERATION
@@ -50,10 +54,12 @@ public class LLaMAArtifact extends Artifact {
         JSONObject input = new JSONObject();
         input.put("msg", msg);
         input.put("beliefs", new JSONArray(beliefs));
-        String answer = send_llama("translator_tell", input.toString());
-        JSONObject json = new JSONObject(answer);
-        String translated = json.getString("msg");
-        translated_msg.set(Literal.parseLiteral(translated));
+        // String answer = send_llama("translator_tell", input.toString());
+        String answer = send_llama("nl2kqml", input.toString());
+        // JSONObject json = new JSONObject(answer);
+        // String translated = json.getString("msg");
+        // translated_msg.set(Literal.parseLiteral(translated));
+        translated_msg.set(Literal.parseLiteral(answer));
     }
 
     @OPERATION
@@ -61,10 +67,12 @@ public class LLaMAArtifact extends Artifact {
         JSONObject input = new JSONObject();
         input.put("msg", msg);
         input.put("literals", new JSONArray(literals));
-        String answer = send_llama("translator_ask", input.toString());
-        JSONObject json = new JSONObject(answer);
-        String translated = json.getString("info");
-        translated_msg.set(Literal.parseLiteral(translated));
+        // String answer = send_llama("translator_ask", input.toString());
+        String answer = send_llama("nl2kqml", input.toString());
+        // JSONObject json = new JSONObject(answer);
+        // String translated = json.getString("info");
+        // translated_msg.set(Literal.parseLiteral(translated));
+        translated_msg.set(Literal.parseLiteral(answer));
     }
 
     @OPERATION
@@ -73,10 +81,12 @@ public class LLaMAArtifact extends Artifact {
         input.put("content", msg);
         input.put("hints", new JSONArray(literals));
         input.put("performative", performative);
-        String answer = send_llama("tell2nl", input.toString());
-        JSONObject json = new JSONObject(answer);
-        String nl = json.getString("msg");
-        nl_msg.set(nl);
+        // String answer = send_llama("tell2nl", input.toString());
+        String answer = send_llama("kqml2nl", input.toString());
+        // JSONObject json = new JSONObject(answer);
+        // String nl = json.getString("msg");
+        // nl_msg.set(nl);
+        nl_msg.set(answer);
     }
 
     private String send_llama( String model, String message ) {

@@ -99,6 +99,8 @@
 
 body {
     font-family: Fira Code, sans-serif;
+    font-size: 24px;
+    font-weight: 600;
     background-color: var(--fg);
     display: flex;
     justify-content: center;

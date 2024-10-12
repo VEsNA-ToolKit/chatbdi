@@ -82,8 +82,8 @@ function processMentions(message) {
 }
 
 let ws;
-let reconnectionInterval = 5000;
-let maxRetries = 10;
+let reconnectionInterval = 1000;
+let maxRetries = 100;
 let retries = 0;
 
 function connect() {
