@@ -19,7 +19,7 @@ public class custom_list_useful_literals extends DefaultInternalAction {
             if ( srcInfo != null ) {
                 String srcInfoStr = srcInfo.toString();
                 if ( srcInfoStr.startsWith("file:") ) {
-                    list.add(new StringTermImpl(belief.toString()));
+                    list.add( belief );
                 }
             }
         }
@@ -43,12 +43,13 @@ public class custom_list_useful_literals extends DefaultInternalAction {
                         groundTerms.add(matcher.group());
                     }
                     for ( String term : groundTerms ) {
-                        list.add( new StringTermImpl( term ) );
+                        Literal lterm = Literal.parseLiteral(term);
+                        list.add( lterm );
                     }
                 }
 
                 if ( p.getTrigger().getType() == Trigger.TEType.belief ) {
-                    list.add(new StringTermImpl(p.getTrigger().toString()));
+                    list.add( p.getTrigger() );
                 }
             }
         }

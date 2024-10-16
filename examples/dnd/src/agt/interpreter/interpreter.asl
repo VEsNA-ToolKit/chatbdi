@@ -52,6 +52,10 @@
         .broadcast(tell, KqmlMsg).
 
 // KQML TO NATURAL LANGUAGE
++!kqml_received(Sender, tell, error_message, X)
+    :   client(Address)
+    <-  send(Address, "I didn't get it. Can you repeat it?").
+
 +!kqml_received(Sender, Performative, Msg, X)
     :   client(Address) & literals(Sender, Literals)
     <-  .print("[TELL] Received ", Msg, " from ", Sender);

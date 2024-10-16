@@ -11,6 +11,7 @@ quest_stage(0).
 +!start_game
     :   true
     <-  .wait(20000);
+        .print("Start the plot");
         !manage_plot_event.
 
 +!manage_plot_event
@@ -18,6 +19,14 @@ quest_stage(0).
     <-  .send(player, tell, player_location(Location));
         .send(player, tell, people_in_location(People));
         .send(player, tell, event(Event)).
+
++action(attack(Who, Weapon))
+    :   quest_stage(N) & equipment(Weapon)
+    <-  !manage_action(attack(Who, Weapon)).
+
++action(attack(Who, Weapon))
+    :   quest_stage(N)
+    <-  .send(player, tell, "You don't have this weapon!").
 
 +action(Action)
     :   quest_stage(N)

@@ -2,12 +2,6 @@ document.getElementById('send-button').addEventListener('click', sendMessage);
 document.getElementById('message-input').addEventListener('input', handleInput);
 document.getElementById('message-input').addEventListener('keydown', handleInput);
 
-// function (e) {
-//     if (e.key === 'Enter') {
-//         sendMessage();
-//     }
-// });
-
 function handleInput(e) {
 
     if (e.key === 'Enter') {
@@ -82,8 +76,8 @@ function processMentions(message) {
 }
 
 let ws;
-let reconnectionInterval = 1000;
-let maxRetries = 100;
+let reconnectionInterval = 100;
+let maxRetries = 10000;
 let retries = 0;
 
 function connect() {

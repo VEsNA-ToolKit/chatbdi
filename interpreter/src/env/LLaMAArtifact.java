@@ -14,16 +14,11 @@ import org.json.JSONArray;
 
 public class LLaMAArtifact extends Artifact {
     private final String API_URL = "http://localhost:11434/api/chat"; // URL dell'API LLaMA
-    // private final String API_KEY = "LA-bd84cae59a644303b5786ad04b47d864fb90e20c4a63453f96c384381a76c2b5"; // La tua chiave API per LLaMA
     private final HttpClient client = HttpClient.newHttpClient();
 
     @OPERATION
     public void classify_performative(String msg, OpFeedbackParam<Literal> performative){
-        // String answer = send_llama("classifier", msg);
         String answer = send_llama("nl2performative", msg);
-        // JSONObject json = new JSONObject(answer);
-        // Literal performativeAtom = Literal.parseLiteral(json.getString("performative"));
-        // performative.set(performativeAtom);
         performative.set(Literal.parseLiteral(answer));
     }
 
@@ -40,12 +35,8 @@ public class LLaMAArtifact extends Artifact {
     public void translate_achieve(String msg, Object triggers, OpFeedbackParam<Literal> translated_msg) {
         JSONObject input = new JSONObject();
         input.put("msg", msg);
-        input.put("triggers", new JSONArray(triggers));
-        // String answer = send_llama("translator_achieve", input.toString());
+        input.put("hints", new JSONArray(triggers));
         String answer = send_llama("nl2kqml", input.toString());
-        // JSONObject json = new JSONObject(answer);
-        // String translated = json.getString("action");
-        // translated_msg.set(Literal.parseLiteral(translated));
         translated_msg.set(Literal.parseLiteral(answer));
     }
 
@@ -53,12 +44,8 @@ public class LLaMAArtifact extends Artifact {
     public void translate_ask(String msg, Object beliefs, OpFeedbackParam<Literal> translated_msg) {
         JSONObject input = new JSONObject();
         input.put("msg", msg);
-        input.put("beliefs", new JSONArray(beliefs));
-        // String answer = send_llama("translator_tell", input.toString());
+        input.put("hints", new JSONArray(beliefs));
         String answer = send_llama("nl2kqml", input.toString());
-        // JSONObject json = new JSONObject(answer);
-        // String translated = json.getString("msg");
-        // translated_msg.set(Literal.parseLiteral(translated));
         translated_msg.set(Literal.parseLiteral(answer));
     }
 
@@ -66,12 +53,8 @@ public class LLaMAArtifact extends Artifact {
     public void translate_tell(String msg, Object literals, OpFeedbackParam<Literal> translated_msg) {
         JSONObject input = new JSONObject();
         input.put("msg", msg);
-        input.put("literals", new JSONArray(literals));
-        // String answer = send_llama("translator_ask", input.toString());
+        input.put("hints", new JSONArray(literals));
         String answer = send_llama("nl2kqml", input.toString());
-        // JSONObject json = new JSONObject(answer);
-        // String translated = json.getString("info");
-        // translated_msg.set(Literal.parseLiteral(translated));
         translated_msg.set(Literal.parseLiteral(answer));
     }
 
@@ -79,19 +62,13 @@ public class LLaMAArtifact extends Artifact {
     public void kqml2nl(String msg, String performative, Object literals, OpFeedbackParam<String> nl_msg) {
         JSONObject input = new JSONObject();
         input.put("content", msg);
-        input.put("hints", new JSONArray(literals));
         input.put("performative", performative);
-        // String answer = send_llama("tell2nl", input.toString());
         String answer = send_llama("kqml2nl", input.toString());
-        // JSONObject json = new JSONObject(answer);
-        // String nl = json.getString("msg");
-        // nl_msg.set(nl);
         nl_msg.set(answer);
     }
 
     private String send_llama( String model, String message ) {
         try {
-            // Costruisci il JSON del corpo della richiesta
             JSONObject json = new JSONObject();
             json.put("model", model);
             json.put("stream", false);
@@ -106,7 +83,6 @@ public class LLaMAArtifact extends Artifact {
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
                 .header("Content-Type", "application/json")
-                // .header("Authorization", "Bearer " + API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
                 .build();
             
@@ -115,7 +91,6 @@ public class LLaMAArtifact extends Artifact {
             JSONObject jsonResponse = new JSONObject(body);
             System.out.println(jsonResponse.toString());
             JSONObject answer = jsonResponse.getJSONObject("message");
-            // JSONObject choice = choices.getJSONObject(0);
             String chatResponse = answer.getString("content");
            return chatResponse;
 
@@ -128,7 +103,6 @@ public class LLaMAArtifact extends Artifact {
     @OPERATION
     public void send_llama(String message, OpFeedbackParam<String> response) {
         try {
-            // Costruisci il JSON del corpo della richiesta
             JSONObject json = new JSONObject();
             json.put("model", "llama3.1");
             json.put("stream", false);
@@ -143,7 +117,6 @@ public class LLaMAArtifact extends Artifact {
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
                 .header("Content-Type", "application/json")
-                // .header("Authorization", "Bearer " + API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
                 .build();
             
@@ -152,7 +125,6 @@ public class LLaMAArtifact extends Artifact {
             JSONObject jsonResponse = new JSONObject(body);
             System.out.println(jsonResponse.toString());
             JSONObject answer = jsonResponse.getJSONObject("message");
-            // JSONObject choice = choices.getJSONObject(0);
             String chatResponse = answer.getString("content");
             response.set(chatResponse);
 

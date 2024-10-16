@@ -7,7 +7,7 @@
         .concat(Me, "ws", WsArtName);
         makeArtifact(WsArtName, "Env.WebSocketArtifact", [8080], WsArtId);
         focus(WsArtId);
-        .wait(2000).
+        .wait({+clientConnected(_)}).
 
 +!start_websocket_server
    <- makeArtifact("websocket","WebSocketArtifact",[],ArtId);
