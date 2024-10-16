@@ -20,7 +20,7 @@
         .send(Agent, tellHow, P3);
         .wait(1000);
         .send(Agent, achieve, provide_plans(Me));
-        .send(Agent, tellHow, "kqml_received(Agent, Performative, Msg, X) : true <- .send(Agent, tell, error_message).").
+        .send(Agent, tellHow, "+!kqml_received(Agent, Performative, Msg, X) : true <- .send(Agent, tell, error_message).").
 
 // chat_bdi saves the received plans
 +!kqml_received(Sender, tell, triggers(Agent, Triggers), X)
