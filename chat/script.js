@@ -17,14 +17,11 @@ function handleInput(e) {
     if (text.endsWith(' '))
         text = text.replace(/ $/, '\u00A0');
 
-    // Cerca parole che iniziano con @ e sostituiscile con uno span stilizzato
     const formattedText = processMentions(text);
 
-    // Aggiorna il contenuto solo se cambia, per evitare la cancellazione della selezione
     if (text !== formattedText) {
         messageInput.innerHTML = formattedText;
 
-        // Sposta il cursore alla fine del testo
         placeCaretAtEnd(messageInput);
     }
 }
@@ -50,10 +47,6 @@ function sendMessage() {
         ws.send(message);
         messageInput.innerHTML = '';
 
-        // Simulating a bot response
-        // setTimeout(() => {
-        //     displayMessage('Hello! How can I help you?', 'bot');
-        // }, 1000);
     }
 }
 
@@ -65,7 +58,6 @@ function displayMessage(message, sender) {
     const formattedMessage = processMentions(message);
     messageElement.innerHTML = formattedMessage;
 
-    // messageElement.textContent = message;
     chatMessages.appendChild(messageElement);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }

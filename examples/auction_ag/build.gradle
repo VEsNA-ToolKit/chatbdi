@@ -35,7 +35,7 @@ sourceSets {
         java {
             srcDir 'src/env'
             srcDir 'src/agt/jia'
-            srcDir '../../interpreter/src/Env'
+            srcDir '../../interpreter/src/env'
         }
         resources {
             srcDir 'src/resources'

@@ -13,7 +13,7 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 public class LLaMAArtifact extends Artifact {
-    private final String API_URL = "http://localhost:11434/api/chat"; // URL dell'API LLaMA
+    private final String API_URL = "http://localhost:11434/api/chat"; 
     private final HttpClient client = HttpClient.newHttpClient();
 
     @OPERATION

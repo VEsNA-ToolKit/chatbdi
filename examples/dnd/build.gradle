@@ -33,8 +33,8 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDir 'src/agt/jia'
-            srcDir '../../interpreter/src/Env'
+            srcDir 'src/agt'
+            srcDir '../../interpreter/src/env'
         }
     }
 }
