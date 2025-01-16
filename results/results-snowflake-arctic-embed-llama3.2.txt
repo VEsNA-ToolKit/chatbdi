@@ -1,0 +1,448 @@
+[USER] "John is the father of Sarah." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```fatherOf(X, Y) :- owns(Y, X), parent(X, Y).```
+
+[USER] "Sarah is the child of John." 
+[EMBED] child(X, Y). 
+[GENERATE] `parent(X, Sarah).`
+
+[USER] "John's sister is Sarah." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `parent(Y, X).`
+
+[USER] "John is married to Emily." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(X, Y) :- John(Y).`
+
+[USER] "Emily works in marketing." 
+[EMBED] employed(X, Z). 
+[GENERATE] ```prolog]- employee(Emily, marketing).```
+
+Note: In Prolog, we use parentheses ( ) to denote a relation like 'employee' and list items are separated by commas ( , ). The above rule is more readable when written in this format for clarity, whereas the original statement was more concise.
+
+[USER] "John is a friend of Alex." 
+[EMBED] owns(X, Y). 
+[GENERATE] `isFriendOf(X, Y).`
+
+[USER] "John owns a car." 
+[EMBED] owns(X, Y). 
+[GENERATE] `owns(X, Car)`.
+
+[USER] "The Smiths live in Chicago." 
+[EMBED] lives_with(X, Y). 
+[GENERATE] ```lives_in(X, Y).```
+
+[USER] "John loves to read." 
+[EMBED] hates(X, Y). 
+[GENERATE] ``` hates(X, Y) :- not lovs(X, X). ```
+
+[USER] "Jane hates spiders." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```prolog
+hates(jane, spider).
+```
+
+[USER] "Jane teaches history at school." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```owned_by(X, Jane)```
+
+[USER] "Emma is the student of Jane." 
+[EMBED] student_of(X, Z). 
+[GENERATE] `parent_of(X, Y) :- student_of(Y, X).`
+
+[USER] "Michael lives with his parents." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```parent_of(X, Y).```
+
+[USER] "Tom has a dog." 
+[EMBED] owns(X, Y). 
+[GENERATE] owner(Tom, Dog).
+
+[USER] "Sarah visits her grandparents." 
+[EMBED] hates(X, Y). 
+[GENERATE] `likes(X) :- family Member(X), parent Of(X, Sarah).`
+
+[USER] "John owns a motorcycle." 
+[EMBED] owns(X, Y). 
+[GENERATE] ``` `Owns(John, Motorcycle).```
+
+[USER] "John prefers coffee." 
+[EMBED] prefers(X, Y). 
+[GENERATE] `prefers(John, Coffee).`
+
+[USER] "Alex can travel to Paris." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] `can_travel(Alex, Paris).`
+
+[USER] "John has a degree in computer science." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```has_degree_in_computer_science(John).```
+
+[USER] "Laura needs help with math." 
+[EMBED] needs_help_with(X, Y). 
+[GENERATE] ```prolog
+needs_help_with(laura, math).
+```
+
+[USER] "John's mother is the sister of his aunt." 
+[EMBED] owns(X, Y). 
+[GENERATE] `mother_of_sister_of_aunt(X)`.
+
+[USER] "Tom is employed by Microsoft." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(tom, microsoft).`
+
+[USER] "Sarah and John are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `sibling(sarah, john).`
+
+[USER] "Emily teaches English at school." 
+[EMBED] owns(X, Y). 
+[GENERATE] `is_employed_by(School, Teacher).`
+
+[USER] "Michael owns a bicycle." 
+[EMBED] owns(X, Y). 
+[GENERATE] `owns(Michael, Bicycle)`
+
+[USER] "Jane is married to David." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(jane, david).`
+
+[USER] "Alex lives in London." 
+[EMBED] lives_with(X, Y). 
+[GENERATE] `lives_in(London, X).`
+
+[USER] "Laura loves reading books." 
+[EMBED] loves(X, Y). 
+[GENERATE] `loves(laura, book).`
+
+[USER] "John has a pet cat." 
+[EMBED] owns(X, Y). 
+[GENERATE] `has_pet_cat(John)`
+
+[USER] "Sarah is the teacher of Emma." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] ```teachers_of(X, [Y]):- teacher_of(X, Y).
+```
+
+[USER] "Tom owns a house." 
+[EMBED] owns(X, Y). 
+[GENERATE] ownstom(X, Y) :- tom(X), ownshouse(Y).
+
+[USER] "John hates basketball." 
+[EMBED] hates(X, Y). 
+[GENERATE] `hates(john, basketball).`
+
+[USER] "Emily is employed by Google." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(Emily, Google).`
+
+[USER] "Michael prefers soccer." 
+[EMBED] prefers(X, Y). 
+[GENERATE] `prefers(Michael, Soccer).`
+
+[USER] "Jane can travel to Rome." 
+[EMBED] visits(X, Y). 
+[GENERATE] ```visit(jane, rome).```
+
+[USER] "Alex is married to his friend." 
+[EMBED] married(X, Y). 
+[GENERATE] `isMarriedTo(X, Y)`
+
+[USER] "Laura needs help with programming." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```python
+needs_help_from(X, Y) :- hates(Y, X), member(X, [Laura]).  // Modified rule from 'hates' to 'needs_help_from'
+```
+
+This modified rule states that Laura needs help from a person if and only if that person hates her.
+
+[USER] "John owns a house in New York." 
+[EMBED] owns(X, Y). 
+[GENERATE] `owns(john, house).`
+ 
+`owns(john, new_york).`
+
+[USER] "Sarah loves playing tennis." 
+[EMBED] loves(X, Y). 
+[GENERATE] `loves(tennis, Sarah).`
+
+[USER] "Tom visits his grandparents." 
+[EMBED] hates(X, Y). 
+[GENERATE] `visitsGrandparents(Tom).`
+
+[USER] "John's father is the brother of his uncle." 
+[EMBED] owns(X, Y). 
+[GENERATE] `is_brother_of_uncle(X, Y).`
+
+[USER] "David is employed by Amazon." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(david, amazon).`
+
+[USER] "Emily and her sister are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `sibling(X, 'Emily')`.
+
+[USER] "Michael lives in Los Angeles." 
+[EMBED] hates(X, Y). 
+[GENERATE] ````
+loves( Michael, LosAngeles ).
+```
+
+[USER] "Jane teaches at a university." 
+[EMBED] employed(X, Z). 
+[GENERATE] ```prolog
+employs(X, Y) :- employed(Y, X).
+```
+
+This rule states that if an individual (X) employs someone (Y), then the person (Y) is employed by the individual (X).
+
+[USER] "Alex owns an apartment." 
+[EMBED] owns(X, Y). 
+[GENERATE] `has_owner(X, Alex)`.
+
+[USER] "Laura loves singing." 
+[EMBED] loves(X, Y). 
+[GENERATE] `loves(laura, singing).`
+
+[USER] "John has a pet dog." 
+[EMBED] owns(X, Y). 
+[GENERATE] `has_pet(Dog, John)`
+
+[USER] "Sarah visits her cousins." 
+[EMBED] hates(X, Y). 
+[GENERATE] ``` hates(Sarah, X) :- not(visit(Sarah, X)). ```
+
+[USER] "Tom hates hiking." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```tom hates hiking.
+```
+
+[USER] "John's grandmother is the sister of his great-grandmother." 
+[EMBED] owns(X, Y). 
+[GENERATE] `is_sister_of_grandparent_to_grandchild(X, Y)`.
+
+[USER] "Rachel is employed by IBM." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed_by(X, Y).`
+
+[USER] "Emily and her brother are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `parent(Emily, brother(X)).`
+
+[USER] "Michael owns a car." 
+[EMBED] owns(X, Y). 
+[GENERATE] `owns(michael, car).`
+
+[USER] "Jane is married to her colleague." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(jane, jane's_colleague).`
+
+[USER] "Alex lives in Paris." 
+[EMBED] hates(X, Y). 
+[GENERATE] ``` hates(paris, alex).```
+
+[USER] "Laura loves photography." 
+[EMBED] loves(X, Y). 
+[GENERATE] `loves(laura, Photography)`
+
+[USER] "John has a pet bird." 
+[EMBED] owns(X, Y). 
+[GENERATE] `has_pet_bird(John, Bird).`
+
+[USER] "Sarah visits her friends." 
+[EMBED] hates(X, Y). 
+[GENERATE] `likes(X, Y)`.
+
+[USER] "Tom has a sibling." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `parent(X, Tom).`
+
+[USER] "John's uncle is the brother of his cousin." 
+[EMBED] owns(X, Y). 
+[GENERATE] `is_uncle_of(X, Y)`
+
+[USER] "David teaches computer science at school." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```sql
+teachers_who Teach_Computer_Science_at_School(David) .
+```
+
+[USER] "Emily owns an apartment." 
+[EMBED] owns(X, Y). 
+[GENERATE] own(X, Emily).
+
+[USER] "Michael prefers hiking." 
+[EMBED] prefers(X, Y). 
+[GENERATE] `prefers(michael, hiking).`
+
+[USER] "Jane can travel to Japan." 
+[EMBED] visits(X, Y). 
+[GENERATE] visits(jane, japan).
+
+[USER] "Alex is married to his colleague." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(X, self).`
+
+[USER] "Laura needs help with writing." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```hates(laura, writer)```
+
+[USER] "John owns a house in Chicago." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```owns(X, HouseInChicago).```
+
+[USER] "Sarah loves playing football." 
+[EMBED] loves(X, Y). 
+[GENERATE] ```likes(Sarah, Football).```
+
+[USER] "Tom visits his friends." 
+[EMBED] hates(X, Y). 
+[GENERATE] `likes(Tom, X) :- hates(X, Tom).`
+
+[USER] "John's great-grandmother is the sister of his great-aunt." 
+[EMBED] owns(X, Y). 
+[GENERATE] ``` `is_sister(X, Y) :- parent(Z, X), parent(Z, Y). ```
+
+This defines a new predicate `is_sister/2` that states that two individuals are sisters if they have a common parent (i.e., great-grandmother in the given sentence).
+
+[USER] "Rachel is employed by Apple." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(rachel, apple).`
+
+[USER] "Emily and her friend are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ``` sibling(X, Emily). ```
+
+[USER] "Michael lives in New York." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```Michael hates(X) :- X is New York.
+```
+
+[USER] "Jane teaches at a high school." 
+[EMBED] employed(X, Z). 
+[GENERATE] `teaches_at_high_school(Jane).`
+
+[USER] "Alex owns an SUV." 
+[EMBED] owns(X, Y). 
+[GENERATE] Owns(Alex, SUV)
+
+[USER] "Laura loves cooking." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```likes(Cooking, Laura)```
+
+[USER] "John has a pet rabbit." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```is_owner_of(John, Rabbit).```
+
+[USER] "Sarah visits her parents." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```owns(X, Y) <- (X = 'Sarah') ∧ (∃Y ∪ ∃Z : (Z = 'mother' ∧ owns(X, Z)) ∨ (Z = 'father' ∧ owns(X, Z)))```
+
+This states that Sarah owns something if she is the subject and there exists either her mother or father such that they own it.
+
+[USER] "Tom hates tennis." 
+[EMBED] hates(X, Y). 
+[GENERATE] `hates(tennis, Tom).`
+
+[USER] "John's great-uncle is the brother of his cousin." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```python
+from sympy import symbols, And
+
+X, Y = symbols('X Y')
+
+# Define the relationship between X and Y (great uncle and cousin)
+is_cousin = Y.is_descendant_of(X) & ~Y.is_ancestor_of(X)
+
+# Define the logical property:
+is_brother_inlaw = And(~X.owns(Y), is_cousin)
+
+[USER] "David owns a house." 
+[EMBED] owns(X, Y). 
+[GENERATE] `has_owner(David, House).`
+
+[USER] "Emily and her sister are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ``` sibling(X, Y) :- parent(X, S), parent(S, Y). ```
+
+[USER] "Michael prefers skiing." 
+[EMBED] prefers(X, Y). 
+[GENERATE] ```preference(Michael, skiing).```
+
+[USER] "Jane can travel to Australia." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] ```python
+can_travel(Australia) = True
+```
+
+In classical logic, we would express this using a universal quantifier:
+
+```prolog
+can_travel(Australia).
+```
+
+[USER] "Alex is married to his friend." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(his_friend, Alex)`.
+
+[USER] "Laura needs help with art." 
+[EMBED] needs_help_with(X, Y). 
+[GENERATE] ```prolog
+needs_help_with(X, Laura) :- X = 'art'.
+```
+
+[USER] "John owns a bike." 
+[EMBED] owns(X, Y). 
+[GENERATE] `owns(john, bike).`
+
+[USER] "Sarah loves playing basketball." 
+[EMBED] loves(X, Y). 
+[GENERATE] ```likes(Sarah, basketball).```
+
+[USER] "Tom visits his friends." 
+[EMBED] hates(X, Y). 
+[GENERATE] `likes(Tom, X)`
+
+[USER] "John's great-grandfather is the brother of his grandfather." 
+[EMBED] owns(X, Y). 
+[GENERATE] `has_ancestor(X, Y)`.
+
+[USER] "Rachel teaches at a university." 
+[EMBED] employed(X, Z). 
+[GENERATE] `teaches_at_university(Rachel, Z)`.
+
+[USER] "Emily and her colleague are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ``` sibling(emily, X) :- colleague(X, Emily).```
+
+[USER] "Michael lives in Los Angeles." 
+[EMBED] hates(X, Y). 
+[GENERATE] `lives_in(Los_Angeles(Michael)).`
+
+[USER] "Jane is married to her friend." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(X, X)`.
+
+[USER] "Alex owns an apartment." 
+[EMBED] owns(X, Y). 
+[GENERATE] `owns(Alex, Apartment)`
+
+[USER] "Laura loves music." 
+[EMBED] loves(X, Y). 
+[GENERATE] ```laura_loves(Music).```
+
+[USER] "John has a pet parrot." 
+[EMBED] owns(X, Y). 
+[GENERATE] ``` owns(John, Parrot) ```
+
+[USER] "Sarah visits her cousins." 
+[EMBED] hates(X, Y). 
+[GENERATE] `loves(Sarah, Sarah's Cousins).`
+
+[USER] "Tom hates swimming." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```
+hates(tom, X) :- swimmer(X).
+```
+

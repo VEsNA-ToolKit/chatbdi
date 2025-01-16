@@ -1,0 +1,10 @@
+[USER] I have a bid for the flight from Paris to Athens for 20 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(paris, athens, _), Cost)
+[SOLUTION] bid(flight_ticket(paris, athens, _), 20)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+[SOLUTION] bid(flight_ticket(athens, paris, _), 35)
+

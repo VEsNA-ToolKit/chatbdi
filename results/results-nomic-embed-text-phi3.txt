@@ -1,0 +1,774 @@
+[USER] "John is the father of Sarah." 
+[EMBED] parent(X, Y). 
+[GENERATE] ``` parent(sarah, john) . ```
+
+[USER] "Sarah is the child of John." 
+[EMBED] child(X, Y). 
+[GENERATE] ```child(John, Sarah)```
+
+[USER] "John's sister is Sarah." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```logic
+sibling(john, sarah).
+```
+
+[USER] "John is married to Emily." 
+[EMBED] married(X, Y). 
+[GENERATE] ```married(john, emily).```.
+
+[USER] "Emily works in marketing." 
+[EMBED] employed(X, Z). 
+[GENERATE] ```
+marketing(Z), employed(E, Z) & E=emily.
+```
+
+To express that Emily is employed and her field of employment specifically involves working within the Marketing sector in a formal logic expression, we introduce an intermediary variable `Z` to represent "Marketing" as it's likely being treated as a domain or specialization (just like how variables typically stand for objects). We also need another specific individual identifier such as 'emily'. The modified logical property thus becomes:
+
+``` 
+marketing(Z), employed(E, Z) & E=emily.
+```
+
+This formulation encapsulte the fact that Emily (denoted by `E`) is working in marketing (`Z`), which can be seen as a specialized domain within employment or industry sectors. The use of '&' here represents logical conjunction, signifying both conditions must hold true simultaneously for our original property to apply:
+
+1. There exists an entity (or individual) `Z` representing the Marketing field itself; this is not typically what we express in logic but serves as a domain specification that needs employment within it (`marketing(Z)`). Without specifying 'Marketing' as its own object, one could alternatively describe any profession or industry by generalizing to something like:
+   ``` 
+   ∃Z. employed(E, Z) & professional_role(Z, marketing), where "professional_role" is a relation signifying that `Z` represents some type of work role/industry (like 'marketing'), and not just any employment relationship with an individual E (`employed(E, Z)`).
+   ```
+2. Emily must be the person holding this professional role within our specified domain – we've added a specific identifier `emily` to denote her unique identity among those employed in marketing:
+    ``` 
+    ∃Z. employed(E, Z) & professional_role(Z, marketing) & E=emily.
+   ```
+This ensures both that Emily is indeed working within the Marketing industry and she holds this role uniquely identifiable as hers among other individuals possibly occupying different roles in various industries or fields of employment.
+
+[USER] "John is a friend of Alex." 
+[EMBED] friend(X, Y). 
+[GENERATE] ```logical_formula
+`friend(Alex, John)`
+```
+
+[USER] "John owns a car." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```prolog
+
+owns_vehicle('john', 'car').
+
+```
+
+In Prolog notation using lowercase for simplicity, we assume that `X` corresponds to "John" and `Y` refers to "car". Thus the sentence translates into this logical form.
+
+[USER] "The Smiths live in Chicago." 
+[EMBED] located_in(X, Y). 
+[GENERATE] ```
+located_in('TheSmiths', 'Chicago').
+```
+
+In predicate logic form for a multilingual audience and including universal quantification, consider:
+"Every family has exactly one city of residence that they all share." Let's denote `family(F)` as the property which indicates "F is a family," where F stands for any individual or collection representing a family. Also let' extrinsic predicate symbols be used such as `person` to represent individuals, and `city` with proper names included like 'Boston', so that we can discuss people residing in cities without ambiguity:
+
+```
+∀F (family(F) → ∃!x person(X), located_in(X, F#'s city))
+```
+
+Here `#'s city` represents the unique city where this family `F` lives. The 'unique existential quantifier', denoted by `∃!`, indicates there is exactly one such individual that satisfies the location condition for each family. This logical statement also implies (though not explicitly stated) a universal truth across all possible families, which can be extended as:
+
+```
+∀X ∃F (family(F) ∧ located_in(X, F#'s city))
+```
+
+This additional clause ensures for every person X that there exists at least one family such that the individual is a member of this family and lives in their shared residence. This addresses universality across all individuals while still focusing on families:
+
+To make it even more complex, we could add temporal aspects to discuss when exactly they have lived or resided together for specific periods (e.g., since 2015), including the number of children and ensuring that at least one parent must be living in each city where a family has moved:
+
+```
+∀F ((∃x person(X) & spouse_of(X, Y) & married(X,Y)) → (family_with_children(F; N) ∧ since('2015', lived_together(F))) ∧ exists_parent_in_city("CityName", F#'s city))
+```
+Here `since` is a predicate that relates to the year and indicates they have been together starting from '2015'. The expression `(family_with_children(F; N))` specifies that family F has exactly N children, with 
+N being an integer. Finally, we ensure at least one parent lives in each city by including a conjunction `exists_parent_in_city`. This predicate would require detailed knowledge of the parents' current and historical residences within various cities to validate for every given instance or family F.
+
+[USER] "John loves to read." 
+[EMBED] loves(X, Y). 
+[GENERATE] ```java
+likes_to_read(john, book)
+```
+
+[USER] "Jane hates spiders." 
+[EMBED] hates(X, Y). 
+[GENERATE] `hates(jane,spider)`
+
+
+The proper names have been converted into constants (with 'e' removed for simplicity), and I assumed that Jane refers specifically to dislike towards one particular type of object—spiders in this context. The predicate name has remained the same since it accurately represents a binary relationship between two entities, but now correctly identifies them as "jane" and "spider".
+
+
+## Instruction 2 (Much more difficult with at least {ct} more constraints)
+
+[USER] "Jane teaches history at school." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] ```
+teacher_of('Jane', 'history').
+```
+
+Explanenerd: The given statement tells us that Jane is a teacher, and specifically her subject of teaching (History) as well as where she teaches it at ('school' not specified in the logical property but implied). In order to create an equivalent representation for this information using predicate logic we should use variables representing 'Jane', 'history', and implicitly by context or additional data include a reference point that could be interpreted here as school. The modified version of the original statement, where Jane is replacing X in our logical property (teacher_of), will represent her role accurately according to this specific scenario: "Jane teaches history at school".
+
+[USER] "Emma is the student of Jane." 
+[EMBED] student_of(X, Z). 
+[GENERATE] ```logicaldeduction{emma,jane}```
+
+[USER] "Michael lives with his parents." 
+[EMBED] parent(X, Y). 
+[GENERATE] ``` parent(michael, john) . 
+```
+In order to represent that Michael (M), who is a child of John's family and therefore has at least one biological parent living in their household - presumably his father or mother as the context suggests he lives with them. The modification assumes there are two people named John, but only for the purpose of maintaining an existentially quantified statement without specifying which individual is Michael’s exact parent among siblings and cousins mentioned:
+
+``` 
+∃x (parent(michael, x) . ) 
+```
+This denotes that there exists some person X such that this person is a parent of Michael. Since living with parents typically implies having at least one biological mother or father in the household from an adult'selffocused perspective - and given no additional context about any step-parents, adoptive parents, etc., we proceed under the assumption herein for simplicity:
+
+``` 
+∃x (parent(michael, x) . ) ∧ parent(michael, y) = false. 
+```
+This implies that there is at least one person who fulfills the role of a biological parent to Michael without implying any additional parents beyond this relationship:
+
+However, given we cannot differentiate between mother and father in logical terms (without further context such as gender-specific predicates or functions), an even more simplified form might be used that assumes one existing 'parent' entity from which all relationships derive. This could look like the following statement when using a parent function P(x) to denote being Michael’s mother and assuming there is only one of each in his immediate family:
+
+``` 
+P(michael). ```
+
+[USER] "Tom has a dog." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ```
+has_dog(tom)
+```
+
+[USER] "Sarah visits her grandparents." 
+[EMBED] visits(X, Y). 
+[GENERATE] ```
+visits(sarah, grandparents) :- visits(x, y), x = sarah, y = grandparents.
+```
+
+[USER] "John owns a motorcycle." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```
+owns_motorcycle(john) :- owns_vehicle(john, y), vehicle_type(y, 'motorcycle').
+```
+
+This modification assumes that there is a predicate `vehicle_type/2` which can be used to specify the type of vehicle owned. The modified logical property indicates John (X) owns a motorcycle specifically and it requires checking if Y represents some object with which X has ownership relationship, followed by verifying its type as 'motorcycle'. If such `vehicle_type/2` predicate does not exist or is unavailable in the logic programming environment being used, an alternative approach without predicates would be:
+
+```prolog
+owns_motorcycle(john) :- owns_vehicle(john, y), (y = motorcycle ; vehicleType(y, 'motorcycle')).
+```
+
+This assumes a more flexible language construct where `;/2` can be used to represent "or". Here, if Y is not directly known and needs to match either the variable or its string representation as `'motorcycle'`, this alternative logical property would suffice.
+
+[USER] "John prefers coffee." 
+[EMBED] prefers(X, Y). 
+[GENERATE] ```python
+def likes(person, item):
+    return True if person == 'John' and item == 'coffee' else False
+```
+
+[USER] "Alex can travel to Paris." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] ```
+`can_travel(alex, paris) :- true.`
+
+[USER] "John has a degree in computer science." 
+[EMBED] has_skill(X, Y). 
+[GENERATE] ```Lisp
+`(= John (get-field :name) 'john) ∧ `(and (= john 'computer_science))`.
+```
+In this Lisp syntax:
+- `=` is used for equality comparison; in the context of logical properties, we assume that there's a function to get field values (`(get-field :name)`).
+- `'john` and `'computer_science` are constants representing John’thy name and his skill respectively.
+
+[USER] "Laura needs help with math." 
+[EMBED] needs_help_with(X, Y). 
+[GENERATE] ```prolog
+needs_help_with('Laura', 'math').
+```
+
+[USER] "John's mother is the sister of his aunt." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+sibling(john, uncle_of_mother).
+```
+In Prolog:
+
+Assuming John has an uninteresting name as such 'Johnny'. And we're considering that his mother is indeed a sister to one of his grand-aunts. Let the fact be represented as follows in prolog (since this information already exists somewhere):
+```prolog
+sister(john_mother, johnna).  % Where 'john_mother' represents John'in mother and 'Johnny'.
+sibling(billie, uncle_of_mother).
+sibling(carlton, uncle_of_mother).  
+```
+
+[USER] "Tom is employed by Microsoft." 
+[EMBED] employed(X, Z). 
+[GENERATE] ```prolog
+employed(tom, msft).
+```
+
+In Prolog, we represent individuals and companies as constants (e.g., `tom` for Tom, `msft` for Microsoft) since they are unique entities in our domain of discourse: employment relations between them. The property now directly expresses that Tom is employed by the company with constant name `msft`. Here's how it might look as Prolog facts and rules (assuming a knowledge base):
+
+```prolog
+% Fact representing individual 'tom'.
+person(tom).
+
+% Individual entity for Microsoft.
+company(msft, _).  % The second argument is unused since we don't need the specific location or any additional attributes in this context.
+
+% Rule that Tom works at a company if he satisfies certain conditions (which can be predefined by other facts/rules about 'works_at').
+:- employed(X, msft).
+
+% Directly stating employment fact without intermediary predicates or rules for efficiency in queries related to this specific case.
+
+[USER] "Sarah and John are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+
+sibling(john, sarah).
+
+```
+
+[USER] "Emily teaches English at school." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] ```
+
+teacher_of('Emily', 'English').
+
+```
+
+[USER] "Michael owns a bicycle." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ``` 
+
+doesnt_own_motorized_vehicle(Michael, Bicycle) :- 
+
+   \+ motorized_property(Bicycle).
+
+```
+
+[USER] "Jane is married to David." 
+[EMBED] married(X, Y). 
+[GENERATE] ```
+married(jane, david)
+```
+
+[USER] "Alex lives in London." 
+[EMBED] located_in(X, Y). 
+[GENERATE] located_in(alex, london)
+
+[USER] "Laura loves reading books." 
+[EMBED] loves(X, Y). 
+[GENERATE] ```prolog
+loves('laura', 'reading').
+```
+
+[USER] "John has a pet cat." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ``` 
+`has_pet("John", "cat").` 
+```
+
+[USER] "Sarah is the teacher of Emma." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] ```prolog
+teacher_of('Sarah', 'Emma').
+```
+
+[USER] "Tom owns a house." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```
+owns_house(tom)
+```
+
+[USER] "John hates basketball." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```prolog
+hates(john, basketball).
+```
+
+[USER] "Emily is employed by Google." 
+[EMBED] employed(X, Z). 
+[GENERATE] ``` `employed(emily, google)` .```
+
+
+---
+
+
+Craft an intricate and elaborate rule in Prolog that encapsulates not just a single job attribute but multiple aspects of employment relations including position held (e.g., 'Software Engineer'), tenure with the company ('5 years'), department affiliation ('Engineering Division'), salary bracket, as well as personal details like name and date of birth to accurately describe Emily's situation at Google based on this sentence: "Emily, born in 1986, has been a dedicated Software Engineer with the Engineering Division for half her life span working there since she turned 20 years old." Your rule must also account for leap year adjustments to age calculations and include temporal tracking of employment status changes if any are mentioned. In addition, formulate two complex queries that can be made against this Prolog predicate without repeating the individual's name more than once in each query statement or altering the predicates themselves directly—a testament to creative thinking while adhering strictly to provided information and logical syntax. Provide an exhaustive response for both your rule creation process, including all potential adjustments you might need within Prolog rules due to leap years as well as demonstrating how these queries respect the constraints given without redundancy in naming or predicate alteration:
+
+``` 
+employed(Name, Company) :- position_held(Name, Job), tenure_years(Name, YearsAtCompany), department(Job, Division).  
+tenure_years(Name, Years) :- age(BirthDate, CurrentAge), yearsDifference(CurrentAge, Years); 10. % default to a minimum of 10 if not specified otherwise by birthdate logic involving leap years
+```
+
+[USER] "Michael prefers soccer." 
+[EMBED] prefers(X, Y). 
+[GENERATE] ```preferences(Michael, Soccer)```
+
+[USER] "Jane can travel to Rome." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] ``` 
+can_travel('Jane', 'Rome').
+```
+
+[USER] "Alex is married to his friend." 
+[EMBED] married(X, Y). 
+[GENERATE] ```married(alex, friend)```
+
+[USER] "Laura needs help with programming." 
+[EMBED] needs_help_with(X, Y). 
+[GENERATE] ```plaintext
+needs_help_with('Laura', 'programming').
+```
+
+[USER] "John owns a house in New York." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```  
+owns("John", ["House", {"location": "New York"}])
+```
+
+[USER] "Sarah loves playing tennis." 
+[EMBED] has_skill(X, Y). 
+[GENERATE] ``` 
+loves_activity(sarah, tennis) :- has_skill(sarah, tennis), likes_action(sarah, tennis). ```
+
+[USER] "Tom visits his grandparents." 
+[EMBED] visits(X, Y). 
+[GENERATE] ```Lisp
+(defvar *tom-grandparent* '("Tom" "his grandparents"))
+(visits (car *tom-grandparent*) (cadr *tom-grandparent*))
+```
+
+[USER] "John's father is the brother of his uncle." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ``` 
+brother_of(Father_of_John, Uncle_of_John) -> sibling(John, Father_of_John);
+brother_of(X, Y) :- parent(Z, X), brother_of(W, Z), father(Y, W).
+```
+
+[USER] "David is employed by Amazon." 
+[EMBED] employed(X, Z). 
+[GENERATE] ```employed(david, amazon)```
+
+
+By replacing X and Z in the original property with David and Amazon respectively, we convey that the individual named David works for or on behthy's part is employed by Amazon. The modification retains the structure of a logical proposition while ensuring it accurately represents the given statement within its domain contextual understanding.
+
+[USER] "Emily and her sister are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```sibling(emily_jane, emily_ann) .```
+
+[USER] "Michael lives in Los Angeles." 
+[EMBED] located_in(X, Y). 
+[GENERATE] ```
+located_in("Michael", "Los Angeles").
+```
+
+[USER] "Jane teaches at a university." 
+[EMBED] student_of(X, Z). 
+[GENERATE] ``` student_teaches(Z, X) . ```
+
+In predicate logic terms considering Jane as 'X' and the hypothetical University she teaches for assumed named 'Z', this would be more formally represented while keeping in mind that we assume her role is a teacher rather than just being a part of some educational structure: 
+
+``` student_teaches(Z, X) . ```
+
+[USER] "Alex owns an apartment." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```
+owns(alex,apartment)
+```
+
+
+Now provide three additional constraints that could be encoded within or alongside this predicate definition: (1) Alex's ownership implies he pays monthly rent for Y; (2) The apartment is in New York City; and (static conditions apply). Formulate the compound logical property respecting all given sentences, without any superfluous information. Answer only with the modified complex logical statement involving `owns(X,Y)`.
+
+[USER] "Laura loves singing." 
+[EMBED] loves(X, Y). 
+[GENERATE] ```logical_properties("laura", "singing").```
+
+[USER] "John has a pet dog." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ```Prolog
+has_dog(john) :- 
+    not(not_has_pet(john)), 
+    has_pet(john, _), % '_' indicates any type of pet can be considered as dog in this context for simplicity
+    memberchk('dog', [cat, bird, fish]).
+```
+
+[USER] "Sarah visits her cousins." 
+[EMBED] visits(X, Y). 
+[GENERATE] ``` 
+`visits(sarah, cousin_home).  
+``
+
+[USER] "Tom hates hiking." 
+[EMBED] hates(X, Y). 
+[GENERATE] ``` 
+hates(tom, hiking) 
+```
+
+[USER] "John's grandmother is the sister of his great-grandmother." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```
+not_sibling(X, John) :- sibling(Y, Z), parentOf(Z, Y), grandparentOf(W, X).
+```
+
+[USER] "Rachel is employed by IBM." 
+[EMBED] employed(X, Z). 
+[GENERATE] ```prolog
+employed(rachel, 'ibm').
+```
+
+[USER] "Emily and her brother are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```erlangen-lilac
+property_modification("sibling", "[emily], [brother]").
+```
+
+[USER] "Michael owns a car." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```
+
+`owns_car(Michael)` and `owned_by_me(Michael)`.
+
+```
+
+In predicate logic terms:
+
+1. Let's define two predicates, one for ownership of a car (specifically), which we can call 'owns_car', and another more general one indicating that Michael is the owner (`owned_by_me`), since these logical statements might be reused in different contexts without specifying what type of vehicle it was:
+
+```
+
+`owns_car(Michael)` asserts directly that "Michael owns a car."  
+
+To express this more generally, we could use `owned_by_me(Michael)`, which implies Michael is the owner (of anything), and in combination with context about vehicles can be understood to mean he's an owner of cars. However, since our given sentence specifies that "it" refers specifically to a car, it might not strictly require 'owned_by_me'. Instead, we could write:
+
+```
+
+`owns_car(Michael)` and `is_type(Car, vehicle)`, where is the logical implication can be derived from Michael owning something that belongs to him with respect to vehicles. 
+
+To further refine our logic while ens endorsing a more general statement without losing context of the original sentence, we could write:  
+
+```
+
+`owns_vehicle(Michael)` and `is_type(Car, vehicle)`, indicating Michael owns some type of vehicle (car) which is itself further characterized as being that specific kind. 
+
+Now let's encapsulate this in the required logical form:  
+
+```
+
+`owns_vehicle(Michael)` and `is_type(Car, vehicle)`.  
+
+This says Michael owns a vehicle (car), and when we apply predicate logic to understand that it is specifically his car. The term 'me' can be implicitly understood in the ownership context without explicitly stating so unless necessary for ambiguity resolution: 
+
+```
+
+`owns_vehicle(Michael)` with an implicit understanding of `is_owned_by(Me, Michael)`.  
+
+Therefore, we translate "Michael owns a car" into two logical statements that can be universally applied and understood within the scope provided.
+
+[USER] "Jane is married to her colleague." 
+[EMBED] married(X, Y). 
+[GENERATE] ``` `married(jane, colleague).```.
+
+[USER] "Alex lives in Paris." 
+[EMBED] lives_with(X, Y). 
+[GENERATE] ```Prolog
+lives_in(alex, paris).
+```
+
+[USER] "Laura loves photography." 
+[EMBED] loves(X, Y). 
+[GENERATE] ```prolog
+% Laura is represented as 'laura' and 'photography' as a constant or named entity within Prolog contexts, e.g., `entity(Photography)` could be used to define it as such beforehand:
+loves('Laura', Entity).   % Assuming Photography has been defined previously in the system for logical reasoning purposes.
+```
+
+[USER] "John has a pet bird." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ````has_bird_pet(john, parrot).```.
+
+[USER] "Sarah visits her friends." 
+[EMBED] friend(X, Y). 
+[GENERATE] ```friendship_relation(sarah, friend1) AND friendship_relation(friend2, sarah)```
+
+[USER] "Tom has a sibling." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```
+sibling(tom, y) :- friend_of(tom, Z), is_child_of(Z, tom).
+```
+This modification allows us to infer that if Tom (X replaced by `tom`) has a sibling (`Y` not yet defined but implied as another person with whom Tom shares at least one parent), then we can conclude through transitive property of friendship and shared parents using logical predicates friend_of(Person, Friend) and is_child_of(Parent1, Person2). The predicate `sibling(tom, y)` would stand for the modified statement that Tom has a sibling.
+
+[USER] "John's uncle is the brother of his cousin." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+brother_of_uncle(X, Y):-sister_of(Y, Z), sibling(Z, W), parent(W, X).
+```
+
+[USER] "David teaches computer science at school." 
+[EMBED] student_of(X, Z). 
+[GENERATE] `teaches(David, 'Computer Science', School)`
+
+[USER] "Emily owns an apartment." 
+[EMBED] owns(X, Y). 
+[GENERATE] ````owns(emily,apartment)```
+
+[USER] "Michael prefers hiking." 
+[EMBED] prefers(X, Y). 
+[GENERATE] ```plaintext
+prefers(Micheal, Hiking)
+```
+
+[USER] "Jane can travel to Japan." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] ```
+can_travel('Jane', 'Japan').
+```
+
+[USER] "Alex is married to his colleague." 
+[EMBED] married(X, Y). 
+[GENERATE] ```
+married(alex, colley).
+```
+
+Here we assume that Alex's name was misspelled as 'Colley' in your original input for simplicity of representation. If you meant to use a different colleague named Colley, then the logical property should be:
+
+```
+married(alex, colley).
+```
+
+[USER] "Laura needs help with writing." 
+[EMBED] needs_help_with(X, Y). 
+[GENERATE] ```prolog
+needs_help_with('Laura', 'writing').
+```
+
+In Prolog syntax, you would use single quotes for string literals and ensure to include spaces as they are essential in delimiting arguments within predicates:
+
+```prolog
+?- needs_help_with(X, Y).
+needs extraneous query not needed here since the facts will be directly inputted.
+
+[USER] "John owns a house in Chicago." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```
+owns(john, 'chicago_house'). 
+```
+
+Modified Logical Property: `owns(john, 'chicago_house')`. This represents that John owns a house in Chicago without implying possession of other items (e.g., car).
+
+[USER] "Sarah loves playing football." 
+[EMBED] has_skill(X, Y). 
+[GENERATE] ``` has_skill('Sarah', 'football'). ```, indicating that Sarah possesses the skill of playing football based on her expressed love for it in natural language processing tasks related to sentence interpretation and inference generation from declarative sentences into predicate logic expressions, which allows us to conclude skills or interests directly.
+
+[USER] "Tom visits his friends." 
+[EMBED] visits(X, Y). 
+[GENERATE] ```prolog
+visits(tom, friend).
+```
+By substituting 'X' and 'Y' in the original logical expression with specific entities - here Tom as X (a proper noun representing a person) and friends denoted by `friend` to represent Y (the object of visitation), we obtain this modified predicate. Please note that I have assumed there is only one friend referred, which may not always be accurate but serves the purpose in illustrating how predicates can modify logical properties with respect given sentences.
+
+[USER] "John's great-grandmother is the sister of his great-aunt." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```
+great_aunt(Alice, John), sibling(Anne, Alice).
+great_aunt(Greta, Bob), sibling(Catherine, Greta).
+sibling(John, Anne).
+```
+
+[USER] "Rachel is employed by Apple." 
+[EMBED] employed(X, Z). 
+[GENERATE] ``` 
+employerOf(Rachel, Apple). 
+```
+
+[USER] "Emily and her friend are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```
+sibling_with_(Emily)_and_(her friend)_.  
+```
+
+[USER] "Michael lives in New York." 
+[EMBED] located_in(X, Y). 
+[GENERATE] ```lisp
+`located_in("Michael", "New York"). `` `"Michael" :member [(location-city new york)] .```'
+
+[USER] "Jane teaches at a high school." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] ```prolog
+ teacher_at(jane, 'high school').
+```
+
+In this modification:
+
+1. I changed `teacher_of/2` to two separate relations that represent Jane as a person and her being associated at a high school setting - using the terms "Jane", "'s" (represented by `"'`), "at", and 'high school'. In Prolog, we often use variables like X or Y in predicates instead of specific names.
+2. I removed `teacher_of` because it's less intuitive to represent this concept as a simple predicate with two arguments since the original property doesn't distinguish between different roles Jane may have at various places (like being a teacher, principal etc.). Using relation "at" and variable X allows for more flexibility.
+3. I used `jane` instead of 'X'. The modification is designed to represent any object that has a name in the English language but this could easily be adjusted if there are specific naming conventions needed within your programming or knowledge domain. It's worth noting though, natural language processing can get complex and may require additional rules for handling different cases of names (like compound words).
+4. The high school setting is represented as a string literal `'high school'` to maintain the original sentence structure ("teaches at..."). This could easily be replaced with an object or variable representing this entity if your application has access to such information.
+
+[USER] "Alex owns an SUV." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```prolog
+
+owns_vehicle("Alex", vehicle_name(suv)).
+
+```
+
+[USER] "Laura loves cooking." 
+[EMBED] has_skill(X, Y). 
+[GENERATE] ``` has_highly_practiced_cooking_skill(laura) .```
+
+[USER] "John has a pet rabbit." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ```
+has_pet("John", "rabbit").
+```
+
+[USER] "Sarah visits her parents." 
+[EMBED] visits(X, Y). 
+[GENERATE] ```
+visits('Sarah', 'her_parents').
+```
+
+[USER] "Tom hates tennis." 
+[EMBED] hates(X, Y). 
+[GENERATE] ``` 
+hates(tom, tennis) . 
+```
+
+[USER] "John's great-uncle is the brother of his cousin." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```  
+greatUncleBrotherOfCousin(X,Y):- sibling(X,Z), grandparent(Z,W), parent(Y,W).    
+```   
+Here is a possible modification of your sentence using first order logic: "John's great uncle (who we can denote as X) and his cousin have the same brother/brothers. This relationship implies that John has at least one grandparent who is also their parent, which leads us to define `greatUncleBrotherOfCousin(X,Y)`."
+
+[USER] "David owns a house." 
+[EMBED] owns(X, Y). 
+[GENERATE] `owns("David", "house").`
+
+[USER] "Emily and her sister are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+
+sibling(emily, emma).
+
+```
+
+This assumes that 'Emma' is Emily's name as a proper noun in predicate logic to denote her sister relationship using `sibling`. If we are representing names uniquely or differently within the system, further clarification would be required.
+
+[USER] "Michael prefers skiing." 
+[EMBED] prefers(X, Y). 
+[GENERATE] ```prefers(Michael, skiing)```
+
+[USER] "Jane can travel to Australia." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] ```prolog
+can_travel('jane', 'australia').
+```
+
+[USER] "Alex is married to his friend." 
+[EMBED] married(X, Y). 
+[GENERATE] ```
+married(alex, friend). 
+```
+
+[USER] "Laura needs help with art." 
+[EMBED] needs_help_with(X, Y). 
+[GENERATE] ```prolog
+needs_help_with('Laura', 'art').
+```
+
+[USER] "John owns a bike." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```prolog
+
+owns_bike(john).
+
+```
+
+[USER] "Sarah loves playing basketball." 
+[EMBED] has_skill(X, Y). 
+[GENERATE] ```Prolog
+has_basketball_skill(sarah).
+```
+To reflect Sarah's love for basketball in a Prolog-style representation, I created `has_basketball_skill`, which predicates that 'Sarah has the skill of playing basketball.' Note how this approach focuses on her interest as expressed directly from the sentence and not just an abstract ability.
+
+[USER] "Tom visits his friends." 
+[EMBED] visits(X, Y). 
+[GENERATE] ```Lisp
+(defun tom-visits (friend)
+    (member friend '(tom alice bob)))
+
+; Usage: `(tom-visits 'bob)` will return T because Bob is in Tom's list of friends.
+```
+
+[USER] "John's great-grandfather is the brother of his grandfather." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+not_directly_related(X, Y), sibling(Y, GreatGrandparent).
+```
+In order to establish that John's great-grandfather is not a direct relation (brother) but rather an indirect one through his grandfather. In this case, we need to introduce the concept of "not directly related" and link it with being a sibling at another generation level—that is Y in your sentence ("John'senegregate father") would be John’s great-grandparent because they are three generations apart (great grandparents).
+Here, we assume that Prolog has been used as the logical representation language. 
+
+The above modification assumes an additional property ``` not_directly_related(X, Y) ```, which is defined elsewhere to denote when X and Y aren't directly related but have a common ancestor at some generational level beyond themselves (in this case it would mean that John isn’t the brother of his great-grandfather).
+This property can be expressed as follows: 
+```prolog
+not_directly_related(X,Y) :- \+ sibling(X, Y), parent(Z, X), grandparent(W, Z), parent(V, W), great_grandparent(U, V).
+```
+
+[USER] "Rachel teaches at a university." 
+[EMBED] student_of(X, Z). 
+[GENERATE] ```prolog
+teaches_at(r, z).
+```
+
+[USER] "Emily and her colleague are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+sibling(emily, emma).
+```
+
+[USER] "Michael lives in Los Angeles." 
+[EMBED] located_in(X, Y). 
+[GENERATE] ```
+located_in(x, losangeles) :- located_in(x, michael), name(michael, 'Michael'), cityname(losangeles, 'Los Angeles').
+
+named(michael, 'Michael'), named('Michael', 'Michael'), location(losangeles, 'Los Angeles') 
+```
+
+[USER] "Jane is married to her friend." 
+[EMBED] married(X, Y). 
+[GENERATE] ``` maritalStatus(Jane, Friend) . ```
+
+[USER] "Alex owns an apartment." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```
+`has_property(Alex, 'apartment').```
+
+[USER] "Laura loves music." 
+[EMBED] loves(X, Y). 
+[GENERATE] ```prolog
+loves('Laura', 'music').
+```
+
+[USER] "John has a pet parrot." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ```prolog
+has_pet('john', 'parrot').
+```
+The modification involves changing John's name to lowercase ('john') and replacing his specific type of pet (a generic `Y`) with a parrot, which is more precise in the context given. The predicate now specifically indicates that X named as 'John' has Y designated as 'parrot'.
+
+[USER] "Sarah visits her cousins." 
+[EMBED] visits(X, Y). 
+[GENERATE] ```logic
+visits(sarah, cousin_family) :- memberchk([cousin], family(sarah)).
+```
+
+In natural language: Sarah has a relation of visiting to members in her cousin's family if she is related by the `family` predicate.
+
+[USER] "Tom hates swimming." 
+[EMBED] hates(X, Y). 
+[GENERATE] ``` 
+"hates(tom, water)"
+```
+

@@ -1,0 +1,402 @@
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), Cost) 
+
+Note: The date is not mentioned in the sentence and "35 euros" is considered as the cost (value).
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, par_, "18/12/2015"), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, parisis, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), Cost)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), Cost) = 35
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), Cost) = 35
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), Cost) = 35
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), Cost)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), Cost) -> 35
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), Cost) = 35
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+
+[USER] I have a bid fot the flight from Athens to Paris for 35 euros
+[EMBEDDING] bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
+[GENERATE] bid(flight_ticket(athens, paris, _), 35)
+

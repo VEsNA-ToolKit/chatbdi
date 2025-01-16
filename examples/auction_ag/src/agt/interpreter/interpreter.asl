@@ -15,7 +15,9 @@
     :   client(Address)
     <-  makeArtifact(llamaArtName, "env.LLaMAArtifact", [], LLamaArtId);
         focus(LLamaArtId);
-        .print("LLaMA Artifact created.").
+        .print("LLaMA Artifact created.");
+        .wait(10000);
+        !init_embeddings.
 
 // NATURAL LANGUAGE TO KQML
 

@@ -1,0 +1,12 @@
++!start
+true
+auction(service, flight_ticket(paris, athens, "15/12/2015"))
+auction(service, flight_ticket(athens, paris, "18/12/2015"))
+b(V, A)
+bid(Service, V)
+L
+.length(L, 4)
+winner(Service, W)
++auction(service, D)
+bid(flight_ticket(paris, athens, "15/12/2015"), Cost)
+bid(flight_ticket(athens, paris, "18/12/2015"), Cost)

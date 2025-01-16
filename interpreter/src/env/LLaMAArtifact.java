@@ -16,11 +16,37 @@ public class LLaMAArtifact extends Artifact {
     private final String API_URL = "http://localhost:11434/api/chat"; 
     private final HttpClient client = HttpClient.newHttpClient();
 
+    private Map<Literal, float[]> embeddings;
+
+    @OPERATION
+    public void initEmbeddings(Object[] literals){
+        System.out.println("Initializing embeddings");
+        for (String l : (String[]) literals) {
+            get_embedding("nomic-embed-text", l);
+        }
+    }
+
+    @OPERATION
+    public void trial() {
+        System.out.println("Trial");
+    }
+
     @OPERATION
     public void classify_performative(String msg, OpFeedbackParam<Literal> performative){
         String answer = send_llama("nl2performative", msg);
         performative.set(Literal.parseLiteral(answer));
     }
+
+
+    // TODO
+    // @OPERATION
+    // public void translate_msg(String msg, Object aux, OpFeedbackParam<Literal> translated_msg) {
+    //     JSONObject input = new JSONObject();
+    //     input.put("msg", msg);
+    //     input.put("hints", new JSONArray(aux));
+    //     String answer = send_llama("nl2kqml", input.toString());
+    //     translated_msg.set(Literal.parseLiteral(answer));
+    // }
 
     @OPERATION
     public void extract_entities(String performative, String msg, OpFeedbackParam<Literal> kqml_msg) {
@@ -93,6 +119,40 @@ public class LLaMAArtifact extends Artifact {
             JSONObject answer = jsonResponse.getJSONObject("message");
             String chatResponse = answer.getString("content");
            return chatResponse;
+
+        } catch (Exception e) {
+            failed("Error calling LLaMA API: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private String get_embedding( String model, String message ) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("model", model);
+            json.put("stream", false);
+            JSONArray messages = new JSONArray();
+            JSONObject userMessage = new JSONObject();
+            userMessage.put("role", "user");
+            userMessage.put("content", message);
+            messages.put(userMessage);
+            json.put("messages", messages);
+            System.out.println( "[DEBUG] JSON: " + json.toString());
+            
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
+                .build();
+            
+            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            String body = httpResponse.body();
+            System.out.println(body);
+            // JSONObject jsonResponse = new JSONObject(body);
+            // System.out.println(jsonResponse.toString());
+            // JSONObject answer = jsonResponse.getJSONObject("message");
+            // String chatResponse = answer.getString("content");
+           return "";
 
         } catch (Exception e) {
             failed("Error calling LLaMA API: " + e.getMessage());

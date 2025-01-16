@@ -1,0 +1,485 @@
+[USER] "John is the father of Sarah." 
+[EMBED] parent(X, Y). 
+[GENERATE] parent(john, sarah)
+
+[USER] "Sarah is the child of John." 
+[EMBED] parent(X, Y). 
+[GENERATE] `child(Y, 'John').`, `parent('John', Y)`. (In Prolog syntax, the order is usually important.) The first statement indicates that 'John' has a child named Y, while the second statement asserts that Y is a parent of 'John'.
+
+[USER] "John's sister is Sarah." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `sibling(X, 'Sarah') :- name(X, 'John'), sister(X, _).`
+
+Here, we assume that John's sister is Sarah and create a rule that infers that any individual X who shares the same name as John (i.e., is named John) and has Sarah as his/her sister will be a sibling of Sarah.
+
+[USER] "John is married to Emily." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(John, Emily).`
+
+[USER] "Emily works in marketing." 
+[EMBED] employed(X, Z). 
+[GENERATE] `marketing_employed(emily)`.
+
+[USER] "John is a friend of Alex." 
+[EMBED] friend(X, Y). 
+[GENERATE] friend(Alex, John).
+
+[USER] "John owns a car." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] `owns_car(john)`
+
+[USER] "The Smiths live in Chicago." 
+[EMBED] loves(X, Y). 
+[GENERATE] lives_in(Chicago, X), last_name(X, 'Smith').
+
+[USER] "John loves to read." 
+[EMBED] loves(X, Y). 
+[GENERATE] loves(John, reading)
+
+[USER] "Jane hates spiders." 
+[EMBED] loves(X, Y). 
+[GENERATE] `hates(Y, X), where Y represents 'spiders' and X is a variable representing any entity. This reflects that if an entity is a spider, it will be hated by Jane (or any other entity represented by X).
+
+[USER] "Jane teaches history at school." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] `teaches_history_at_school(jane).`
+
+[USER] "Emma is the student of Jane." 
+[EMBED] student_of(X, Z). 
+[GENERATE] `student_of(Emma, Jane).`
+
+[USER] "Michael lives with his parents." 
+[EMBED] parent(X, Y). 
+[GENERATE] `parent(P1, Michael).` and `parent(P2, Michael)` (where P1 and P2 represent the two parents of Michael)
+
+[USER] "Tom has a dog." 
+[EMBED] friend(X, Y). 
+[GENERATE] owns_dog(tom)
+
+[USER] "Sarah visits her grandparents." 
+[EMBED] parent(X, Y). 
+[GENERATE] `grandparent_of(Y, Sarah).` or `visited_by_grandparents(Sarah).` These properties assume that Sarah's grandparents are the ones being visited in the given sentence.
+
+[USER] "John owns a motorcycle." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] `owns_vehicle(john, 'motorcycle').`
+
+[USER] "John prefers coffee." 
+[EMBED] friend(X, Y). 
+[GENERATE] prefers_coffee(John)
+
+[USER] "Alex can travel to Paris." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] `can_travel('Alex', 'Paris').`
+
+[USER] "John has a degree in computer science." 
+[EMBED] employed(X, Z). 
+[GENERATE] `has_degree_in_computer_science(john)`.
+
+[USER] "Laura needs help with math." 
+[EMBED] parent(X, Y). 
+[GENERATE] `needs_help_with(math, laura).`
+
+[USER] "John's mother is the sister of his aunt." 
+[EMBED] parent(X, Y). 
+[GENERATE] Based on the given sentence, we can infer that John's aunt (let's call her Z) and John's mother (let's call her M) share a parent, which means they are siblings. This relation can be represented as `sibling(M,Z)`.
+
+Furthermore, since John's aunt is also his mother's sister, it implies that John's mother (M) and his aunt's mother (let's call her A, who is also John's grandmother) are sisters too. This relation can be represented as `sibling(M,A)`.
+
+Since M and A are sisters, they share a parent, which we will call P. So, we have `parent(P, M)` and `parent(P, A)`.
+
+Now, let's connect John to his grandmother (A). Since A is John's grandmother, that means John's mother (M) is A's daughter, so `parent(A, M)`.
+
+Finally, since M is John's mother, we have `parent(M, John)`, and since P is John's grandmother (A's parent), we also have `parent(P, John)`.
+
+From these relations, the modified logical properties would be:
+
+- `sibling(M,Z)`
+- `sibling(M,A)`
+- `parent(P, M)`
+- `parent(P, A)`
+- `parent(A, M)`
+- `parent(M, John)`
+- `parent(P, John)`.
+
+[USER] "Tom is employed by Microsoft." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(tom, microsoft).`
+
+[USER] "Sarah and John are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] sibling(sarah, john).
+
+[USER] "Emily teaches English at school." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] `teaches_english_at_school(emily)`.
+
+[USER] "Michael owns a bicycle." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] owns_vehicle('Michael', 'bicycle').
+
+[USER] "Jane is married to David." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(Jane, David).`
+
+[USER] "Alex lives in London." 
+[EMBED] loves(X, Y). 
+[GENERATE] Residence(Alex, London)
+
+[USER] "Laura loves reading books." 
+[EMBED] loves(X, Y). 
+[GENERATE] loves(Laura, 'books').
+
+[USER] "John has a pet cat." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] `has_pet(John, cat).`
+
+[USER] "Sarah is the teacher of Emma." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] `teacher_of('Sarah', 'Emma').`
+
+[USER] "Tom owns a house." 
+[EMBED] owns(X, Y). 
+[GENERATE] `owns(tom, a_house)`
+
+[USER] "John hates basketball." 
+[EMBED] hates(X, Y). 
+[GENERATE] `hates(John, basketball)`
+
+[USER] "Emily is employed by Google." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed( 'Emily', 'Google' ).`
+
+[USER] "Michael prefers soccer." 
+[EMBED] friend(X, Y). 
+[GENERATE] `prefers(individual('Michael'), activity('soccer')).`
+
+[USER] "Jane can travel to Rome." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] `can_travel('Jane', 'Rome').`
+
+[USER] "Alex is married to his friend." 
+[EMBED] friend(X, Y). 
+[GENERATE] `married_to(A, B), friend(B, A).`
+
+[USER] "Laura needs help with programming." 
+[EMBED] loves(X, Y). 
+[GENERATE] `needs_help_with(Laura, programming).`
+
+[USER] "John owns a house in New York." 
+[EMBED] owns(X, Y). 
+[GENERATE] owns(john, a_house_in_new\_york)
+
+[USER] "Sarah loves playing tennis." 
+[EMBED] loves(X, Y). 
+[GENERATE] plays_tennis(sarah)
+love_for_tennis(sarah)
+
+[USER] "Tom visits his grandparents." 
+[EMBED] parent(X, Y). 
+[GENERATE] `grandparent(Y), person(X), visitedBy(X, Y)`.
+
+Here's the explanation:
+1. `grandparent(Y)` represents that the variable 'Y' is a grandparent (either paternal or maternal).
+2. `person(X)` represents that the variable 'X' is a person.
+3. `visitedBy(X, Y)` represents that the person X has visited Y.
+
+In this case, Tom (the visitor) visited his grandparents, so we can deduce that there exists a grandparent (Y) such that Tom (X) visited them.
+
+[USER] "John's father is the brother of his uncle." 
+[EMBED] parent(X, Y). 
+[GENERATE] From the given sentence, we can infer that John's uncle and John's father share a common parent (let's call them Z for convenience), which implies `father(Z, John_Father)` and `brother(Z, John_Uncle)`. However, since the sentence doesn't specify any direct relationship between John and Z, we can't create a specific parent-child relation between them.
+
+We can deduce that John's father is related to John in some way (uncle or cousin), but without more information, it's not possible to create a `parent(X, John)` rule with certainty based on the provided sentence alone.
+
+If we assume Z as the root node in our logical property, we can write:
+
+```
+father(Z, John_Father), brother(Z, John_Uncle).
+```
+
+This states that there exists a person Z who is the father of John's father and the brother of John's uncle. However, this doesn't directly relate to any `parent(X, Y)` relation between specific individuals in our logic program.
+
+[USER] "David is employed by Amazon." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(david, amazon).`
+
+[USER] "Emily and her sister are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] sibling(emily, X), where X is another variable representing Emily's sister.
+
+[USER] "Michael lives in Los Angeles." 
+[EMBED] loves(X, Y). 
+[GENERATE] LivesIn(Michael, LosAngeles)
+
+[USER] "Jane teaches at a university." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] `teaches_at(Jane, 'university').`
+
+[USER] "Alex owns an apartment." 
+[EMBED] friend(X, Y). 
+[GENERATE] owns_apartment(alex).
+
+However, to relate this to the 'friend' predicate, you might want to consider something like:
+
+knows_apartment_owner(X, alex).
+
+This suggests that if X knows Alex, they know that Alex owns an apartment.
+
+[USER] "Laura loves singing." 
+[EMBED] loves(X, Y). 
+[GENERATE] loves(Laura, singing)
+
+[USER] "John has a pet dog." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] `has_pet(John, dog).`
+
+[USER] "Sarah visits her cousins." 
+[EMBED] sibling(X, Y). 
+[GENERATE] parent_of(C1, Sarah), cousin(C1, C2), visit(Sarah, C2).
+
+In this modification, we've introduced new predicates (parent_of, cousin, and visit) to represent the relationships between family members and the action of visiting in the given sentence. The sibling relationship is still implicitly represented through the cousin predicate, as cousins share at least one common parent.
+
+[USER] "Tom hates hiking." 
+[EMBED] hates(X, Y). 
+[GENERATE] `hates(Tom, hiking)`
+
+[USER] "John's grandmother is the sister of his great-grandmother." 
+[EMBED] parent(X, Y). 
+[GENERATE] `grandparent(Grandmother_of_John, John).`
+   `sibling(Grandmother_of_John, Great_grandmother_of_John).`
+
+These properties represent that the individual named "Grandmother of John" is a grandparent of John (i.e., John's grandmother) and shares the same great-grandparent with him (i.e., his sister is his great-grandmother).
+
+[USER] "Rachel is employed by IBM." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(Rachel, IBM).`
+
+[USER] "Emily and her brother are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] sibling(Emily, Brother), where Brother is a variable representing Emily's brother.
+
+[USER] "Michael owns a car." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] owns_car(michael)
+
+[USER] "Jane is married to her colleague." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(Jane, Colleague_of_Jane).`
+
+[USER] "Alex lives in Paris." 
+[EMBED] loves(X, Y). 
+[GENERATE] ResidesIn(Alex, Paris)
+
+[USER] "Laura loves photography." 
+[EMBED] loves(X, Y). 
+[GENERATE] loves(Laura, photography)
+
+[USER] "John has a pet bird." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] `has_pet(John, bird).`
+
+[USER] "Sarah visits her friends." 
+[EMBED] friend(X, Y). 
+[GENERATE] `visits_friend(Sarah).`
+
+[USER] "Tom has a sibling." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `has_sibling(X).`
+
+[USER] "John's uncle is the brother of his cousin." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `cousin_of(Z, John), uncle_of(Y, Z), brother(Y, X)`.
+
+Here's what each part means:
+1. `cousin_of(Z, John)` - John has a cousin (let's call this person Z).
+2. `uncle_of(Y, Z)` - Somebody (let's call this person Y) is the uncle of Z. Since we know Z is John's cousin, Z and John share at least one parent, so Y must be a sibling of John's parent or John's parent himself/herself.
+3. `brother(Y, X)` - Y is the brother of X. This tells us that Y and X are male siblings, which reinforces the previous condition that Y could potentially be John's father if he has no other brothers. However, since the sentence does not explicitly state that Y is a parent of John, it is not possible to derive that relationship from this information alone. In this case, Y could also be a different uncle or cousin of John's parent (or even an unrelated third party), as long as they are siblings with X.
+
+[USER] "David teaches computer science at school." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] `teaches_at_school(david, computer_science)`.
+
+[USER] "Emily owns an apartment." 
+[EMBED] married(X, Y). 
+[GENERATE] `lives_in_an_apartment(emily).`
+
+[USER] "Michael prefers hiking." 
+[EMBED] visits(X, Y). 
+[GENERATE] `prefers_activity(agent, 'hiking').` (This is a simplified representation of the preference, as it doesn't explicitly state the agent is Michael, but it can be inferred from the context.)
+
+[USER] "Jane can travel to Japan." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] `can_travel('Jane', 'Japan').`
+
+[USER] "Alex is married to his colleague." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(alex, Colleague), where 'Colleague' represents the specific individual who is Alex's colleague and colleague is a defined term or function that returns this individual.
+
+[USER] "Laura needs help with writing." 
+[EMBED] loves(X, Y). 
+[GENERATE] It is not immediately apparent how to modify a property like `loves(X, Y)` based on the sentence "Laura needs help with writing." One possible approach could be to introduce a new predicate that relates Laura and someone who can assist her with writing, for example:
+
+```
+canAssistWriting(A, B) :- writesWell(A), willingToHelp(A, B).
+needsHelpWithWriting(laura).
+```
+
+In this modified property, `writesWell(A)` could represent the ability to write well, and `willingToHelp(A, B)` could represent a person's willingness to help another person with something. The fact that Laura needs help with writing is captured by the assertion `needsHelpWithWriting(laura)`. You can then use this information to find a person who can assist Laura with her writing by querying the `canAssistWriting/2` predicate.
+
+[USER] "John owns a house in Chicago." 
+[EMBED] owns(X, Y). 
+[GENERATE] `owns(John, a_house_in_Chicago)`
+
+[USER] "Sarah loves playing football." 
+[EMBED] loves(X, Y). 
+[GENERATE] plays_football(sarah)
+loves(sarah, football)
+
+[USER] "Tom visits his friends." 
+[EMBED] friend(X, Y). 
+[GENERATE] `visits_friend(Tom).` (This property represents that Tom visits at least one of his friends.)
+
+Alternatively, if we want to express that Tom visits each of his friends separately:
+
+```
+{ Friend :- friend(Friend, Tom), visits(Tom, Friend) }.
+```
+
+In this case, the `friend/2` predicate should list all friends of Tom, and the `visits/2` predicate represents that Tom visits each friend.
+
+[USER] "John's great-grandmother is the sister of his great-aunt." 
+[EMBED] parent(X, Y). 
+[GENERATE] `sister(Z, W), parent(W, X), grandparent(Z, X), great_grandparent(Z, Y), parent(Y, X) .`
+
+In this modified property, 'X' represents John and 'Y' represents his great-aunt or great-grandmother. 'Z' is introduced to represent the common ancestor who is the sister of John's great-aunt or great-grandmother. The properties `parent(W, X)` and `grandparent(Z, X)` ensure that W (the common ancestor) is a parent of John (X), and Z (the common ancestor) is a grandparent of John. The property `great_grandparent(Z, Y)` ensures that Z is also the great-grandmother or great-aunt of John (Y). Finally, `parent(Y, X)` ensures that Y is indeed John's great-aunt or great-grandmother.
+
+[USER] "Rachel is employed by Apple." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(Rachel, Apple).`
+
+[USER] "Emily and her friend are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] sibling(emily, Friend), where Friend is a variable representing Emily's friend.
+
+[USER] "Michael lives in New York." 
+[EMBED] visits(X, Y). 
+[GENERATE] lives_in(michael, "New York").
+
+[USER] "Jane teaches at a high school." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] `teaches_at_high_school(Jane).`
+
+[USER] "Alex owns an SUV." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] `owns_vehicle(Alex, 'SUV').`
+
+[USER] "Laura loves cooking." 
+[EMBED] loves(X, Y). 
+[GENERATE] loves(Laura, cooking)
+
+[USER] "John has a pet rabbit." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] `has_pet(john, rabbit).`
+
+[USER] "Sarah visits her parents." 
+[EMBED] parent(X, Y). 
+[GENERATE] `parent(Z, Sarah).`, where `Z` represents the pair or either of Sarah's parents. This is assuming that Sarah has two parents and we don't have specific names for them. If we do know their names (e.g., Parent1, Parent2), then properties such as `parent(Parent1, Sarah)` and `parent(Parent2, Sarah)` can be used instead.
+
+[USER] "Tom hates tennis." 
+[EMBED] hates(X, Y). 
+[GENERATE] hates(tom, tennis)
+
+[USER] "John's great-uncle is the brother of his cousin." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `parent_of_cousin(Z, John), cousin(John, C), uncle(C, U), great(U, GU), parent_of(GU, Y), sibling(X, Y).`
+
+This property represents that if there exists a person Z who is the parent of John's cousin C, and C and John are cousins, and C is an uncle of someone (let's call them U), and U is great-uncle GU, and GU has a child Y, then X and Y are siblings.
+
+[USER] "David owns a house." 
+[EMBED] owns(X, Y). 
+[GENERATE] ownshouse(david)
+
+[USER] "Emily and her sister are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `sibling(Emily, Sister), atom(Sister).`
+
+[USER] "Michael prefers skiing." 
+[EMBED] loves(X, Y). 
+[GENERATE] ``` `prefers_skiing(michael). ```
+
+[USER] "Jane can travel to Australia." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] `can_travel('Jane', 'Australia').`
+
+[USER] "Alex is married to his friend." 
+[EMBED] friend(X, Y). 
+[GENERATE] `married_to_friend(Individual) :- Marriage(Individual, Spouse), friend(Spouse, Individual).`
+
+This new logical property represents that an individual is in a marriage relationship with someone who is their friend. The predicate `Marriage/2` is assumed to hold true for the specific married couples in your sentence, while `friend/2` follows the original definition.
+
+[USER] "Laura needs help with art." 
+[EMBED] loves(X, Y). 
+[GENERATE] `needsHelpWith(Laura, Art).`
+
+[USER] "John owns a bike." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] owns_vehicle('John', 'bike').
+
+[USER] "Sarah loves playing basketball." 
+[EMBED] loves(X, Y). 
+[GENERATE] plays_basketball(sarah)
+love(sarah, basketball)
+
+[USER] "Tom visits his friends." 
+[EMBED] friend(X, Y). 
+[GENERATE] `visits_his_friend(Tom).` This new property represents that Tom visits at least one of his friends. However, it doesn't account for the possibility that multiple friends could be visited in a single visit. If you want to express that Tom visits each friend individually, you would need additional properties such as `visits_friend(Tom, Friend1)`, `visits_friend(Tom, Friend2)`, etc., where Friend1 and Friend2 are variables representing specific friends of Tom.
+
+[USER] "John's great-grandfather is the brother of his grandfather." 
+[EMBED] parent(X, Y). 
+[GENERATE] `brother(A, B), grandparent(B, X), great_grandparent(A, X)`.
+
+Here, we are assuming 'John' as X in the original sentence. To represent this relationship logically, we create new variables A and B to represent John's grandfather and great-grandfather respectively. The property `brother(A, B)` represents that A (John's grandfather) is the brother of B (John's great-grandfather). The properties `grandparent(B, X)` and `great_grandparent(A, X)` ensure that both B and A are the grandparents and great-grandparents of 'John' (X), respectively.
+
+[USER] "Rachel teaches at a university." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] `teaches_at(Rachel, 'university').`
+
+[USER] "Emily and her colleague are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] sibling(emily, Colleague), where Colleague is a variable representing Emily's colleague. This new logical property indicates that Emily has a sibling relationship with the variable 'Colleague'.
+
+[USER] "Michael lives in Los Angeles." 
+[EMBED] loves(X, Y). 
+[GENERATE] ResidesIn(Michael, LosAngeles)
+
+[USER] "Jane is married to her friend." 
+[EMBED] married(X, Y). 
+[GENERATE] `married(Jane, Friend)`. In this case, 'Friend' represents Jane's specific friend mentioned in the statement. It should be replaced with the actual name or variable representing that specific individual in your knowledge base.
+
+[USER] "Alex owns an apartment." 
+[EMBED] friend(X, Y). 
+[GENERATE] `lives_in(apartment(Y), Alex).`
+
+Here, I assumed that the apartment owned by Alex can be represented as a constant `apartment(Y)`, and the fact that Alex lives in this apartment is represented as `lives_in(apartment(Y), Alex)`. This property suggests that there exists some constant Y such that Alex lives in the apartment with identifier Y.
+
+[USER] "Laura loves music." 
+[EMBED] loves(X, Y). 
+[GENERATE] loves(Laura, Music)
+
+[USER] "John has a pet parrot." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] `has_pet('John', 'parrot').`
+
+[USER] "Sarah visits her cousins." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `cousin_of(X, Sarah), parent_of(Z, X), sibling(Z, Y)`
+
+This new logical property states that if a person X is a cousin of Sarah, their parent Z shares the same parents as Y (i.e., they are siblings). This reflects the relationship described in the sentence "Sarah visits her cousins" by inferring the unknown relationships among the people mentioned or implied.
+
+[USER] "Tom hates swimming." 
+[EMBED] loves(X, Y). 
+[GENERATE] `dislikes(agent('Tom'), action('swimming'))`.
+
+Here, I've replaced the "loves" predicate (which typically implies a positive sentiment) with "dislikes" to reflect the given sentence's negative sentiment. The 'agent' and 'action' functions are used for better generalization; they can be replaced by variables or other specific names depending on the context of your knowledge base.
+

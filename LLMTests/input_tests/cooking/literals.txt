@@ -1,0 +1,9 @@
++!begin
+true
+calories(veal, unit(50, gr), 81)
+calories(pizza(napoletana), unit(1, piece), 443)
++calories(pasta(norma), unit(1, portion), 325)
+ingredients(pasta(bolognese), [veal, besciamella, tomato_sauce])
+ingredients(pizza(marinara), [flour, garlic, water, tomato])
++pairing(pizza(quattro_stagioni), wine(red))
++pairing(cabbage, beer(guinness))

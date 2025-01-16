@@ -1,0 +1,568 @@
+[USER] "John is the father of Sarah." 
+[EMBED] parent(X, Y). 
+[GENERATE] `parent(John, Sarah).`
+
+[USER] "Sarah is the child of John." 
+[EMBED] child(X, Y). 
+[GENERATE] `child(sarah, john).`
+
+[USER] "John's sister is Sarah." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+sibling(John, Sarah).
+```
+
+[USER] "John is married to Emily." 
+[EMBED] married(X, Y). 
+[GENERATE] ```prolog
+married(john, emily).
+```
+
+[USER] "Emily works in marketing." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(emily, marketing).`
+
+[USER] "John is a friend of Alex." 
+[EMBED] friend(X, Y). 
+[GENERATE] `friend(john, alex).`
+
+[USER] "John owns a car." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```prolog
+owns_vehicle(john, car).
+```
+
+[USER] "The Smiths live in Chicago." 
+[EMBED] located_in(X, Y). 
+[GENERATE] `located_in(the_Smiths, Chicago).`
+
+[USER] "John loves to read." 
+[EMBED] loves(X, Y). 
+[GENERATE] ```prolog
+loves(john, reading).
+```
+
+[USER] "Jane hates spiders." 
+[EMBED] hates(X, Y). 
+[GENERATE] `hates(jane, spiders).`
+
+[USER] "Jane teaches history at school." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] `teaches(history, jane).`
+
+[USER] "Emma is the student of Jane." 
+[EMBED] student_of(X, Z). 
+[GENERATE] `student_of(emma, jane).`
+
+[USER] "Michael lives with his parents." 
+[EMBED] parent(X, Y). 
+[GENERATE] ``` 
+lives_with(michael, X) & parent(X, michael).
+```
+
+[USER] "Tom has a dog." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ```prolog
+has_pet(tom, dog).
+```
+
+[USER] "Sarah visits her grandparents." 
+[EMBED] visits(X, Y). 
+[GENERATE] `visits(sarah, grandparents)`.
+
+[USER] "John owns a motorcycle." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```prolog
+owns_vehicle(john, motorcycle).
+```
+
+[USER] "John prefers coffee." 
+[EMBED] prefers(X, Y). 
+[GENERATE] ``` 
+prefers(John, coffee).
+```
+
+[USER] "Alex can travel to Paris." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] ```prolog
+can_travel(alex, paris).
+```
+
+[USER] "John has a degree in computer science." 
+[EMBED] has_skill(X, Y). 
+[GENERATE] ```prolog
+has_degree(John, computer_science).
+```
+
+[USER] "Laura needs help with math." 
+[EMBED] needs_help_with(X, Y). 
+[GENERATE] ```prolog
+needs_help_with(laura, math).
+```
+
+[USER] "John's mother is the sister of his aunt." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+parent(Mother, John).
+mother(Aunt, Uncle).
+sibling(Mother, Aunt).
+
+% Define 'sibling' such that it captures the relationship:
+% Mother is the sister of Aunt if both are siblings.
+
+sibling(X, Y) :- parent(ParentX, X), parent(ParentY, Y), ParentX = ParentY.
+```
+
+[USER] "Tom is employed by Microsoft." 
+[EMBED] employed(X, Z). 
+[GENERATE] ```prolog
+employed(tom, microsoft).
+```
+
+[USER] "Sarah and John are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+sibling(john, sarah).
+sibling(sarah, john).
+```
+
+[USER] "Emily teaches English at school." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] ```prolog
+teacher_of(emily, english).
+teaches_at(emily, english, school).
+```
+
+[USER] "Michael owns a bicycle." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```prolog
+owns_vehicle(michael, bicycle).
+```
+
+[USER] "Jane is married to David." 
+[EMBED] married(X, Y). 
+[GENERATE] ```prolog
+married(jane, david).
+```
+
+[USER] "Alex lives in London." 
+[EMBED] located_in(X, Y). 
+[GENERATE] `located_in(alex, london).`
+
+[USER] "Laura loves reading books." 
+[EMBED] loves(X, Y). 
+[GENERATE] `loves(laura, reading_books).`
+
+[USER] "John has a pet cat." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] `has_pet(john, cat).`
+
+[USER] "Sarah is the teacher of Emma." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] `teacher_of(sarah, emma).`
+
+[USER] "Tom owns a house." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```prolog
+owns_house(Tom).
+```
+
+[USER] "John hates basketball." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```prolog
+hates(john, basketball).
+```
+
+[USER] "Emily is employed by Google." 
+[EMBED] employed(X, Z). 
+[GENERATE] ```employed(emily, google).```
+
+[USER] "Michael prefers soccer." 
+[EMBED] prefers(X, Y). 
+[GENERATE] ```prolog
+prefers(michael, soccer).
+```
+
+[USER] "Jane can travel to Rome." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] ```prolog
+can_travel(jane, rome).
+```
+
+[USER] "Alex is married to his friend." 
+[EMBED] married(X, Y). 
+[GENERATE] ```prolog
+married(alex, X).
+friend(alex, X).
+```
+
+[USER] "Laura needs help with programming." 
+[EMBED] needs_help_with(X, Y). 
+[GENERATE] ```prolog
+needs_help_with(laura, programming).
+```
+
+[USER] "John owns a house in New York." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```prolog
+owns(john, house_in_new_york).
+```
+
+[USER] "Sarah loves playing tennis." 
+[EMBED] has_skill(X, Y). 
+[GENERATE] ```prolog
+has_skill(sarah, tennis).
+```
+
+[USER] "Tom visits his grandparents." 
+[EMBED] visits(X, Y). 
+[GENERATE] `visits(tom, grandparent_of(tom)).`
+
+[USER] "John's father is the brother of his uncle." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+parent(father(X), X).
+parent(Parent, X) :- sibling(Parent, Uncle), parent(Uncle, X).
+```
+
+[USER] "David is employed by Amazon." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(david, amazon).`
+
+[USER] "Emily and her sister are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+sibling(Emily, Sister).
+sibling(Sister, Emily).
+```
+
+[USER] "Michael lives in Los Angeles." 
+[EMBED] located_in(X, Y). 
+[GENERATE] ```located_in(Michael, Los_Angeles).```
+
+[USER] "Jane teaches at a university." 
+[EMBED] student_of(X, Z). 
+[GENERATE] `teaches_at(Jane, University).`
+
+[USER] "Alex owns an apartment." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```prolog
+owns(alex, apartment).
+```
+
+[USER] "Laura loves singing." 
+[EMBED] loves(X, Y). 
+[GENERATE] `loves(laura, singing).`
+
+[USER] "John has a pet dog." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ```prolog
+has_pet(john, dog).
+```
+
+[USER] "Sarah visits her cousins." 
+[EMBED] visits(X, Y). 
+[GENERATE] `visits(sarah, cousins).`
+
+[USER] "Tom hates hiking." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```prolog
+hates(tom, hiking).
+```
+
+[USER] "John's grandmother is the sister of his great-grandmother." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```plaintext
+sibling_of_grandparent(X, Y) :- 
+    parent(Z, X), 
+    grandparent(Z, Y).
+```
+
+This logic captures that John's grandmother (Z) is a sibling of his great-grandmother, and thus Z must be a parent of one individual (John's parent) while also being a grandparent to another (John himself).
+
+[USER] "Rachel is employed by IBM." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(rachel, ibm).`
+
+[USER] "Emily and her brother are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+sibling(emily, bro).
+sibling(bro, emily).
+```
+
+[USER] "Michael owns a car." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] ```prolog
+owns_vehicle(michael, car).
+```
+
+[USER] "Jane is married to her colleague." 
+[EMBED] married(X, Y). 
+[GENERATE] ```prolog
+married(jane, colleague).
+```
+
+[USER] "Alex lives in Paris." 
+[EMBED] lives_with(X, Y). 
+[GENERATE] ```lives_in(alex, paris).```
+
+[USER] "Laura loves photography." 
+[EMBED] loves(X, Y). 
+[GENERATE] `loves(laura, photography).`
+
+[USER] "John has a pet bird." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ```prolog
+has_pet(john, bird).
+```
+
+[USER] "Sarah visits her friends." 
+[EMBED] friend(X, Y). 
+[GENERATE] ```plaintext
+visits(sarah, Y) :- friend(sarah, Y).
+```
+
+[USER] "Tom has a sibling." 
+[EMBED] sibling(X, Y). 
+[GENERATE] `sibling(tom, X), X \= tom.`
+
+[USER] "John's uncle is the brother of his cousin." 
+[EMBED] sibling(X, Y). 
+[GENERATE] uncle_of_cousin(X, Y) :-  
+    sibling(Z, X),  
+    parent(P, Z),  
+    child(Q, P),  
+    child(Y, Q),  
+    X \= Y.
+```
+
+[USER] "David teaches computer science at school." 
+[EMBED] student_of(X, Z). 
+[GENERATE] ```prolog
+teaches(david, computer_science).
+```
+
+[USER] "Emily owns an apartment." 
+[EMBED] owns(X, Y). 
+[GENERATE] `owns(Emily, apartment).`
+
+[USER] "Michael prefers hiking." 
+[EMBED] prefers(X, Y). 
+[GENERATE] `prefers(michael, hiking).`
+
+[USER] "Jane can travel to Japan." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] ```prolog
+can_travel(jane, japan).
+```
+
+[USER] "Alex is married to his colleague." 
+[EMBED] married(X, Y). 
+[GENERATE] ```prolog
+married(alex, Colleague).
+colleague_of(alex, Colleague).
+```
+
+[USER] "Laura needs help with writing." 
+[EMBED] needs_help_with(X, Y). 
+[GENERATE] `needs_help_with(laura, writing).`
+
+[USER] "John owns a house in Chicago." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```prolog
+owns(john, house_in_chicago).
+```
+
+[USER] "Sarah loves playing football." 
+[EMBED] has_skill(X, Y). 
+[GENERATE] ```prolog
+has_skill(sarah, playing_football).
+```
+
+[USER] "Tom visits his friends." 
+[EMBED] visits(X, Y). 
+[GENERATE] `visits(tom, friend_of_tom).`
+
+[USER] "John's great-grandmother is the sister of his great-aunt." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+great_grandparent(X, Y) :- grandparent(X, Z), parent(Z, Y).
+sibling(X, Y) :- parent(P, X), parent(P, Y).
+```
+
+Explanation:
+- We define `great_grandparent/2` to relate a great-grandparent to their great-grandchild through intermediate grandparents.
+- The existing `sibling/2` defines siblings as sharing the same parent. 
+
+Using these predicates, you can express relationships such as "John's great-grandmother is the sister of his great-aunt" by establishing that they are both children of John's great-great-parent, thus siblings.
+
+[USER] "Rachel is employed by Apple." 
+[EMBED] employed(X, Z). 
+[GENERATE] `employed(rachel, apple).`
+
+[USER] "Emily and her friend are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+sibling(emily, friend).
+sibling(friend, emilia).
+```
+
+[USER] "Michael lives in New York." 
+[EMBED] located_in(X, Y). 
+[GENERATE] ```located_in(michael, new_york).
+```
+
+[USER] "Jane teaches at a high school." 
+[EMBED] teacher_of(X, Y). 
+[GENERATE] ```prolog
+teaches(jane, X) :- high_school_teacher(jane).
+```
+
+[USER] "Alex owns an SUV." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] `owns_vehicle(alex, suv).`
+
+[USER] "Laura loves cooking." 
+[EMBED] has_skill(X, Y). 
+[GENERATE] ```prolog
+has_skill(laura, cooking).
+```
+
+[USER] "John has a pet rabbit." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ```prolog
+has_pet(john, rabbit).
+```
+
+[USER] "Sarah visits her parents." 
+[EMBED] visits(X, Y). 
+[GENERATE] `visits(sarah, her_parents).`
+
+[USER] "Tom hates tennis." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```prolog
+hates(tom, tennis).
+```
+
+[USER] "John's great-uncle is the brother of his cousin." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+cousin_ancestor(X, Z) :- ancestor(Z, W), parent(W, V), sibling(X, V).
+```
+
+This modification accounts for John's great-uncle being a sibling of John's cousin (the child of John's aunt or uncle). The `cousin_ancestor` relation checks if there exists an ancestor \( Z \) who is a sibling of someone \( W \)'s parent \( V \), thus capturing the relationship described.
+
+[USER] "David owns a house." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```prolog
+owns(david, house).
+```
+
+[USER] "Emily and her sister are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+sibling(emily, sister_of_emily).
+sibling(sister_of_emily, emily).
+```
+
+[USER] "Michael prefers skiing." 
+[EMBED] prefers(X, Y). 
+[GENERATE] ```  
+`prefers(michael, skiing).`
+```
+
+[USER] "Jane can travel to Australia." 
+[EMBED] can_travel(X, Y). 
+[GENERATE] ```prolog
+can_travel(jane, australia).
+```
+
+[USER] "Alex is married to his friend." 
+[EMBED] married(X, Y). 
+[GENERATE] ```prolog
+married(alex, Y).
+friend_of_alex(Y).
+```
+
+[USER] "Laura needs help with art." 
+[EMBED] needs_help_with(X, Y). 
+[GENERATE] ```prolog
+needs_help_with('Laura', 'art').
+```
+
+[USER] "John owns a bike." 
+[EMBED] owns_vehicle(X, Y). 
+[GENERATE] `owns_vehicle(john, bike).`
+
+[USER] "Sarah loves playing basketball." 
+[EMBED] has_skill(X, Y). 
+[GENERATE] `has_skill(Sarah, playing_basketball).`
+
+[USER] "Tom visits his friends." 
+[EMBED] visits(X, Y). 
+[GENERATE] ```prolog
+visits(tom, Friend).
+```
+
+[USER] "John's great-grandfather is the brother of his grandfather." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+grandparent_of(Grandfather, Child) :- parent(Grandfather, Parent), parent(Parent, Child).
+brother(X, Y) :- male(X), parent(Z, X), parent(Z, Y), X \= Y.
+great_grandfather(GreatGrandfather, GreatGrandchild) :- grandparent_of(GreatGrandfather, Grandchild), parent(GrandChild, GreatGrandchild).
+
+sibling(X, Y) :- brother(X, Y).
+```
+
+This captures the logical property that John's great-grandfather is the brother of his grandfather by defining relationships like "brother," "grandparent," and "great_grandfather."
+
+[USER] "Rachel teaches at a university." 
+[EMBED] student_of(X, Z). 
+[GENERATE] `teaches_at_university(rachel).`
+
+[USER] "Emily and her colleague are siblings." 
+[EMBED] sibling(X, Y). 
+[GENERATE] ```prolog
+sibling(emily, colleague).
+sibling(colleague, emily).
+```
+
+[USER] "Michael lives in Los Angeles." 
+[EMBED] located_in(X, Y). 
+[GENERATE] `located_in(michael, los_angeles).`
+
+[USER] "Jane is married to her friend." 
+[EMBED] married(X, Y). 
+[GENERATE] ```prolog
+married(jane, friend).
+```
+
+[USER] "Alex owns an apartment." 
+[EMBED] owns(X, Y). 
+[GENERATE] ```prolog
+owns(alex, apartment).
+```
+
+[USER] "Laura loves music." 
+[EMBED] loves(X, Y). 
+[GENERATE] ```prolog
+loves(laura, music).
+```
+
+[USER] "John has a pet parrot." 
+[EMBED] has_pet(X, Y). 
+[GENERATE] ```prolog
+has_pet(john, parrot).
+```
+
+[USER] "Sarah visits her cousins." 
+[EMBED] visits(X, Y). 
+[GENERATE] `visits(sarah, cousins).`
+
+[USER] "Tom hates swimming." 
+[EMBED] hates(X, Y). 
+[GENERATE] ```prolog
+hates(tom, swimming).
+```
+

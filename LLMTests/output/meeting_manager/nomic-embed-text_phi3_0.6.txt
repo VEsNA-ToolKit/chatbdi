@@ -1,0 +1,57 @@
+[USER] Today I will have lunch with my family
+[EMBEDDING] event(lunch(family, where("pizza restaurant")), today)
+[GENERATE] event(lunch(family, where(_)), today)
+[SOLUTION] event(lunch(family, where(_)), today)
+
+[USER] Tomorrow I have a meeting with Pippo on Zoom
+[EMBEDDING] event(meeting(mario, on(zoom)), date(15, 1, 2025))
+[GENERATE] event(meeting(mario, _), date(_))
+Since "Tomorrow I have a meeting" doesn't specify who Mario has the meeting with (it should be Pippo according to our logical property modification rule but not mentioned) and there is no mention of when tomorrow will occur in terms of dates which was specified as 15/1/2025, we need an underscore for both values.
+[SOLUTION] event(meeting(pippo, on(zoom)), tomorrow)
+
+[USER] Please, take note that I have a meeting on Teams with Carla on the 25th of August 2025
+[EMBEDDING] event(meeting(Who, on(Where)), date(Day, Month, Year))
+[GENERATE] event(meeting(Carla, on(_Teams)), date(_, "August", _)) **Modified Logical Property:** event(meeting(Carla, on(_Teams)), date(_, _, 2025))
+[SOLUTION] event(meeting(carla, on(teams)), date(25, 8, 2025))
+
+[USER] I want to reserve a table for my family at "Bagel Palace" for tonight
+[EMBEDDING] event(dinner(family, where("home")), tomorrow)
+[GENERATE] event(dinner(family, where("Bagel Palace")), now)
+[SOLUTION] event(dinner(family, "Bagel Palace"), tonight)
+
+[USER] I will be on holiday from the 12th of January to the 16th of January
+[EMBEDDING] free(Date)
+[GENERATE] free(Date between "1/1/2023" and "_")
+[SOLUTION] out_of_office(date(12, 1, _), date(16, 1, _))
+
+[USER] Set on my calendar that tomorrow I am free
+[EMBEDDING] free(Date)
+[GENERATE] modified_logical_property: free(tomorrow)
+[SOLUTION] free(tomorrow)
+
+[USER] Today I am busy and I cannot come to the office
+[EMBEDDING] out_of_office(date(X), date(Y))
+[GENERATE] out_of_office(_, _)
+
+Since no specific date was mentioned regarding being out of office and due to lacking temporal context or explicit timeframe within the given statement, it's impossible to define concrete dates for X and Y variables. Therefore, both are left blank (underscored) as there is insufficient information in the sentence provided.
+[SOLUTION] busy(today)
+
+[USER] I have to meet a person online on zoom tomorrow
+[EMBEDDING] event(meeting(mario, on(zoom)), date(15, 1, 2025))
+[GENERATE] event(meeting(mario, on(zoom)), date(_))
+
+[SOLUTION] event(meeting(_, on(zoom)), tomorrow)
+
+[USER] Today is the 15th of January 2025, starting tomorrow I will be on holiday for a week
+[EMBEDDING] busy(date(21, 2, 2024))
+[GENERATE] busy(date(__, _))
+
+[SOLUTION] out_of_office(date(12, 1, 2025), date(19, 1, 2025))
+
+[USER] Today I will have lunch with my family but tonight I have to work and I do not want to be bothered
+[EMBEDDING] event(lunch(family, where("pizza restaurant")), today)
+[GENERATE] event(lunch(family, where(_)), _)
+
+Since there's no specific time mentioned for lunch and it will happen today but with a lack of details about when dinner or work is happening tonight from this sentence alone, both parts are marked as underscores.
+[SOLUTION] event(lunch(family, _), today), busy(tonight)
+

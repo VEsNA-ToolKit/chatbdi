@@ -1,0 +1,12 @@
++!start
+true
+event(meeting(mario, on(zoom)), date(15, 1, 2025))
+event(meeting(Who, on(Where)), date(Day, Month, Year))
+busy(date(21, 2, 2024))
+free(Date)
+event(lunch(family, where("pizza restaurant")), today)
+event(dinner(family, where("home")), tomorrow)
+tonight
+yesterday
+out_of_office(date(X), date(Y))
++event(Event, Date)

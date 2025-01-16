@@ -1,0 +1,116 @@
+[USER] The calories for 100 grams of beef are 156.
+[EMBEDDING] calories(veal, unit(50, gr), 81)
+[GENERATE]  calories(beef, unit(_, 100), _)
+[SOLUTION] calories(beef, unit(100, gr), 156)
+
+[USER] 100 gr of beef amount to 156 calories.
+[EMBEDDING] calories(veal, unit(50, gr), 81)
+[GENERATE]  calories(beef, unit(_, 100), _)
+[SOLUTION] calories(beef, unit(100, gr), 156)
+
+[USER] There are 156 calories in 100 grams of beef.
+[EMBEDDING] calories(veal, unit(50, gr), 81)
+[GENERATE]  calories(beef, unit(_, 100), _)
+[SOLUTION] calories(beef, unit(100, gr), 156)
+
+[USER] The calories for a serving portion of beef are 300.
+[EMBEDDING] +calories(pasta(norma), unit(1, portion), 325)
+[GENERATE]  +calories(beef, _portion, 300)
+[SOLUTION] calories(beef, unit(1, portion), 300)
+
+[USER] One portion of beef gives 300 calories.
+[EMBEDDING] +calories(pasta(norma), unit(1, portion), 325)
+[GENERATE]  +calories(beef(norma), unit(1, portion), _)
+[SOLUTION] calories(beef, unit(1, portion), 300)
+
+[USER] Beef gives 300 calories.
+[EMBEDDING] +calories(pasta(norma), unit(1, portion), 325)
+[GENERATE]  +calories(beef, _, 300)
+[SOLUTION] calories(beef, unit(_, _), 300)
+
+[USER] The calories for 100 grams of budweiser are 41.
+[EMBEDDING] calories(veal, unit(50, gr), 81)
+[GENERATE]  calories(budweiser, unit(_, 100), _)
+[SOLUTION] calories(budweiser, unit(100, gr), 41)
+
+[USER] The calories for one glass of budweiser are 100.
+[EMBEDDING] calories(veal, unit(50, gr), 81)
+[GENERATE]  calories(beer, _unit(100, _), _)
+[SOLUTION] calories(budweiser, unit(1, glass), 100)
+
+[USER] Breadsticks are really caloric, they give 279 calories per 100 grams!
+[EMBEDDING] calories(pizza(napoletana), unit(1, piece), 443)
+[GENERATE]  calories(breadstick, _unit(100, _), 279)
+[SOLUTION] calories(breadstick, unit(100, gr), 279)
+
+[USER] There are some food that give 600 calories.
+[EMBEDDING] calories(veal, unit(50, gr), 81)
+[GENERATE]  calories(veal, _unit, _)
+[SOLUTION] calories(_, unit(_, _), _)
+
+[USER] Cabbage is great in diet, it only gives 61 calories per portion!
+[EMBEDDING] +pairing(cabbage, beer(guinness))
+[GENERATE]  +pairing(cabbage, _)
+[SOLUTION] calories(cabbage, unit(1, portion), 61)
+
+[USER] I love cabbage, the calories it gives are so low: 30 per 100 grams.
+[EMBEDDING] +pairing(cabbage, beer(guinness))
+[GENERATE]  +likes(you, cabbage)
+   _ = caloriesPer100Grams(cabbage, 30)
+[SOLUTION] calories(cabbage, unit(100, gr), 30)
+
+[USER] I am sure that cabbage has 30 per 100 grams.
+[EMBEDDING] +pairing(cabbage, beer(guinness))
+[GENERATE]  +nutritionFacts(cabbage, _per_100grams, 30)
+[SOLUTION] calories(cabbage, unit(100, gr), 30)
+
+[USER] How many calories gives one carrot?
+[EMBEDDING] calories(veal, unit(50, gr), 81)
+[GENERATE]  calories(carrot, _unit, _)
+[SOLUTION] calories(carrot, unit(100, piece), _)
+
+[USER] The ingredients of pizza margherita include tomato sauce, mozzarella, basil.
+[EMBEDDING] ingredients(pizza(marinara), [flour, garlic, water, tomato])
+[GENERATE]  ingredients(pizza(margherita), [tomato, mozzarella, basil, _])
+[SOLUTION] ingredients(pizza(margherita), [tomato_sauce, mozzarella, basil])
+
+[USER] Pizza margherita is made with flour, water, tomato, mozzarella.
+[EMBEDDING] ingredients(pizza(marinara), [flour, garlic, water, tomato])
+[GENERATE]  ingredients(pizza(margherita), [flour, water, tomato, mozzarella])
+[SOLUTION] ingredients(pizza(margherita), [flour, water, tomato, mozzarella])
+
+[USER] Pasta with pesto must be served with green beans and potatoes.
+[EMBEDDING] ingredients(pasta(bolognese), [veal, besciamella, tomato_sauce])
+[GENERATE]  ingredients(pasta(pesto), [green_beans, potatoes,_])
+[SOLUTION] ingredients(pasta(pesto), [green_bean, potato])
+
+[USER] Pasta with pesto is almost light, one portion gives 343 calories only.
+[EMBEDDING] +calories(pasta(norma), unit(1, portion), 325)
+[GENERATE]  +calories(pasta(pesto), unit(_, _), 343)
+[SOLUTION] calories(pasta(pesto), unit(1, portion), 343)
+
+[USER] Pizza margherita and a cold budweiser are great.
+[EMBEDDING] +pairing(pizza(quattro_stagioni), wine(red))
+[GENERATE]  +pairing(pizza(margherita), beverage(_))
+[SOLUTION] pairing(pizza(margherita), budweiser)
+
+[USER] I love eating pizza capricciosa with weiss beer.
+[EMBEDDING] +pairing(pizza(quattro_stagioni), wine(red))
+[GENERATE]  +pairing(pizza(capricciosa), beverage(_))
+[SOLUTION] pairing(pizza(capricciosa), beer(weiss))
+
+[USER] You must try beef with guinness beer: it's delicious.
+[EMBEDDING] +pairing(cabbage, beer(guinness))
+[GENERATE]  +pairing(beef, beer(_))
+[SOLUTION] pairing(beef, beer(guinness))
+
+[USER] The best drink for fish is white wine.
+[EMBEDDING] +pairing(pizza(quattro_stagioni), wine(red))
+[GENERATE]  +pairing(fish, wine(_white))
+[SOLUTION] pairing(fish, wine(white))
+
+[USER] Surprisingly, fish is very nice also with weiss beer.
+[EMBEDDING] +pairing(cabbage, beer(guinness))
+[GENERATE]  +pairing(fish, beer(_))
+[SOLUTION] pairing(fish, beer(weiss))
+

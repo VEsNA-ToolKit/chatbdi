@@ -1,0 +1,51 @@
+[USER] Today I will have lunch with my family
+[EMBEDDING] event(lunch(family, where("pizza restaurant")), today)
+[GENERATE] event(lunch(family, where("pizza restaurant")), today)
+[SOLUTION] event(lunch(family, where(_)), today)
+
+[USER] Tomorrow I have a meeting with Pippo on Zoom
+[EMBEDDING] event(meeting(mario, on(zoom)), date(15, 1, 2025))
+[GENERATE] event(meeting(mario, on(zoom)), date(2, 1, 2025))
+[SOLUTION] event(meeting(pippo, on(zoom)), tomorrow)
+
+[USER] Please, take note that I have a meeting on Teams with Carla on the 25th of August 2025
+[EMBEDDING] event(meeting(Who, on(Where)), date(Day, Month, Year))
+[GENERATE] event(meeting(Who, on(Teams)), date(Day, August, 2025))
+[SOLUTION] event(meeting(carla, on(teams)), date(25, 8, 2025))
+
+[USER] I want to reserve a table for my family at "Bagel Palace" for tonight
+[EMBEDDING] event(dinner(family, where("home")), tomorrow)
+[GENERATE] event(dinner(family, where("Bagel Palace")), tonight)
+[SOLUTION] event(dinner(family, "Bagel Palace"), tonight)
+
+[USER] I will be on holiday from the 12th of January to the 16th of January
+[EMBEDDING] free(Date)
+[GENERATE] free(Date) :- date(LowDate, HighDate, _).
+date(_, _, _) :- (LowDate > HighDate -> true ; LowDate < HighDate -> true ; LowDate =:= HighDate).
+[SOLUTION] out_of_office(date(12, 1, _), date(16, 1, _))
+
+[USER] Set on my calendar that tomorrow I am free
+[EMBEDDING] free(Date)
+[GENERATE] free(Tomorrow)
+[SOLUTION] free(tomorrow)
+
+[USER] Today I am busy and I cannot come to the office
+[EMBEDDING] out_of_office(date(X), date(Y))
+[GENERATE] out_of_office(date(today), _)
+[SOLUTION] busy(today)
+
+[USER] I have to meet a person online on zoom tomorrow
+[EMBEDDING] event(meeting(mario, on(zoom)), date(15, 1, 2025))
+[GENERATE] event(meeting(mario, on(zoom)), date(2, 1, 2025))
+[SOLUTION] event(meeting(_, on(zoom)), tomorrow)
+
+[USER] Today is the 15th of January 2025, starting tomorrow I will be on holiday for a week
+[EMBEDDING] busy(date(21, 2, 2024))
+[GENERATE] busy(date(15, 1, 2025))
+[SOLUTION] out_of_office(date(12, 1, 2025), date(19, 1, 2025))
+
+[USER] Today I will have lunch with my family but tonight I have to work and I do not want to be bothered
+[EMBEDDING] event(lunch(family, where("pizza restaurant")), today)
+[GENERATE] event(lunch(family, where("my home")), today)
+[SOLUTION] event(lunch(family, _), today), busy(tonight)
+

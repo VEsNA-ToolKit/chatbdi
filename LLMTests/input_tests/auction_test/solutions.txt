@@ -1,0 +1,2 @@
+bid(flight_ticket(paris, athens, _), 20)
+bid(flight_ticket(athens, paris, _), 35)

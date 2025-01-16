@@ -1,0 +1,2 @@
+bid(flight_ticket(paris, athens, "15/12/2015"), Cost)
+bid(flight_ticket(athens, paris, "18/12/2015"), Cost)
