@@ -29,23 +29,46 @@ public class Interpreter extends Artifact{
 
     private Map<Literal, List<Double>> embeddings;
 
+    // init_ollama
+    // 1. initializes the embeddings of each agent beliefs;
+    // 2. creates the two generation models.
     @OPERATION
     public void init_ollama( Object[] literals ) {
         init_embeddings(literals);
         init_generate_model();
     }
 
+    // init_embeddings takes all the literals from the agents and computes for each literal the embedding
     private void init_embeddings( Object[] literals ){
         log( "Initializing embeddings" );
         embeddings = new HashMap<>();
         for ( Object o_literal : literals ) {
-            String literal = ( String ) o_literal;
-            List<Double> embedding = compute_embedding( literal );
+            // String literal = ( String ) o_literal;
+            List<Double> embedding = compute_embedding( ( String ) literal );
             embeddings.put( ASSyntax.createLiteral( literal ), embedding );
         }
     }
 
-    private void init_generate_model() {
+    private void init_generation_models() {
+        JSONObject nl_to_logic_model = get_nl_to_logic_model();
+        JSONObject logic_to_nl_model = get_logic_to_nl_model();
+    }
+
+    private void create_model( JSONObject modelfile ){
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri( URI.create( OLLAMA_URL + "create" ) )
+                    .header( "Content-Type", "application/json" )
+                    .POST( HttpRequest.BodyPublishers.ofString( json.toString() ) )
+                    .build();
+
+            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch ( Exception e ) {
+            failed( "Error calling OLLAMA API: " + e.getMessage() );
+        }
+    }
+
+    private JSONObject get_nl_to_logic_model() {
         String system = """
             You are a logician who works with Prolog. You will receive a logical property and a sentence.
             Modify the logical property according to the sentence and answer with the modified logical property.
@@ -72,17 +95,25 @@ public class Interpreter extends Artifact{
         json.put( "parameters", parameters );
         json.put( "stream", false );
 
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri( URI.create( OLLAMA_URL + "create" ) )
-                .header( "Content-Type", "application/json" )
-                .POST( HttpRequest.BodyPublishers.ofString( json.toString() ) )
-                .build();
+        return json;
+    }
 
-            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch ( Exception e ) {
-            failed( "Error calling OLLAMA API: " + e.getMessage() );
-        }
+    private JSONObject get_logic_to_nl_model() {
+        String system = """
+            You are a logician who works with Prolog. You will receive a logical property and a sentence.
+        """;
+
+        JSONObject json = new JSONObject();
+        json.put( "model", NL_TO_LOGIC_MODEL);
+        json.put( "from", FROM_MODEL );
+        json.put( "system", system );
+        JSONObject parameters = new JSONObject( );
+        parameters.put( "temperature", TEMPERATURE );
+        parameters.put( "penalize_newline", true );
+        json.put( "parameters", parameters );
+        json.put( "stream", false );
+
+        return json;
     }
 
     @OPERATION
