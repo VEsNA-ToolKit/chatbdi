@@ -20,8 +20,9 @@ public class Interpreter extends Artifact{
 
     private final String OLLAMA_URL = "http://localhost:11434/api/";
     private final HttpClient client = HttpClient.newHttpClient();
-    private final String EMBEDDING_MODEL = "nomic-embed-text";
-    private final String FROM_MODEL = "llama3.1";
+    private final String EMBEDDING_MODEL = "snowflake-arctic-embed";
+    private final String FROM_MODEL = "codegemma";
+    private final String FROM_L2NL_MODEL = "llama3.1";
     private final String LOGIC_TO_NL_MODEL = "logic-to-nl";
     private final String NL_TO_LOGIC_MODEL = "nl-to-logic";
     private final float TEMPERATURE = 0.2f;
@@ -34,24 +35,52 @@ public class Interpreter extends Artifact{
     // 2. creates the two generation models.
     @OPERATION
     public void init_ollama( Object[] literals ) {
+        log( "Initializing Ollama models");
         init_embeddings(literals);
-        init_generate_model();
+        init_generation_models();
+    }
+
+    @OPERATION
+    public void generate_property( String sentence, OpFeedbackParam<Literal> property ) {
+        List<Double> embedding = compute_embedding( sentence );
+        Literal best_literal = null;
+        double best_distance = Double.MAX_VALUE;
+        for ( Literal literal : embeddings.keySet() ) {
+            List<Double> literal_embedding = embeddings.get( literal );
+            double distance = cosine_similarity( embedding, literal_embedding );
+            if ( distance < best_distance ) {
+                best_distance = distance;
+                best_literal = literal;
+            }
+        }
+
+        Literal new_property = generate_literal(best_literal, sentence);
+        property.set( new_property );
+    }
+
+    @OPERATION
+    public void generate_sentence( String literal_str, OpFeedbackParam<String> sentence ) {
+        sentence.set( generate_string( ASSyntax.createLiteral(literal_str) ) );
     }
 
     // init_embeddings takes all the literals from the agents and computes for each literal the embedding
     private void init_embeddings( Object[] literals ){
-        log( "Initializing embeddings" );
+        log( " - Initializing embeddings;" );
         embeddings = new HashMap<>();
         for ( Object o_literal : literals ) {
-            // String literal = ( String ) o_literal;
-            List<Double> embedding = compute_embedding( ( String ) literal );
+            String literal = ( String ) o_literal;
+            List<Double> embedding = compute_embedding( literal );
             embeddings.put( ASSyntax.createLiteral( literal ), embedding );
         }
     }
 
     private void init_generation_models() {
+        log( " - Initializing generations models;");
         JSONObject nl_to_logic_model = get_nl_to_logic_model();
         JSONObject logic_to_nl_model = get_logic_to_nl_model();
+
+        create_model( nl_to_logic_model );
+        create_model( logic_to_nl_model );
     }
 
     private void create_model( JSONObject modelfile ){
@@ -59,7 +88,7 @@ public class Interpreter extends Artifact{
             HttpRequest request = HttpRequest.newBuilder()
                     .uri( URI.create( OLLAMA_URL + "create" ) )
                     .header( "Content-Type", "application/json" )
-                    .POST( HttpRequest.BodyPublishers.ofString( json.toString() ) )
+                    .POST( HttpRequest.BodyPublishers.ofString( modelfile.toString() ) )
                     .build();
 
             HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -86,7 +115,7 @@ public class Interpreter extends Artifact{
         """;
 
         JSONObject json = new JSONObject();
-        json.put( "model", NL_TO_LOGIC_MODEL);
+        json.put( "model", NL_TO_LOGIC_MODEL );
         json.put( "from", FROM_MODEL );
         json.put( "system", system );
         JSONObject parameters = new JSONObject( );
@@ -100,11 +129,15 @@ public class Interpreter extends Artifact{
 
     private JSONObject get_logic_to_nl_model() {
         String system = """
-            You are a logician who works with Prolog. You will receive a logical property and a sentence.
+            You will receive a logical property and you will generate a sentence.
+            You will tell the content of the property to me as if we are speaking and the content is something about you, so you should include all the information in the sentence and be conversational.
+            For example the logical property myname(alice) should be translated to "My name is Alice".
+            Another example: hasColor(apple, red) should be translated to "The apple is red".
+            Another example: meeting(tomorrow, room(102), [alice, bob, charles]) should be translated to "Tomorrow there is a meeting in room 102 with alice, bob and charles."
         """;
 
         JSONObject json = new JSONObject();
-        json.put( "model", NL_TO_LOGIC_MODEL);
+        json.put( "model", LOGIC_TO_NL_MODEL );
         json.put( "from", FROM_MODEL );
         json.put( "system", system );
         JSONObject parameters = new JSONObject( );
@@ -116,24 +149,6 @@ public class Interpreter extends Artifact{
         return json;
     }
 
-    @OPERATION
-    public void generate_property( String sentence, OpFeedbackParam<Literal> property ) {
-        List<Double> embedding = compute_embedding( sentence );
-        Literal best_literal = null;
-        double best_distance = Double.MAX_VALUE;
-        for ( Literal literal : embeddings.keySet() ) {
-            List<Double> literal_embedding = embeddings.get( literal );
-            double distance = cosine_similarity( embedding, literal_embedding );
-            if ( distance < best_distance ) {
-                best_distance = distance;
-                best_literal = literal;
-            }
-        }
-
-        Literal new_property = generate_literal(best_literal, sentence);
-        property.set( new_property );
-    }
-
     private String send_ollama( String type, String model, String input ) {
         try {
             JSONObject json = new JSONObject();
@@ -142,7 +157,7 @@ public class Interpreter extends Artifact{
                 json.put( "input", input );
             else if ( type.equals( "generate" ) )
                 json.put( "prompt", input );
-            log( "JSON: " + json.toString() );
+            json.put( "stream", false );
 
             HttpRequest request = HttpRequest.newBuilder()
                 .uri( URI.create( OLLAMA_URL + type ) )
@@ -165,7 +180,6 @@ public class Interpreter extends Artifact{
         String body = send_ollama( "embed", EMBEDDING_MODEL, literal );
 
         JSONObject embedding_json = new JSONObject( body );
-        log(body);
         JSONArray embedding_array = embedding_json.getJSONArray("embeddings").getJSONArray(0);
         for ( int i = 0; i < embedding_array.length(); i++ ) {
             embedding.add( embedding_array.getDouble(i) );
@@ -184,7 +198,6 @@ public class Interpreter extends Artifact{
 
         assert body != null;
         JSONObject generate_json = new JSONObject( body );
-        log(generate_json.toString());
         String new_property = generate_json.getString("response");
         return ASSyntax.createLiteral( new_property );
 
@@ -222,12 +235,6 @@ public class Interpreter extends Artifact{
             failed("Embedding norm cannot be ZERO");
 
         return 1.0 - (dotProd / ( norm1 * norm2 ) );
-    }
-
-    private void write_log( String msg ) throws IOException {
-        FileWriter writer = new FileWriter( DEBUG_LOG, true );
-        writer.write( msg );
-        writer.close();
     }
 
 }

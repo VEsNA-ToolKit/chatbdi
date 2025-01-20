@@ -1,7 +1,8 @@
 package env;
 
-import cartago.OPERATION;
+import cartago.*;
 import cartago.tools.GUIArtifact;
+import jason.asSyntax.*;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,21 +22,30 @@ public class ChatArtifact extends GUIArtifact {
 
     @Override
     public void init() {
-        view = new ChatView();
+        view = new ChatView( this );
         view.setVisible(true);
+        defineObsProperty("user_msg", "");
     }
 
     @OPERATION
-    public void msg(String message) {
-        view.appendMessage("[AGENT] " + message);
+    public void msg(String sender, String message) {
+        view.appendMessage("[" + sender + "] " + message);
+    }
+
+    @INTERNAL_OPERATION
+    private void notify_new_msg( String msg ){
+        signal("user_msg", msg);
     }
 
     class ChatView extends JFrame {
+        private ChatArtifact art;
         private JTextArea chatArea;
         private JTextField inputField;
         private JButton sendButton;
 
-        public ChatView() {
+        public ChatView( ChatArtifact art ) {
+            this.art = art;
+
             setTitle("SpeakAgent");
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             setSize(400, 500);
@@ -75,12 +85,20 @@ public class ChatArtifact extends GUIArtifact {
             setVisible(true);
         }
 
+        @INTERNAL_OPERATION
         private void sendMessage() {
             String message = inputField.getText();
             if (!message.trim().isEmpty()) {
                 appendMessage("[USER] " + message);
                 inputField.setText("");
             }
+            try {
+                art.beginExtSession();
+                art.notify_new_msg( message );
+            } finally {
+                art.endExtSession();
+            }
+            log("Sent " + message);
         }
 
         public void appendMessage(String message) {

@@ -13,7 +13,6 @@
             };
         };
         .wait(2000);
-        .print("I init embeddings");
         !init_embeddings.
 
 +!init_embeddings
