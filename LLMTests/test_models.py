@@ -4,13 +4,14 @@ import time
 import os
 
 TEMPERATURES = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
-#MODELS = ['llama3.1', 'llama3.2', 'phi3', 'phi4', 'mistral']
-MODELS = ['llama3.1', 'llama3.2', 'phi3', 'mistral']
-#EMBEDDING_MODELS = ['nomic-embed-text', 'mxbai-embed-large', 'snowflake-arctic-embed', 'granite-embedding']
-EMBEDDING_MODELS = ['nomic-embed-text']
+MODELS = ['gemma', 'gemma2', 'codegemma', 'llama3.1', 'llama3.2', 'codellama', 'tinyllama', 'phi3', 'phi4', 'qwen', 'qwen2', 'qwen2.5', 'qwen2.5-coder', 'mistral', 'deepseek-coder-v2']
+#MODELS = ['llama3.1', 'llama3.2', 'phi3', 'mistral']
+EMBEDDING_MODELS = ['nomic-embed-text', 'mxbai-embed-large', 'snowflake-arctic-embed', 'granite-embedding']
+#EMBEDDING_MODELS = ['nomic-embed-text']
 N_ITERATIONS = 1
 
 TESTS_FOLDER = 'input_tests'
+OUTPUT_FILE = 'results.log'
 
 TEST_SENTENCES_PATH = 'sentences.txt'
 TEST_SOLUTIONS_PATH = 'solutions.txt'
@@ -23,50 +24,72 @@ stats = {}
 
 def load_data(domain):
 	f_sentences = open(f'{TESTS_FOLDER}/{domain}/{TEST_SENTENCES_PATH}', 'r')
-	# f_embeddings = open(f'{TESTS_FOLDER}/{domain}/{TEST_EMBEDDINGS_PATH}', 'r')
+	f_embeddings = open(f'{TESTS_FOLDER}/{domain}/{TEST_EMBEDDINGS_PATH}', 'r')
 	f_solutions = open(f'{TESTS_FOLDER}/{domain}/{TEST_SOLUTIONS_PATH}', 'r')
 	f_literals = open(f'{TESTS_FOLDER}/{domain}/{TEST_LITERALS_PATH}', 'r')
 
 	sentences = f_sentences.readlines()
-	# embeddings = f_embeddings.readlines()
+	embeddings = f_embeddings.readlines()
 	solutions = f_solutions.readlines()
 	literals = f_literals.readlines()
 
-	return sentences, solutions, literals
+	return sentences, solutions, literals, embeddings
+
+def pull_models():
+	models = ollama.list()
+	model_names = []
+	for model in models["models"]:
+		model_names = model["model"].split(":", 1)[0]
+	for embed_model in EMBEDDING_MODELS:
+		if embed_model not in model_names:
+			print(f'Pulling {embed_model}...')
+			ollama.pull(embed_model)
+	for gen_model in MODELS:
+		if gen_model not in model_names:
+			print(f'Pulling {gen_model}...')
+			ollama.pull(gen_model)
 
 def main():
+	pull_models()
 	for domain in os.listdir(TESTS_FOLDER):
 		if domain != '.DS_Store':
 			print(f' === DOMAIN: {domain} === ')
+			with open(OUTPUT_FILE, 'a') as f:
+				f.write(f'{domain}\n')
 			test_domain(domain)
 	print(stats)
 
 def test_domain(domain):
-	sentences, solutions, literals = load_data(domain)
-	print('TEMP\tEMBEDDING\t\tGENERATOR\tCORR\tEMB_CORR\tTIME')
+	sentences, solutions, literals, embeddings = load_data(domain)
+	print('TEMP\tEMBEDDING\t\tGENERATOR\tWEAK\tSTRONG\tEMB\tTIME')
+	with open(OUTPUT_FILE, 'a') as f:
+		f.write('TEMP\tEMBEDDING\t\tGENERATOR\tWEAK\tSTRONG\tEMB\tTIME\n')
 	for embedding in EMBEDDING_MODELS:
 		embedded_literals, t = test_embeddings(embedding, literals)
 		for model in MODELS:
 			for temperature in TEMPERATURES:
 				load_model(model, temperature)
-				answer_corrects = 0
+				strong_corrects = 0
+				weak_corrects = 0
 				embedding_corrects = 0
 				total_time = 0
 				for _ in range(N_ITERATIONS):
-					for sentence, solution in zip(sentences, solutions):
+					for sentence, solution, embed_sol in zip(sentences, solutions, embeddings):
 						# print(sentence, solution)
 						logical_property, t_property = compute_most_similar_embedding(embedded_literals, sentence, embedding)
 						answer, t_sentence = compute_sentence_property("generator", logical_property, sentence)
 						if answer and answer[0] == '+':
 							answer = answer[1:]
 						total_time += t_sentence
-						# answer_correct, embedding_correct = check_stats(answer, solution, logical_property, embedding_solution)
-						answer_correct = check_stats(answer, solution)
-						update_stats(embedding, model, temperature, answer_correct, t_sentence)
-						if answer_correct:
-							answer_corrects += 1
-						# if embedding_correct:
-						#     embedding_corrects += 1
+						weak_correct, strong_correct, embedding_correct = check_stats(answer, solution, logical_property, embed_sol)
+						# answer_correct = check_stats(answer, solution)
+						update_stats(embedding, model, temperature, weak_correct, strong_correct, t_sentence)
+						if strong_correct:
+							strong_corrects += 1
+						if weak_correct:
+							weak_corrects += 1
+						if embedding_correct:
+							embedding_corrects += 1
 						if not os.path.exists(f'{OUTPUT_FOLDER_PATH}'):
 							os.mkdir(f'{OUTPUT_FOLDER_PATH}')
 						if not os.path.exists(f'{OUTPUT_FOLDER_PATH}/{domain}'):
@@ -81,8 +104,15 @@ def test_domain(domain):
 				stats += model + "\t"
 				if len(model) < 8:
 					stats += "\t"
-				stats += str(round(answer_corrects/total_trials*100, 2)) + "%\t" + str(round(embedding_corrects/total_trials*100, 2)) + "%\t\t" + str(round(total_time / total_trials, 2))
-				print(stats) 
+				#stats += str(round(answer_corrects/total_trials*100, 2)) + "%\t" + str(round(embedding_corrects/total_trials*100, 2)) + "%\t\t" + str(round(total_time / total_trials, 2))
+				stats += str(round(weak_corrects/total_trials*100, 2)) + "%\t"
+				stats += str(round(strong_corrects/total_trials*100, 2)) + "%\t"
+				stats += str(round(embedding_corrects/total_trials*100, 2)) + "%\t"
+				stats += str(round(total_time/total_trials, 2))
+				# print(strong_corrects, weak_corrects, total_trials)
+				print(stats)
+				with open(OUTPUT_FILE, 'a') as f:
+					f.write(stats + '\n')
 				unload_model()
 
 def test_embeddings(embedding_model, literals):
@@ -157,12 +187,13 @@ def unload_model():
 
 def check_stats(answer, solution, selected_property, solution_property):
 	embedding_correct = selected_property.strip() == solution_property.strip()
-	answer_correct = answer.strip('`').replace(" ", "") == solution.strip().replace(" ", "")
-	return answer_correct, embedding_correct
+	strong_correct = answer.strip('`').replace(" ", "") == solution.strip().replace(" ", "")
+	weak_correct = solution.strip().replace(" ", "") in answer.replace(" ", "")
+	return weak_correct, strong_correct, embedding_correct
 
-def check_stats(answer, solution):
-	# return answer.strip('`').replace(" ", "") == solution.strip().replace(" ", "")
-	return solution.strip().replace(" ", "") in answer.strip('`').replace(" ", "")
+# def check_stats(answer, solution):
+# 	# return answer.strip('`').replace(" ", "") == solution.strip().replace(" ", "")
+# 	return solution.strip().replace(" ", "") in answer.strip('`').replace(" ", "")
 
 def update_stats(embedding_model, model, temperature, answer_correct, t):
 	if embedding_model not in stats:
@@ -173,6 +204,20 @@ def update_stats(embedding_model, model, temperature, answer_correct, t):
 		stats[embedding_model][model][temperature] = 0
 	if answer_correct:
 		stats[embedding_model][model][temperature] += 1
+
+def update_stats(embedding_model, model, temperature, weak_correct, strong_correct, t):
+	if embedding_model not in stats:
+		stats[embedding_model] = {}
+	if model not in stats[embedding_model]:
+		stats[embedding_model][model] = {}
+	if temperature not in stats[embedding_model][model]:
+		stats[embedding_model][model][temperature] = {}
+		stats[embedding_model][model][temperature]['strong'] = 0
+		stats[embedding_model][model][temperature]['weak'] = 0
+	if strong_correct:
+		stats[embedding_model][model][temperature]['strong'] += 1
+	if weak_correct:
+		stats[embedding_model][model][temperature]['weak'] += 1
 
 
 if __name__ == '__main__':
