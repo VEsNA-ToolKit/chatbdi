@@ -1,0 +1,6 @@
+mas sample_mas {
+
+    agent interpreter:interpreter.asl
+    agent bob:bob.asl
+    
+}

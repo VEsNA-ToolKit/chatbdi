@@ -1,4 +1,4 @@
-// !start_ws_server.
+!start_ws_server.
 
 +!start_ws_server
     :   true

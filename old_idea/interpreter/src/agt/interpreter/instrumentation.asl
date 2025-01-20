@@ -1,4 +1,4 @@
-// !instrument_all.
+!instrument_all.
 
 // This plan instruments all the agents that are not the chat_bdi Agent
 +!instrument_all
@@ -11,18 +11,7 @@
                 .print("I instrument ", Agent);
                 !instrument(Agent);
             };
-        };
-        .wait(2000);
-        .print("I init embeddings");
-        !init_embeddings.
-
-+!init_embeddings
-    :   literals( _, Literals)
-    <-  init_ollama( Literals ).
-
-+!init_embeddings
-    :   true
-    <-  .print("There are no literals").
+        }.
 
 // Instrument plan sends to Agent the provide_plans instructions and then asks the agent to achieve it.
 +!instrument(Agent)
@@ -31,7 +20,7 @@
         .send(Agent, tellHow, P3);
         .wait(1000);
         .send(Agent, achieve, provide_plans(Me));
-        .send(Agent, tellHow, "+!kqml_received(Agent, Performative, Msg, X) : true <- .send(Agent, tell, error_message).").
+        .send(Agent, tellHow, "kqml_received(Agent, Performative, Msg, X) : true <- .send(Agent, tell, error_message).").
 
 // chat_bdi saves the received plans
 +!kqml_received(Sender, tell, triggers(Agent, Triggers), X)
