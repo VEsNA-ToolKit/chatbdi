@@ -112,6 +112,10 @@ public class Interpreter extends Artifact{
             Logical property: order(pizza, "1/1/1999", 12)
             Sentence: I ordered a sushi at 14:00.
             Answer: order(sushi, _, 14)
+
+            Logical property: which_available_agents
+            Sentence: Which are the agents available in this project?
+            Answer: which_available_agents
         """;
 
         JSONObject json = new JSONObject();

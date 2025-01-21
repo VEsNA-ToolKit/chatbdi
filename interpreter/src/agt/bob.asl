@@ -1,7 +1,5 @@
 myname(bob).
 
-!start.
-
 +!start
     :   true
     <-  .wait(20000);

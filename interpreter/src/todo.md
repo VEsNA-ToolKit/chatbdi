@@ -5,7 +5,7 @@
  - [ ] Literals and so on should maintain a proprietary: now they are all mixed, but they should be subdivided and considered depending on the interlocutor.
 
 ## Chat
- - [ ] It should support @at for sending messages to single agent.
+ - [x] It should support @at for sending messages to single agent.
     In that case it should provide this information to agent.
 
 ## Internal Actions

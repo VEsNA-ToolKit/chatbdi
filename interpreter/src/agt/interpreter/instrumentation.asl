@@ -2,18 +2,24 @@
 
 // This plan instruments all the agents that are not the chat_bdi Agent
 +!instrument_all
-    :   true
-    <-  .wait(1000);
-        .all_names(Agents);
+    :   focusing(_, interpreter, _, _, _, _)
+    <-  .all_names(Agents);
         .my_name(Me);
-        for( .member(Agent, Agents) ){
-            if ( not Agent == Me ){
-                .print("I instrument ", Agent);
-                !instrument(Agent);
-            };
+        .delete( Me, Agents, NewAgents);
+        .length( NewAgents, N );
+        for( .member(Agent, NewAgents) ){
+            .print("I instrument ", Agent);
+            !instrument(Agent);
         };
-        .wait(2000);
+        while( .count(literals(_, _), X ) & X < N ){
+            .wait(500);
+        }
         !init_embeddings.
+
++!instrument_all
+    :   true
+    <-  .wait({+focusing(_, interpreter, _, _, _, _)});
+        !instrument_all.
 
 +!init_embeddings
     :   literals( _, Literals)
@@ -28,7 +34,7 @@
     :   .my_name(Me)
     <-  .plan_label(P3, provide_plans);
         .send(Agent, tellHow, P3);
-        .wait(1000);
+        .wait(250);
         .send(Agent, achieve, provide_plans(Me));
         .send(Agent, tellHow, "+!kqml_received(Agent, Performative, Msg, X) : true <- .send(Agent, tell, error_message).").
 

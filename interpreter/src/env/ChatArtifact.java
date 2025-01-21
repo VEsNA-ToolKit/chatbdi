@@ -22,6 +22,12 @@ import java.awt.event.ActionListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.util.List;
+import java.util.ArrayList;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
+
 public class ChatArtifact extends GUIArtifact {
 
     ChatView view;
@@ -42,6 +48,16 @@ public class ChatArtifact extends GUIArtifact {
         signal("user_msg", msg);
     }
 
+    @INTERNAL_OPERATION
+    private void notify_new_msg( List<Literal> recipients, String msg ) {
+        try {
+            ListTerm recipients_list = ASSyntax.parseList(recipients.toString());
+            signal( "user_msg", recipients_list, msg );
+        } catch ( Exception e ){
+            e.printStackTrace();
+        }
+    }
+
     class ChatView extends JFrame {
         private ChatArtifact art;
         // private JTextArea chatArea;
@@ -58,15 +74,10 @@ public class ChatArtifact extends GUIArtifact {
             setSize(400, 500);
             setLayout(new BorderLayout());
 
-            // chatArea = new JTextArea();
-            // chatArea.setEditable(false);
-            // chatArea.setLineWrap(true);
-            // chatArea.setWrapStyleWord(true);
             chatPane = new JTextPane();
             chatPane.setContentType("text/html");
             chatPane.setEditable(false);
             JScrollPane scrollPane = new JScrollPane( chatPane );
-            // JScrollPane scrollPane = new JScrollPane(chatArea);
 
             inputField = new JTextField();
 
@@ -100,21 +111,30 @@ public class ChatArtifact extends GUIArtifact {
         private void sendMessage() {
             String message = inputField.getText();
             if ( !message.trim().isEmpty() ) {
-                appendMessage( "interpreter", message );
+                List<Literal> recipients = appendMessage( "user", message );
                 inputField.setText("");
+                try {
+                    art.beginExtSession();
+                    if ( recipients.size() > 0 )
+                        art.notify_new_msg( recipients, message );
+                    else
+                        art.notify_new_msg( message );
+                } finally {
+                    art.endExtSession();
+                }
+                log("Sent " + message);
             }
-            try {
-                art.beginExtSession();
-                art.notify_new_msg( message );
-            } finally {
-                art.endExtSession();
-            }
-            log("Sent " + message);
         }
 
-        public void appendMessage( String sender, String msg ) {
-            String msg_with_hm = highlight_mentions( msg );
-            String msg_class = sender.equals("interpreter") ? "sent" : "received";
+        public List<Literal> appendMessage( String sender, String msg ) {
+            JSONObject mention_json = highlight_mentions( msg );
+            String msg_with_hm = mention_json.getString( "display" );
+            JSONArray recipients = mention_json.getJSONArray( "recipients" );
+            List<Literal> recipients_l = new ArrayList<>();
+            for ( Object recipient : recipients ) {
+                recipients_l.add( ASSyntax.createLiteral( (String) recipient ) );
+            }
+            String msg_class = sender.equals("user") ? "sent" : "received";
 
             String currentContent = chatPane.getText();
             int bodyStart = currentContent.indexOf("<body>") + 6;
@@ -170,20 +190,26 @@ public class ChatArtifact extends GUIArtifact {
             String updatedContent = bodyContent + msg_div;
 
             chatPane.setText(headerContent + updatedContent + "</div></body></html>");
+
+            return recipients_l;
         }
 
-        private String highlight_mentions( String msg ) {
+        private JSONObject highlight_mentions( String msg ) {
             Pattern pattern = Pattern.compile("@\\w+");
             Matcher matcher = pattern.matcher( msg );
             StringBuffer sb = new StringBuffer();
+            List<String> mentions = new ArrayList<>();
 
             while ( matcher.find() ){
                 String mention = matcher.group();
+                mentions.add(mention.substring(1));
                 matcher.appendReplacement( sb, "<span>" + mention + "</span>");
             }
             matcher.appendTail( sb );
-            return sb.toString();
+            JSONObject json = new JSONObject();
+            json.put( "display", sb.toString() );
+            json.put( "recipients", mentions );
+            return json;
         }
-
     }
 }
