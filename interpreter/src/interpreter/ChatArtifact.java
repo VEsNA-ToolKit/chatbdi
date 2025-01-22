@@ -1,4 +1,4 @@
-package env;
+package interpreter;
 
 import com.formdev.flatlaf.FlatLightLaf;
 

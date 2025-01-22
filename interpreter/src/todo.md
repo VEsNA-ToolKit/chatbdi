@@ -9,4 +9,4 @@
     In that case it should provide this information to agent.
 
 ## Internal Actions
- - [ ] They should remove the source from the parameter in square brackets, otherwise new beliefs are mispelled.
+ - [x] They should remove the source from the parameter in square brackets, otherwise new beliefs are mispelled.

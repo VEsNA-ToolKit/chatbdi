@@ -6,14 +6,13 @@ literals( interpreter, [ which_available_agents ] ).
 
 +!init_interpreter
     :   true
-    <-  makeArtifact(chat, "env.ChatArtifact", [], ArtId);
+    <-  makeArtifact(chat, "interpreter.ChatArtifact", [], ArtId);
         focus(ArtId);
-        makeArtifact(interpreter, "Interpreter", [], ArtId2);
+        makeArtifact(interpreter, "interpreter.Interpreter", [], ArtId2);
         focus(ArtId2);
         !instrument_all.
 
 +!kqml_received( Sender, tell, Msg, X )
-    :   true
     <-  .print("Received ", Msg, " from ", Sender );
         generate_sentence( Msg, Sentence );
         msg( Sender, Sentence ).

@@ -1,4 +1,4 @@
-package env;
+package interpreter;
 
 import jason.asSemantics.*;
 import jason.asSyntax.*;
@@ -6,7 +6,7 @@ import jason.pl.PlanLibrary;
 import java.util.List;
 import java.util.ArrayList;
 
-public class custom_list_plans extends DefaultInternalAction {
+public class list_plans extends DefaultInternalAction {
 
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {

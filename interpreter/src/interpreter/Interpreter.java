@@ -1,3 +1,5 @@
+package interpreter;
+
 import cartago.*;
 import jason.asSyntax.*;
 
@@ -20,7 +22,7 @@ public class Interpreter extends Artifact{
 
     private final String OLLAMA_URL = "http://localhost:11434/api/";
     private final HttpClient client = HttpClient.newHttpClient();
-    private final String EMBEDDING_MODEL = "snowflake-arctic-embed";
+    private final String EMBEDDING_MODEL = "granite-embedding";//"snowflake-arctic-embed";
     private final String FROM_MODEL = "codegemma";
     private final String FROM_L2NL_MODEL = "llama3.1";
     private final String LOGIC_TO_NL_MODEL = "logic-to-nl";
@@ -53,8 +55,9 @@ public class Interpreter extends Artifact{
                 best_literal = literal;
             }
         }
-
-        Literal new_property = generate_literal(best_literal, sentence);
+        log( "Best fitting embedding is " + best_literal );
+        Literal new_property = generate_literal(best_literal, sentence.toLowerCase() );
+        log( "Generated property: " + new_property );
         property.set( new_property );
     }
 
