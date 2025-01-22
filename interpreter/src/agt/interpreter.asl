@@ -1,6 +1,6 @@
 { include ("interpreter/instrumentation.asl") }
 
-literals( interpreter, [ which_available_agents, which_are_your_available_plans ] ).
+literals( interpreter, [ which_available_agents, which_are_your_available_plans, describe_plan ] ).
 
 !init_interpreter.
 
@@ -22,6 +22,15 @@ literals( interpreter, [ which_available_agents, which_are_your_available_plans 
         msg( Sender, Sentence ).
 
 +user_msg( Msg )
+    :   plan_description_choice( Agent )
+    // TODO: Controllare che Msg abbia la forma di un piano, quindi +! all'inizio
+    <-  .send( Agent, askHow, Msg, Plan );
+        .concat( "Describe this plan that you can perform: ", Plan, Prompt );
+        generate_sentence( Prompt, Sentence);
+        msg( Agent, Sentence );
+        -plan_description_choice( Agent ).
+
++user_msg( Msg )
     :   true
     <-  .print( "Broadcast msg" );
         generate_property( Msg, NewBelief );
@@ -40,7 +49,14 @@ literals( interpreter, [ which_available_agents, which_are_your_available_plans 
             if ( NewBelief == which_are_your_available_plans ) {
                 .send( Recipient, achieve, list_plans );
             } else {
-                .send( Recipient, tell, NewBelief );
+                if ( NewBelief == describe_plan ) {
+                    +plan_description_choice( Recipient );
+                    ?plans( Plans );
+                    .concat( "Please write on the chat the plan you want: ", Plans, PlanChoice );
+                    msg( interpreter, PlanChoice );
+                } else {
+                    .send( Recipient, tell, NewBelief );
+                }
             };
         }.
 

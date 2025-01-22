@@ -60,7 +60,6 @@ public class ChatArtifact extends GUIArtifact {
 
     class ChatView extends JFrame {
         private ChatArtifact art;
-        // private JTextArea chatArea;
         private JTextPane chatPane;
         private JTextField inputField;
         private JButton sendButton;

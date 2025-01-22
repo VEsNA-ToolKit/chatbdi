@@ -42,6 +42,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     @OPERATION
     public void generate_property( String sentence, OpFeedbackParam<Literal> property ) {
+        sentence = sentence.replaceAll("\\s*@\\S+", "");
         List<Double> embedding = compute_embedding( sentence );
         Literal best_literal = null;
         double best_distance = Double.MAX_VALUE;
@@ -54,11 +55,14 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
             }
         }
         log( "Best fitting embedding is " + best_literal );
-        if ( best_literal.equals( ASSyntax.createLiteral( "which_available_agents" ) ) || best_literal.equals( ASSyntax.createLiteral( "which_are_your_available_plans" ) ) ) {
+        if ( best_literal.equals( ASSyntax.createLiteral( "which_available_agents" ) ) ||
+                best_literal.equals( ASSyntax.createLiteral( "which_are_your_available_plans" ) ) ||
+                best_literal.equals( ASSyntax.createLiteral( "describe_plan" ) )
+        ) {
             property.set( best_literal );
             return;
         }
-        Literal new_property = generate_literal(best_literal, sentence.toLowerCase() );
+        Literal new_property = generate_literal( best_literal, sentence.toLowerCase() );
         log( "Generated property: " + new_property );
         property.set( new_property );
     }
@@ -70,7 +74,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     // init_embeddings takes all the literals from the agents and computes for each literal the embedding
     private void init_embeddings( Object[] literals ){
-        log( " - Initializing embeddings;" );
+        log( "Initializing embeddings;" );
         embeddings = new HashMap<>();
         for ( Object o_literal : literals ) {
             Literal literal = ASSyntax.createLiteral( (String) o_literal );
@@ -78,9 +82,6 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
                 List<Double> embedding = compute_embedding( literal.toString() );
                 embeddings.put( literal, embedding );
             }
-            //String literal = ( String ) o_literal;
-            //List<Double> embedding = compute_embedding( literal );
-            //embeddings.put( ASSyntax.createLiteral( literal ), embedding );
         }
     }
 
@@ -97,7 +98,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     }
 
     private void init_generation_models() {
-        log( " - Initializing generations models;");
+        log( "Initializing generations models;");
         JSONObject nl_to_logic_model = get_nl_to_logic_model();
         JSONObject logic_to_nl_model = get_logic_to_nl_model();
 
