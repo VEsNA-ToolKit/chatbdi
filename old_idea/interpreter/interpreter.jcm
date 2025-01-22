@@ -1,5 +1,0 @@
-mas sample_mas {
-
-    agent interpreter:interpreter/interpreter.asl
-    
-}

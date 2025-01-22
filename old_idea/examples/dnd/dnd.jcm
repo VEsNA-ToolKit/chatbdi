@@ -1,5 +1,0 @@
-mas dnd {
-
-    agent master:master.asl
-    agent player:interpreter/interpreter.asl
-}
