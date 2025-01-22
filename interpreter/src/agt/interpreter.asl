@@ -23,8 +23,12 @@ literals( interpreter, [ which_available_agents, which_are_your_available_plans,
 
 +user_msg( Msg )
     :   plan_description_choice( Agent )
-    // TODO: Controllare che Msg abbia la forma di un piano, quindi +! all'inizio
-    <-  .send( Agent, askHow, Msg, Plan );
+    <-  if( not .substring( "+!", Msg ) ){
+            .concat( "+!", Msg, PlanName );
+            .send( Agent, askHow, PlanName, Plan );
+        } else {
+            .send( Agent, askHow, Msg, Plan );
+        }
         .concat( "Describe this plan that you can perform: ", Plan, Prompt );
         generate_sentence( Prompt, Sentence);
         msg( Agent, Sentence );
