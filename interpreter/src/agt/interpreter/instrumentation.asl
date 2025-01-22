@@ -1,8 +1,9 @@
 // !instrument_all.
 
 // This plan instruments all the agents that are not the chat_bdi Agent
+@atomic
 +!instrument_all
-    :   focusing(_, interpreter, _, _, _, _)
+//    :   focusing(_, interpreter, _, _, _, _)
     <-  .all_names(Agents);
         .my_name(Me);
         .delete( Me, Agents, NewAgents);
@@ -11,23 +12,22 @@
             .print("I instrument ", Agent);
             !instrument(Agent);
         };
-        while( .count(literals(_, _), X ) & X < N ){
+        while( .count( literals( _ ), X ) & X < N ){
             .wait(500);
-        }
-        !init_embeddings.
+        }.
 
-+!instrument_all
-    :   true
-    <-  .wait({+focusing(_, interpreter, _, _, _, _)});
-        !instrument_all.
-
-+!init_embeddings
-    :   literals( _, Literals)
-    <-  init_ollama( Literals ).
-
-+!init_embeddings
-    :   true
-    <-  .print("There are no literals").
+// +!instrument_all
+//     :   true
+//     <-  .wait({+focusing(_, interpreter, _, _, _, _)});
+//         !instrument_all.
+// 
+// +!init_embeddings
+//     :   literals( _, Literals)
+//     <-  init_ollama( Literals ).
+// 
+// +!init_embeddings
+//     :   true
+//     <-  .print("There are no literals").
 
 // Instrument plan sends to Agent the provide_plans instructions and then asks the agent to achieve it.
 +!instrument(Agent)
