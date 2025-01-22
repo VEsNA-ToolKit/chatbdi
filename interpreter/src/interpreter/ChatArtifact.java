@@ -1,32 +1,31 @@
 package interpreter;
 
-import com.formdev.flatlaf.FlatLightLaf;
-
-import cartago.*;
-import cartago.tools.GUIArtifact;
-import jason.asSyntax.*;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import javax.swing.JTextPane;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import java.util.List;
-import java.util.ArrayList;
-
-import org.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.formdev.flatlaf.FlatLightLaf;
+
+import cartago.INTERNAL_OPERATION;
+import cartago.OPERATION;
+import cartago.tools.GUIArtifact;
+import jason.asSyntax.ASSyntax;
+import jason.asSyntax.ListTerm;
+import jason.asSyntax.Literal;
 
 public class ChatArtifact extends GUIArtifact {
 
@@ -68,7 +67,7 @@ public class ChatArtifact extends GUIArtifact {
             FlatLightLaf.setup();
             this.art = art;
 
-            setTitle("SpeakAgent");
+            setTitle("..::SpeakAgent::..");
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             setSize(400, 500);
             setLayout(new BorderLayout());
@@ -142,47 +141,51 @@ public class ChatArtifact extends GUIArtifact {
             String headerContent = """
                     <html>
                     <head>
-                    <style>
-                    span {
-                      background: #ee6c4d;
-                      color: #fff;
-                      padding: 5px 10px;
-                      margin: 0 5px;
-                    }
-                    
-                    .sent {
-                        text-align: right;
-                        background: #25a18e;
-                        padding: 10px;
-                        margin: 5px;
-                    }
+                        <style>
 
-                    .received {
-                        text-align: left;
-                        background: #00a5cf;
-                        padding: 10px;
-                        margin: 5px;
-                    }
+                            body {
+                                font-family: Roboto, sans-serif;
+                                font-size: 12px;
+                            }
+                            span {
+                                background: #F4A261;
+                                color: #fff;
+                                padding: 5px 10px;
+                                margin: 0 5px;
+                            }
+                        
+                            .sent {
+                                text-align: right;
+                                background: #264653;
+                                padding: 10px;
+                                margin: 5px;
+                            }
 
-                    .sender {
-                        font-weight: bold;
-                        font-size: 10px;
-                    }
-                    
-                    .content {
-                        font-weight: normal;
-                    }
+                            .received {
+                                text-align: left;
+                                background: #E76F51;
+                                padding: 10px;
+                                margin: 5px;
+                            }
 
-                    .chat {
-                        font-family: Roboto, sans-serif;
-                        font-size: 12px;
-                        padding: 5px;
-                    }
-                    </style>
+                            .sender {
+                                font-weight: bold;
+                                font-size: 10px;
+                                color: white;
+                            }
+                        
+                            .content {
+                                font-weight: bold;
+                                color: white;
+                            }
+
+                        </style>
                     </head>
                     <body>
-                    <div class="chat">
                     """;
+            if ( !bodyContent.contains( "div" ) ){
+                bodyContent = "";
+            }
             String sender_div = "<div class='sender'> " + sender + "</div>";
             String content_div = "<div class='content'>" + msg_with_hm + "</div>";
             String msg_div = "<div class='" + msg_class + "'>" + sender_div + content_div + "</div>";
