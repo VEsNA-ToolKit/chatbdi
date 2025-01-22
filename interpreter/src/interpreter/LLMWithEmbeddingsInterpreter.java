@@ -32,15 +32,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     private Map<Literal, List<Double>> embeddings;
 
-    // init_ollama
     // 1. initializes the embeddings of each agent beliefs;
     // 2. creates the two generation models.
-    // @OPERATION
-    // public void init_ollama( Object[] literals ) {
-    //     log( "Initializing Ollama models");
-    //     init_embeddings(literals);
-    //     init_generation_models();
-    // }
     void init( Object[] literals ) {
         log( "Initializing Ollama models" );
         init_embeddings( literals );
@@ -80,9 +73,26 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         log( " - Initializing embeddings;" );
         embeddings = new HashMap<>();
         for ( Object o_literal : literals ) {
-            String literal = ( String ) o_literal;
-            List<Double> embedding = compute_embedding( literal );
-            embeddings.put( ASSyntax.createLiteral( literal ), embedding );
+            Literal literal = ASSyntax.createLiteral( (String) o_literal );
+            if ( embeddings.get( literal ) == null ){
+                List<Double> embedding = compute_embedding( literal.toString() );
+                embeddings.put( literal, embedding );
+            }
+            //String literal = ( String ) o_literal;
+            //List<Double> embedding = compute_embedding( literal );
+            //embeddings.put( ASSyntax.createLiteral( literal ), embedding );
+        }
+    }
+
+    @OPERATION
+    public void update_embeddings( Object[] literals ) {
+        log( "Updating embeddings" );
+        for (Object o_literal : literals ){
+            Literal literal = ASSyntax.createLiteral( (String) o_literal );
+            if ( embeddings.get( literal ) == null ){
+                List<Double> embedding = compute_embedding( literal.toString() );
+                embeddings.put( literal, embedding );
+            }
         }
     }
 
