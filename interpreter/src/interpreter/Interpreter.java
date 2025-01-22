@@ -56,6 +56,10 @@ public class Interpreter extends Artifact{
             }
         }
         log( "Best fitting embedding is " + best_literal );
+        if ( best_literal.equals( ASSyntax.createLiteral( "which_available_agents" ) ) || best_literal.equals( ASSyntax.createLiteral( "which_are_your_available_plans" ) ) ) {
+            property.set( best_literal );
+            return;
+        }
         Literal new_property = generate_literal(best_literal, sentence.toLowerCase() );
         log( "Generated property: " + new_property );
         property.set( new_property );

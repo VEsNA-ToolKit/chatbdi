@@ -32,8 +32,7 @@
 // Instrument plan sends to Agent the provide_plans instructions and then asks the agent to achieve it.
 +!instrument(Agent)
     :   .my_name(Me)
-    <-  // .plan_label(P3, provide_plans);
-        // .send(Agent, tellHow, P3);
+    <-  .send(Agent, tellHow, "+!list_plans <- interpreter.list_plans( Plans ); .concat( \"Make a summary of what you can do as a dotted list. The list of the plans you have available is \", Plans, PlanString ); .send( interpreter, tell, describe(PlanString)).");
         .send(Agent, tellHow, "+!provide_literals( Interpreter ) : .my_name( Me ) <- interpreter.list_plans( Plans ); .send( Interpreter, tell, plans( Plans ) ); interpreter.list_beliefs( Beliefs ); .send( Interpreter, tell, beliefs( Beliefs ) ); interpreter.list_useful_literals( Literals ); .send( Interpreter, tell, literals( Literals ) ).");
         .wait(250);
         .send(Agent, achieve, provide_literals(Me));

@@ -1,6 +1,6 @@
 { include ("interpreter/instrumentation.asl") }
 
-literals( interpreter, [ which_available_agents ] ).
+literals( interpreter, [ which_available_agents, which_are_your_available_plans ] ).
 
 !init_interpreter.
 
@@ -16,6 +16,10 @@ literals( interpreter, [ which_available_agents ] ).
     <-  .print("Received ", Msg, " from ", Sender );
         generate_sentence( Msg, Sentence );
         msg( Sender, Sentence ).
+
+// +!kqml_received( Sender, tell, available_plans_of_agent( Agent ), X )
+//     :   plans(Plans)[source(Agent)]
+//     <-  generate_sentence( the_plans_of_agent_are(Agent, Plans), Sentence).
 
 +user_msg( Msg )
     :   true
@@ -33,11 +37,16 @@ literals( interpreter, [ which_available_agents ] ).
     <-  .print( "Message to ", Recipients );
         generate_property( Msg, NewBelief );
         for ( .member(Recipient, Recipients ) ){
-            .send( Recipient, tell, NewBelief );
+            if ( NewBelief == which_are_your_available_plans ) {
+                .send( Recipient, achieve, list_plans );
+            } else {
+                .send( Recipient, tell, NewBelief );
+            };
         }.
 
 +!enumerate_agents
     :   .all_names( Names ) & .my_name( Name )
     <-  .delete(Name, Names, NewNames);
-        generate_sentence( agents_available_in_this_project( NewNames ), Sentence );
+        .concat( "Enumerate the agents in this multi-agent system in a dotted list. The agents are: ", NewNames, Description);
+        generate_sentence( describe( Description ), Sentence );
         msg( interpreter, Sentence ).
