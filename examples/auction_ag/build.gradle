@@ -1,0 +1,63 @@
+/*
+   Application Auction Agent based (tutorial)
+
+   Gradle build file for JaCaMo Application
+*/
+
+defaultTasks 'run'
+
+apply plugin: 'java'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
+}
+
+repositories {
+    maven { url "https://raw.githubusercontent.com/jacamo-lang/mvn-repo/master" }
+    maven { url "https://repo.gradle.org/gradle/libs-releases" }
+    mavenCentral()
+}
+
+dependencies {
+    // implementation group: 'org.jacamo',     name: 'jacamo' ,   version: '1.2'
+    implementation ('org.jacamo:jacamo:1.2')
+
+    // https://mvnrepository.com/artifact/org.java-websocket/Java-WebSocket
+    implementation group: 'org.java-websocket', name: 'Java-WebSocket', version: '1.5.6'
+    // https://mvnrepository.com/artifact/org.json/json
+    implementation("org.json:json:20230227")
+}
+
+sourceSets {
+    main {
+        java {
+            // srcDir 'src/env'
+            srcDir 'src/agt/jia'
+            srcDir 'src/interpreter'
+        }
+        resources {
+            srcDir 'src/resources'
+        }
+    }
+}
+
+task run (type: JavaExec, dependsOn: 'classes') {
+    description 'runs the application'
+    group ' JaCaMo'
+    main = 'jacamo.infra.JaCaMoLauncher'
+    args 'auction_ag.jcm'
+    classpath sourceSets.main.runtimeClasspath
+}
+
+task buildJCMDeps (type: JavaExec, dependsOn: 'classes') {
+    mainClass = 'jacamo.infra.RunJaCaMoProject'
+    args = ['auction_ag.jcm', '--deps']
+    classpath sourceSets.main.runtimeClasspath
+}
+
+clean {
+    delete 'bin'
+    delete 'build'
+}

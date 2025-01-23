@@ -25,7 +25,7 @@
         .send( Agent , tellHow, "+!kqml_received( Agent, Performative, Msg, X ) : true <- .send( Agent, tell, error_message )." ).
 
 +!kqml_received( Sender, tell, plans( Plans ), X )
-    :   plans( _ )
+    :   plans( _ )[ source( Sender )]
     <-  .print( "Got triggers from ", Sender );
         -+plans( Plans );
         update_embeddings( Plans ).
@@ -35,7 +35,7 @@
         -+plans( Triggers )[ source( Sender ) ].
 
 +!kqml_received( Sender, tell, beliefs(Beliefs), X )
-    :   beliefs( _ )
+    :   beliefs( _ )[ source( Sender )]
     <-  .print( "Got beliefs from ", Sender, ": ", Beliefs );
         -+beliefs( Beliefs )[ source( Sender ) ];
         update_embeddings( Beliefs ).
@@ -45,7 +45,7 @@
         -+beliefs( Beliefs )[ source( Sender ) ].
 
 +!kqml_received( Sender, tell, literals(Literals), X )
-    :   literals( _ )
+    :   literals( _ )[ source( Sender )]
     <-  .print( "Got Literals from ", Sender, ": ", Literals );
         -+literals( Literals )[ source( Sender ) ];
         update_embeddings( Literals ).
