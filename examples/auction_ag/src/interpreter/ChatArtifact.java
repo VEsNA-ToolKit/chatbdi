@@ -156,14 +156,14 @@ public class ChatArtifact extends GUIArtifact {
                         
                             .sent {
                                 text-align: right;
-                                background: #264653;
+                                background: #2c6e49;
                                 padding: 10px;
                                 margin: 5px;
                             }
 
                             .received {
                                 text-align: left;
-                                background: #E76F51;
+                                background: #05668d;
                                 padding: 10px;
                                 margin: 5px;
                             }

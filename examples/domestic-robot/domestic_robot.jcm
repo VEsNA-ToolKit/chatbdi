@@ -1,0 +1,17 @@
+mas domestic_robot {
+
+    agent robot : robot.asl {
+        focus: house.houseView
+    }
+    agent owner : owner.asl {
+        focus: house.houseView
+    }
+    agent supermarket : supermarket.asl {
+        focus: house.houseView
+    }
+
+    workspace house {
+        artifact houseView : house.HouseEnv(gui) // use "nogui" as parameter to not show the GUI
+    }
+
+}
