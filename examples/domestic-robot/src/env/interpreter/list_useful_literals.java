@@ -45,10 +45,8 @@ public class list_useful_literals extends DefaultInternalAction {
                         groundTerms.add(matcher.group());
                     }
                     for ( String term : groundTerms ) {
-                        if (!term.strip().equals("not")) {
-                            Literal lterm = Literal.parseLiteral(term);
-                            list.add( lterm );
-                        }
+                        Literal lterm = Literal.parseLiteral(term);
+                        list.add( lterm );
                     }
                 }
 

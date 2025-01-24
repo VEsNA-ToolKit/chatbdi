@@ -1,4 +1,5 @@
 // This plan instruments all the agents that are not the chat_bdi Agent
+// @atomic forces the agent to wait for all answers
 @atomic
 +!instrument_all
     <-  .all_names(Agents);
@@ -13,7 +14,13 @@
             .wait(500);
         }.
 
-// Instrument plan sends to Agent the provide_plans instructions and then asks the agent to achieve it.
+// The instrument( Agent ) plan sends to Agent:
+// - the name of the interpreter
+// - the plan +!list_plans to list all plans
+// - the plan +!provide_literals(Interpreter) that sends to the interpreter all beliefs, plans and literals
+// - the triggering event +_ that makes Agent send an update message with new beliefs for each new own belief
+// - a fallback plan for messages without specific management from Agent
+// And sends an achieve for plan +!provide_literals for the initialization
 +!instrument( Agent )
     :   .my_name( Me )
     <-  .send( Agent, tell, interpreter( Me ) );
@@ -24,32 +31,38 @@
         .send( Agent , tellHow, "+_ : interpreter( Name ) <- interpreter.list_beliefs( Beliefs ); .send( Name, tell, beliefs( Beliefs) )." );
         .send( Agent , tellHow, "+!kqml_received( Agent, Performative, Msg, X ) : true <- .send( Agent, tell, error_message )." ).
 
+// Update plans
 +!kqml_received( Sender, tell, plans( Plans ), X )
-    :   plans( _ )[ source( Sender )]
+    :   plans( _ )[ source( Sender ) ]
     <-  .print( "Got triggers from ", Sender );
         -+plans( Plans );
         update_embeddings( Plans ).
 
-+!kqml_received( Sender, tell, plans(Triggers), X )
+// Initialize plans
++!kqml_received( Sender, tell, plans( Triggers ), X )
     <-  .print( "Got triggers from ", Sender );
         -+plans( Triggers )[ source( Sender ) ].
 
-+!kqml_received( Sender, tell, beliefs(Beliefs), X )
-    :   beliefs( _ )[ source( Sender )]
+// Update beliefs
++!kqml_received( Sender, tell, beliefs( Beliefs ), X )
+    :   beliefs( _ )[ source( Sender ) ]
     <-  .print( "Got beliefs from ", Sender, ": ", Beliefs );
         -+beliefs( Beliefs )[ source( Sender ) ];
         update_embeddings( Beliefs ).
 
-+!kqml_received( Sender, tell, beliefs(Beliefs), X )
+// Initialize beliefs
++!kqml_received( Sender, tell, beliefs( Beliefs ), X )
     <-  .print( "Got beliefs from ", Sender, ": ", Beliefs );
         -+beliefs( Beliefs )[ source( Sender ) ].
-
-+!kqml_received( Sender, tell, literals(Literals), X )
-    :   literals( _ )[ source( Sender )]
+ 
+// Update literals
++!kqml_received( Sender, tell, literals( Literals ), X )
+    :   literals( _ )[ source( Sender ) ]
     <-  .print( "Got Literals from ", Sender, ": ", Literals );
         -+literals( Literals )[ source( Sender ) ];
         update_embeddings( Literals ).
 
-+!kqml_received( Sender, tell, literals(Literals), X )
+// Initialize literals
++!kqml_received( Sender, tell, literals( Literals ), X )
     <-  .print( "Got Literals from ", Sender, ": ", Literals );
         -+literals( Literals )[ source( Sender ) ].

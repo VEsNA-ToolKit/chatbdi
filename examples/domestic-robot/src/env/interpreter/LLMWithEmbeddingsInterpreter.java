@@ -24,12 +24,14 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     private final HttpClient client = HttpClient.newHttpClient();
     private final String EMBEDDING_MODEL = "granite-embedding";//"snowflake-arctic-embed";
     private final String FROM_MODEL = "codegemma";
-    private final String FROM_L2NL_MODEL = "llama3.1";
     private final String LOGIC_TO_NL_MODEL = "logic-to-nl";
     private final String NL_TO_LOGIC_MODEL = "nl-to-logic";
     private final float TEMPERATURE = 0.2f;
     private final String DEBUG_LOG = "interpreter.log";
 
+    // The map of embeddings with:
+    // - a literal as key
+    // - the corresponding embedding as value
     private Map<Literal, List<Double>> embeddings;
 
     // 1. initializes the embeddings of each agent beliefs;
@@ -42,8 +44,24 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     @OPERATION
     public void generate_property( String sentence, OpFeedbackParam<Literal> property ) {
+        // Remove all the mentions from the string
         sentence = sentence.replaceAll("\\s*@\\S+", "");
+        // Check some specific simple cases
+        sentence = sentence.toLowerCase();
+        if (sentence.contains("which") && sentence.contains("available") ){
+            if (sentence.contains("agents"))
+                property.set(ASSyntax.createLiteral("which_available_agents"));
+            else if ( sentence.contains("plans") )
+                property.set(ASSyntax.createLiteral("which_are_your_available_plans"));
+            return;
+        }
+        if ( sentence.contains("describe") && sentence.contains("plan") ){
+            property.set(ASSyntax.createLiteral("describe_plan"));
+            return;
+        }
+        // Compute the embedding of the message
         List<Double> embedding = compute_embedding( sentence );
+        // Find the literal with the closer embedding
         Literal best_literal = null;
         double best_distance = Double.MAX_VALUE;
         for ( Literal literal : embeddings.keySet() ) {
@@ -55,6 +73,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
             }
         }
         log( "Best fitting embedding is " + best_literal );
+        // If the literal is some of these cases that are ground terms of the interpreter we can directly return
         if ( best_literal.equals( ASSyntax.createLiteral( "which_available_agents" ) ) ||
                 best_literal.equals( ASSyntax.createLiteral( "which_are_your_available_plans" ) ) ||
                 best_literal.equals( ASSyntax.createLiteral( "describe_plan" ) )
@@ -62,6 +81,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
             property.set( best_literal );
             return;
         }
+        // Modify the closest property with the values provided in the sentence
         Literal new_property = generate_literal( best_literal, sentence.toLowerCase() );
         log( "Generated property: " + new_property );
         property.set( new_property );
@@ -69,15 +89,18 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     @OPERATION
     public void generate_sentence( String literal_str, OpFeedbackParam<String> sentence ) {
+        // Generate a sentence starting from the literal
         sentence.set( generate_string( ASSyntax.createLiteral(literal_str) ) );
     }
 
     // init_embeddings takes all the literals from the agents and computes for each literal the embedding
     private void init_embeddings( Object[] literals ){
         log( "Initializing embeddings;" );
+        // Initialize embeddings hashmap
         embeddings = new HashMap<>();
         for ( Object o_literal : literals ) {
             Literal literal = ASSyntax.createLiteral( (String) o_literal );
+            // Add the embedding only if it is not already present
             if ( embeddings.get( literal ) == null ){
                 List<Double> embedding = compute_embedding( literal.toString() );
                 embeddings.put( literal, embedding );
@@ -85,6 +108,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
     }
 
+    // This function updates the embeddings with new beliefs gained by agents
     @OPERATION
     public void update_embeddings( Object[] literals ) {
         log( "Updating embeddings" );
@@ -97,6 +121,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
     }
 
+    // This function creates the two models needed
     private void init_generation_models() {
         log( "Initializing generations models;");
         JSONObject nl_to_logic_model = get_nl_to_logic_model();
@@ -106,6 +131,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         create_model( logic_to_nl_model );
     }
 
+    // Given the modelfile as JSON it sends the request to the Ollama API
     private void create_model( JSONObject modelfile ){
         try {
             HttpRequest request = HttpRequest.newBuilder()

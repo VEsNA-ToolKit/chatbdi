@@ -1,3 +1,5 @@
+// This is just a sample agent that adds and removes beliefs and has two simple plans
+
 myname(bob).
 
 !add_belief.

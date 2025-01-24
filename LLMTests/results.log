@@ -1,4 +1,0 @@
-cooking
-TEMP	EMBEDDING		GENERATOR	WEAK	STRONG	EMB	TIME
-0.0	nomic-embed-text	gemma		26.09%	13.04%	65.22%	1.22
-0.2	nomic-embed-text	gemma		26.09%	13.04%	65.22%	0.94

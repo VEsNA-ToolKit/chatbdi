@@ -1,9 +1,15 @@
 { include ("interpreter/instrumentation.asl") }
 
+// This are the literals from interpreter that handles some specific actions
 literals( interpreter, [ which_available_agents, which_are_your_available_plans, describe_plan ] ).
 
 !init_interpreter.
 
+// Init the interpreter
+// - create the chat artifact
+// - instrument all the agents and wait for the answers
+// - init the Interpreter implemented with LLM and embeddings
+//  with all the literals as parameters to generate the embeddings
 +!init_interpreter
     :   true
     <-  makeArtifact(chat, "interpreter.ChatArtifact", [], ArtId);
@@ -16,11 +22,13 @@ literals( interpreter, [ which_available_agents, which_are_your_available_plans,
         makeArtifact(interpreter, "interpreter.LLMWithEmbeddingsInterpreter", [AllLiterals], ArtId2);
         focus(ArtId2).
 
+// Each message received is translated in a sentence and sent on the chat
 +!kqml_received( Sender, tell, Msg, X )
     <-  .print("Received ", Msg, " from ", Sender );
         generate_sentence( Msg, Sentence );
         msg( Sender, Sentence ).
 
+// If the user has asked one agent to describe a plan now the interpreter is waiting for the plan name
 +user_msg( Msg )
     :   plan_description_choice( Agent )
     <-  if( not .substring( "+!", Msg ) ){
@@ -34,6 +42,8 @@ literals( interpreter, [ which_available_agents, which_are_your_available_plans,
         msg( Agent, Sentence );
         -plan_description_choice( Agent ).
 
+// The user sent a message without recipients -> broadcast
+// It manages a request from the user of which are the available agents
 +user_msg( Msg )
     :   true
     <-  .print( "Broadcast msg" );
@@ -45,6 +55,8 @@ literals( interpreter, [ which_available_agents, which_are_your_available_plans,
             .broadcast( tell, NewBelief );
         }.
 
+// The user sent a message with recipients -> send to all recipients
+// It manages the request from the user of available plans and describe a plan
 +user_msg( Recipients, Msg )
     :   true
     <-  .print( "Message to ", Recipients );
@@ -55,7 +67,7 @@ literals( interpreter, [ which_available_agents, which_are_your_available_plans,
             } else {
                 if ( NewBelief == describe_plan ) {
                     +plan_description_choice( Recipient );
-                    ?plans( Plans );
+                    ?plans( Plans )[ source( Recipient ) ];
                     .concat( "Please write on the chat the plan you want: ", Plans, PlanChoice );
                     msg( interpreter, PlanChoice );
                 } else {
@@ -64,6 +76,7 @@ literals( interpreter, [ which_available_agents, which_are_your_available_plans,
             };
         }.
 
+// Enumerates the name of the agents.
 +!enumerate_agents
     :   .all_names( Names ) & .my_name( Name )
     <-  .delete(Name, Names, NewNames);

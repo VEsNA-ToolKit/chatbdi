@@ -18,7 +18,7 @@ import javax.swing.JTextPane;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-// import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
@@ -64,7 +64,7 @@ public class ChatArtifact extends GUIArtifact {
         private JButton sendButton;
 
         public ChatView( ChatArtifact art ) {
-            // FlatLightLaf.setup();
+            FlatLightLaf.setup();
             this.art = art;
 
             setTitle("..::SpeakAgent::..");
