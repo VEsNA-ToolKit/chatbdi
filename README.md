@@ -1,4 +1,35 @@
-# Interpreter
+# KQML Interpreter
+
+The KQML Interpreter is an agent you can add to your JaCaMo project that makes you able to enter the mas  and talk with agents in natural language providing explanations or playing the role of one of the agents.
+
+You will find:
+
+- `/interpreter` a basic example with the code of the interpreter and one simple agent as proof;
+- `/examples` two examples from existing projects:
+  - ``/domestic-robot`` the interpreter is not part of the mas, it can ask for information
+  - `auction_ag` the interpreter is one of the partecipants at the auction
+
+To start a project you have to enter the folder and simply type
+
+```
+gradle run
+```
+
+The requirements are:
+
+- java 23
+
+- gradle installed
+
+- ollama installed and serving with `ollama serve` and at least `codegemma` and `nomic-embed-text` pulled:
+
+  ```
+  ollama pull codegemma
+  ollama pull nomic-embed-text
+  ollama serve
+  ```
+
+
 
 The interpreter consists of two components:
 
@@ -134,4 +165,4 @@ The graphical interface is implemented using Java Swing and extends `JFrame`. Th
 2. `appendMessage()`  
    Highlights mentions using `<span>` and saves them in a dictionary. It then updates the interface with HTML and returns the mention dictionary.
 
---- 
+---

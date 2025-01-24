@@ -7,11 +7,11 @@ myname(bob).
 +!add_belief
     :   true
     <-  .wait(3000);
-        +prova;
+        +trial;
         .wait(1000);
-        +prova(2);
+        +trial(2);
         .wait(1000);
-        -+prova(3).
+        -+trial(3).
 
 +!start
     :   true
@@ -21,4 +21,4 @@ myname(bob).
 
 +!say_hello(Agent)
     :   true
-    <-  .send(Agent, tell, ciao).
+    <-  .send(Agent, tell, hello).

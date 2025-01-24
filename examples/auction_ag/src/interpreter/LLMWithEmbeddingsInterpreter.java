@@ -22,7 +22,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     private final String OLLAMA_URL = "http://localhost:11434/api/";
     private final HttpClient client = HttpClient.newHttpClient();
-    private final String EMBEDDING_MODEL = "granite-embedding";//"snowflake-arctic-embed";
+    private final String EMBEDDING_MODEL = "nomic-embed-text";
     private final String FROM_MODEL = "codegemma";
     private final String LOGIC_TO_NL_MODEL = "logic-to-nl";
     private final String NL_TO_LOGIC_MODEL = "nl-to-logic";
