@@ -39,3 +39,75 @@
     <-  .print("Received ", Msg, " from ", Sender );
         generate_sentence( Performative, Msg, Sentence );
         msg( Sender, Sentence ).
+
+// ** INSTRUMENTATION ** //
+
+// This plan instruments all the agents and waits for all the literals
+// from the agents.
+//! Can broadcast overwrite one of these two methods?
+@atomic
++!instrument_all
+    <-  .all_names( AllAgents );
+        .my_name( Me );
+        .delete( Me, AllAgents, Agents );
+        .length( Agents, N );
+        for( .member( Agent, Agents ) ) {
+            .print( "I instrument ", Agent );
+            !instrument( Agent );
+        };
+        while( .count( literals( _ ), RecvN ) & RecvN < N ){
+            .wait( 500 );
+        }.
+
++!instrument( Agent )
+    <-  .my_name( Me );
+        .send( Agent, tell, interpreter( Me ) );
+        .plan_label( ListPlans, list_plans );
+        .plan_label( ProvideLiterals, provide_literals );
+        .send( Agent, tellHow, ListPlans );
+        .send( Agent, tellHow, ProvideLiterals );
+        .send( Agent, tellHow, "+_ : interpreter( Interpreter ) <- interpreter.list_beliefs( Beliefs ); .send( Name, tell, beliefs( Beliefs ) ).");
+        .send( Agent, tellHow, "+!kqml_received( Agent, _, _, _ ) <- .send( Agent, tell, error_message )");
+        .send( Agent, achieve, provide_literals ).
+
+@list_plans
++!list_plans
+    :   interpreter( Intepreter )
+    <-  interpreter.list_plans( Plans );
+        .concat( "These is what you can do, describe to me your functions using a dotted list. These are your plans: ", Plans, PromptString );
+        .send( Name, tell, describe( PromptString ) ).
+
+@provide_literals
++!provide_literals
+    :   interpreter( Interpreter )
+    <-  .my_name( Me );
+        interpreter.list_plans( Plans );
+        interpreter.list_beliefs( Beliefs );
+        interpreter.list_useful_literals( Literals );
+        .send( Interpreter, tell, Plans );
+        .send( Interpreter, tell, Beliefs );
+        .send( Interpreter, tell, Literals).
+
++!kqml_received( Sender, tell, beliefs( Beliefs ), _ )
+    :   beliefs( _ )[ source( Sender ) ]
+    <-  -+beliefs( Beliefs )[ source( Sender ) ];
+        update_embeddings( Beliefs ).
+
++!kqml_received( Sender, tell, beliefs( Beliefs ), _ )
+    <-  -+beliefs( Beliefs )[ source( Sender ) ].
+
++!kqml_received( Sender, tell, plans( Plans ), _ )
+    :   plans( _ )[ source( Sender ) ]
+    <-  -+plans( Plans )[ source( Sender ) ];
+        update_embeddings( Plans ).
+
++!kqml_received( Sender, tell, plans( Plans ), _ )
+    <-  -+plans( Plans )[ source( Sender ) ].
+
++!kqml_received( Sender, tell, literals( Literals ) )
+    :   literals( _ )[ source( Sender ) ]
+    <-  -+literals( Literals )[ source( Sender ) ];
+        update_embeddings( Literals ).
+
++!kqml_received( Sender, tell, literals( Literals ) )
+    <-  -+literals( Literals )[ source( Sender ) ].
