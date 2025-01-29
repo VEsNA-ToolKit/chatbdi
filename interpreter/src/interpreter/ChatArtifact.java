@@ -34,12 +34,12 @@ public class ChatArtifact extends GUIArtifact {
     @Override
     public void init() {
         view = new ChatView( this );
-        view.setVisible(true);
+        view.setVisible( true );
     }
 
     @OPERATION
-    public void msg(String sender, String message) {
-        view.appendMessage(sender, message);
+    public void msg( String sender, String message ) {
+        view.appendMessage( sender, message );
     }
 
     @INTERNAL_OPERATION
@@ -64,7 +64,7 @@ public class ChatArtifact extends GUIArtifact {
         private JButton sendButton;
 
         public ChatView( ChatArtifact art ) {
-            FlatLightLaf.setup();
+            // FlatLightLaf.setup();
             this.art = art;
 
             setTitle("..::SpeakAgent::..");
