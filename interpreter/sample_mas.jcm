@@ -1,7 +1,5 @@
 mas sample_mas {
 
-    // agent interpreter:interpreter/interpreter.asl
-    // agent bob:bob.asl
     agent alice:alice.asl
     agent bob:bob.asl
     

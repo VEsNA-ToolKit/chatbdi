@@ -9,19 +9,19 @@ import java.util.ArrayList;
 public class list_plans extends DefaultInternalAction {
 
     @Override
-    public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
+    public Object execute( TransitionSystem ts, Unifier un, Term[] args ) throws Exception {
         Agent agent = ts.getAg();
         PlanLibrary pl = agent.getPL();
 
         ListTerm list = new ListTermImpl();
 
-        for (Plan p : pl.getPlans()) {
+        for ( Plan p : pl.getPlans() ) {
             String srcInfo = p.getSrcInfo().toString();
-            if ( srcInfo.startsWith("file:") ) {
-                list.add(new StringTermImpl(p.getTrigger().getTerm(1).toString()));
+            if ( srcInfo.startsWith( "file:" ) ) {
+                list.add( new StringTermImpl( p.getTrigger().getTerm(1).toString() ) );
             }
         }
 
-        return un.unifies(list, args[0]);
+        return un.unifies( list, args[0] );
     }
 }

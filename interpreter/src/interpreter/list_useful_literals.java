@@ -11,15 +11,18 @@ import java.util.ArrayList;
 public class list_useful_literals extends DefaultInternalAction {
     
     @Override
-    public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
+    public Object execute( TransitionSystem ts, Unifier un, Term[] args ) throws Exception {
+
         Agent agent = ts.getAg();
+
         ListTerm list = new ListTermImpl();
+
         for (Literal original_belief : agent.getBB()) {
             Literal belief = original_belief.copy();
             SourceInfo srcInfo = belief.getSrcInfo();
             if ( srcInfo != null ) {
                 String srcInfoStr = srcInfo.toString();
-                if ( srcInfoStr.startsWith("file:") ) {
+                if ( srcInfoStr.startsWith( "file:" ) ) {
                     belief.clearAnnots();
                     list.add( belief );
                 }
@@ -27,9 +30,10 @@ public class list_useful_literals extends DefaultInternalAction {
         }
 
         PlanLibrary pl = agent.getPL();
+
         for ( Plan p : pl.getPlans() ) {
             String srcInfo = p.getSrcInfo().toString();
-            if ( srcInfo.startsWith("file:") ) {
+            if ( srcInfo.startsWith( "file:" ) ) {
                 LogicalFormula context = p.getContext();
                 if ( context != null ) {
                     String contextStr = context.toString();
@@ -38,14 +42,14 @@ public class list_useful_literals extends DefaultInternalAction {
                     String regex = "(?<!\\.)\\b[a-z]\\w*\\s*(\\([^()]*\\))?";
 
                     
-                    Pattern pattern = Pattern.compile(regex);
-                    Matcher matcher = pattern.matcher(contextStr);
+                    Pattern pattern = Pattern.compile( regex );
+                    Matcher matcher = pattern.matcher( contextStr );
                     
-                    while (matcher.find()) {
-                        groundTerms.add(matcher.group());
+                    while ( matcher.find() ) {
+                        groundTerms.add( matcher.group() );
                     }
                     for ( String term : groundTerms ) {
-                        Literal lterm = Literal.parseLiteral(term);
+                        Literal lterm = Literal.parseLiteral( term );
                         list.add( lterm );
                     }
                 }
@@ -56,6 +60,6 @@ public class list_useful_literals extends DefaultInternalAction {
             }
         }
 
-        return un.unifies(list, args[0]);
+        return un.unifies( list, args[0] );
     }
 }

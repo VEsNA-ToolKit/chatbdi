@@ -39,10 +39,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     // 2. creates the two generation models.
     //! init cannot signal because it is called before the agent focus on the artifact
     void init( Object[] literals ) {
-        // defineObsProperty( "running", false );
         if ( !check_ollama() ) {
             log( "The ollama server is not running! Please start it and try again." );
-            // updateObsProperty( "running", false );
             defineObsProperty( "running", false );
             return;
         }
@@ -50,7 +48,6 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         init_embeddings( literals );
         init_generation_models();
         defineObsProperty( "running", true );
-        // updateObsProperty("running", true);
     }
 
     @OPERATION

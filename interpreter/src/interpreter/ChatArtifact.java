@@ -37,20 +37,25 @@ public class ChatArtifact extends GUIArtifact {
         view.setVisible( true );
     }
 
+    // This operation is called by the agent to display a message in the chat 
     @OPERATION
     public void msg( String sender, String message ) {
         view.appendMessage( sender, message );
     }
 
+    // This operation is called from ChatView to notify the agent about a new message
+    // without recipients
     @INTERNAL_OPERATION
     private void notify_new_msg( String msg ){
-        signal("user_msg", msg);
+        signal( "user_msg", msg );
     }
 
+    // This operation is called from ChatView to notify the agent about a new message
+    // with recipients
     @INTERNAL_OPERATION
     private void notify_new_msg( List<Literal> recipients, String msg ) {
         try {
-            ListTerm recipients_list = ASSyntax.parseList(recipients.toString());
+            ListTerm recipients_list = ASSyntax.parseList( recipients.toString() );
             signal( "user_msg", recipients_list, msg );
         } catch ( Exception e ){
             e.printStackTrace();
@@ -58,6 +63,7 @@ public class ChatArtifact extends GUIArtifact {
     }
 
     class ChatView extends JFrame {
+
         private ChatArtifact art;
         private JTextPane chatPane;
         private JTextField inputField;
@@ -67,37 +73,37 @@ public class ChatArtifact extends GUIArtifact {
             // FlatLightLaf.setup();
             this.art = art;
 
-            setTitle("..::SpeakAgent::..");
-            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            setSize(400, 500);
-            setLayout(new BorderLayout());
+            setTitle( "..::SpeakAgent::.." );
+            setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+            setSize( 400, 500 );
+            setLayout( new BorderLayout() );
 
             chatPane = new JTextPane();
-            chatPane.setContentType("text/html");
-            chatPane.setEditable(false);
+            chatPane.setContentType( "text/html" );
+            chatPane.setEditable( false );
             JScrollPane scrollPane = new JScrollPane( chatPane );
 
             inputField = new JTextField();
 
-            sendButton = new JButton("Send");
+            sendButton = new JButton( "Send" );
 
-            JPanel inputPanel = new JPanel(new BorderLayout());
-            inputPanel.add(inputField, BorderLayout.CENTER);
-            inputPanel.add(sendButton, BorderLayout.EAST);
+            JPanel inputPanel = new JPanel( new BorderLayout() );
+            inputPanel.add( inputField, BorderLayout.CENTER );
+            inputPanel.add( sendButton, BorderLayout.EAST );
 
-            add(scrollPane, BorderLayout.CENTER);
-            add(inputPanel, BorderLayout.SOUTH);
+            add( scrollPane, BorderLayout.CENTER );
+            add( inputPanel, BorderLayout.SOUTH );
 
-            sendButton.addActionListener(new ActionListener() {
+            sendButton.addActionListener( new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed( ActionEvent e ) {
                     sendMessage();
                 }
             });
 
-            inputField.addActionListener(new ActionListener() {
+            inputField.addActionListener( new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed( ActionEvent e ) {
                     sendMessage();
                 }
             });
@@ -105,12 +111,15 @@ public class ChatArtifact extends GUIArtifact {
             setVisible(true);
         }
 
+        // This method calls the the notify_new_msg operation in the ChatArtifact
+        // to notify the agent about the new message.
+        // Inside this inner class it is not possible to call signal directly.
         @INTERNAL_OPERATION
         private void sendMessage() {
             String message = inputField.getText();
             if ( !message.trim().isEmpty() ) {
                 List<Literal> recipients = appendMessage( "user", message );
-                inputField.setText("");
+                inputField.setText( "" );
                 try {
                     art.beginExtSession();
                     if ( recipients.size() > 0 )
@@ -120,10 +129,11 @@ public class ChatArtifact extends GUIArtifact {
                 } finally {
                     art.endExtSession();
                 }
-                log("Sent " + message);
+                log( "Sent " + message );
             }
         }
 
+        // Append the message to the chat pane and highlight mentions
         public List<Literal> appendMessage( String sender, String msg ) {
             JSONObject mention_json = highlight_mentions( msg );
             String msg_with_hm = mention_json.getString( "display" );
@@ -132,12 +142,12 @@ public class ChatArtifact extends GUIArtifact {
             for ( Object recipient : recipients ) {
                 recipients_l.add( ASSyntax.createLiteral( (String) recipient ) );
             }
-            String msg_class = sender.equals("user") ? "sent" : "received";
+            String msg_class = sender.equals( "user" ) ? "sent" : "received";
 
             String currentContent = chatPane.getText();
-            int bodyStart = currentContent.indexOf("<body>") + 6;
-            int bodyEnd = currentContent.lastIndexOf("</body>");
-            String bodyContent = currentContent.substring(bodyStart, bodyEnd);
+            int bodyStart = currentContent.indexOf( "<body>" ) + 6;
+            int bodyEnd = currentContent.lastIndexOf( "</body>" );
+            String bodyContent = currentContent.substring( bodyStart, bodyEnd );
             String headerContent = """
                     <html>
                     <head>
@@ -191,23 +201,28 @@ public class ChatArtifact extends GUIArtifact {
             String msg_div = "<div class='" + msg_class + "'>" + sender_div + content_div + "</div>";
             String updatedContent = bodyContent + msg_div;
 
-            chatPane.setText(headerContent + updatedContent + "</div></body></html>");
+            chatPane.setText( headerContent + updatedContent + "</div></body></html>" );
 
             return recipients_l;
         }
 
         private JSONObject highlight_mentions( String msg ) {
-            Pattern pattern = Pattern.compile("@\\w+");
+
+            // match all words that start with @
+            Pattern pattern = Pattern.compile( "@\\w+" );
             Matcher matcher = pattern.matcher( msg );
+
             StringBuffer sb = new StringBuffer();
             List<String> mentions = new ArrayList<>();
 
             while ( matcher.find() ){
-                String mention = matcher.group();
-                mentions.add(mention.substring(1));
-                matcher.appendReplacement( sb, "<span>" + mention + "</span>");
+                String mention = matcher.group(); // take the name
+                mentions.add( mention.substring( 1 ) ); // add it to the mentions list
+                matcher.appendReplacement( sb, "<span>" + mention + "</span>" ); // highlight it
             }
             matcher.appendTail( sb );
+
+            // create a JSON object with the highlighted message and the mentions
             JSONObject json = new JSONObject();
             json.put( "display", sb.toString() );
             json.put( "recipients", mentions );

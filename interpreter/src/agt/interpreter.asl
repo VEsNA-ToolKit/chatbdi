@@ -99,6 +99,7 @@
         .concat( "These is what you can do, describe to me your functions using a dotted list. These are your plans: ", Plans, PromptString );
         .send( Name, tell, describe( PromptString ) ).
 
+// This plan is broadcasted to all agents to send interpreter all the literals
 @provide_literals
 +!provide_literals
     :   interpreter( Interpreter )
@@ -110,26 +111,27 @@
         .send( Interpreter, tell, beliefs ( Beliefs ) );
         .send( Interpreter, tell, literals( Literals ) ).
 
-+!kqml_received( Sender, tell, beliefs( Beliefs ), _ )
-    :   beliefs( _ )[ source( Sender ) ]
-    <-  -+beliefs( Beliefs )[ source( Sender ) ];
-        update_embeddings( Beliefs ).
+// Manage all the instrumentation answers
+// // +!kqml_received( Sender, tell, beliefs( Beliefs ), _ )
+// //     :   beliefs( _ )[ source( Sender ) ]
+// //     <-  -+beliefs( Beliefs )[ source( Sender ) ];
+// //         update_embeddings( Beliefs ).
 
 +!kqml_received( Sender, tell, beliefs( Beliefs ), _ )
     <-  -+beliefs( Beliefs )[ source( Sender ) ].
 
-+!kqml_received( Sender, tell, plans( Plans ), _ )
-    :   plans( _ )[ source( Sender ) ]
-    <-  -+plans( Plans )[ source( Sender ) ];
-        update_embeddings( Plans ).
+// // +!kqml_received( Sender, tell, plans( Plans ), _ )
+// //     :   plans( _ )[ source( Sender ) ]
+// //     <-  -+plans( Plans )[ source( Sender ) ];
+// //         update_embeddings( Plans ).
 
 +!kqml_received( Sender, tell, plans( Plans ), _ )
     <-  -+plans( Plans )[ source( Sender ) ].
 
-+!kqml_received( Sender, tell, literals( Literals ), _ )
-    :   literals( _ )[ source( Sender ) ]
-    <-  -+literals( Literals )[ source( Sender ) ];
-        update_embeddings( Literals ).
+// // +!kqml_received( Sender, tell, literals( Literals ), _ )
+// //     :   literals( _ )[ source( Sender ) ]
+// //     <-  -+literals( Literals )[ source( Sender ) ];
+// //         update_embeddings( Literals ).
 
 +!kqml_received( Sender, tell, literals( Literals ), _ )
     <-  -+literals( Literals )[ source( Sender ) ].
