@@ -39,9 +39,9 @@ instrumentation( true ).
 interpreter_class( "LLMInterpreter" )
 
 +user_msg( Msg )
-	<-	classify_performative( Msg, Performative );
-			generate_property( Msg, Property );
-			.broadcast( Performative, Msg ).
+    <-  classify_performative( Msg, Performative );
+        generate_property( Msg, Property );
+        .broadcast( Performative, Msg ).
 ```
 
 The chat interface provides an operation `msg( Sender, Msg )` that displays the message `Msg` with sender `Sender` on the chat.
