@@ -42,7 +42,9 @@ sourceSets {
     main {
         java {
             srcDir 'src/env'
+            srcDir 'src/env/interpreter'
             srcDir 'src/agt'
+            srcDir 'src/agt/interpreter'
         }
     }
 }

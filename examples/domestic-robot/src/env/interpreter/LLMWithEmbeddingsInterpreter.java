@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.ConnectException;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -36,10 +37,17 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     // 1. initializes the embeddings of each agent beliefs;
     // 2. creates the two generation models.
+    //! init cannot signal because it is called before the agent focus on the artifact
     void init( Object[] literals ) {
+        if ( !check_ollama() ) {
+            log( "The ollama server is not running! Please start it and try again." );
+            defineObsProperty( "running", false );
+            return;
+        }
         log( "Initializing Ollama models" );
         init_embeddings( literals );
         init_generation_models();
+        defineObsProperty( "running", true );
     }
 
     @OPERATION
@@ -88,7 +96,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     }
 
     @OPERATION
-    public void generate_sentence( String literal_str, OpFeedbackParam<String> sentence ) {
+    public void generate_sentence( String performative, String literal_str, OpFeedbackParam<String> sentence ) {
         // Generate a sentence starting from the literal
         sentence.set( generate_string( ASSyntax.createLiteral(literal_str) ) );
     }
@@ -225,6 +233,25 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
             failed( "Error calling OLLAMA API: " + e.getMessage() );
         }
         return null;
+    }
+
+    private boolean check_ollama( ) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri( URI.create( OLLAMA_URL.replaceAll( "/api/", "") ) )
+                .header( "Content-Type", "application/json" )
+                .GET()
+                .build();
+
+            HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            // return status.getBoolean("status");
+            return httpResponse.statusCode() == 200;
+        }catch ( ConnectException e ){
+            return false;
+        } catch ( Exception e ) {
+            failed( "Error calling OLLAMA API: " + e.getMessage() );
+        }
+        return false;
     }
 
     private List<Double> compute_embedding( String literal ) {

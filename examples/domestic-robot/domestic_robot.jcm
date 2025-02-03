@@ -10,7 +10,7 @@ mas domestic_robot {
         focus: house.houseView
     }
 
-    agent interpreter: interpreter/interpreter.asl
+    agent user: user.asl
 
     workspace house {
         artifact houseView : house.HouseEnv(gui) // use "nogui" as parameter to not show the GUI

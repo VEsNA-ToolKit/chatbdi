@@ -22,3 +22,7 @@ myname(bob).
 +!say_hello(Agent)
     :   true
     <-  .send(Agent, tell, hello).
+
++!kqml_received( Sender, tell, Belief, _ )
+    <-  .concat( "I received ", Belief, Sentence );
+        .send( Sender, tell, Sentence ).

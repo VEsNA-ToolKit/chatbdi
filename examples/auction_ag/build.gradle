@@ -1,7 +1,6 @@
 /*
-   Application Auction Agent based (tutorial)
-
-   Gradle build file for JaCaMo Application
+   Gradle build file to create new JaCaMo Applications
+   based on JaCaMo SNAPSHOT version
 */
 
 defaultTasks 'run'
@@ -21,7 +20,6 @@ repositories {
 }
 
 dependencies {
-    // implementation group: 'org.jacamo',     name: 'jacamo' ,   version: '1.2'
     implementation ('org.jacamo:jacamo:1.2')
 
     // https://mvnrepository.com/artifact/org.java-websocket/Java-WebSocket
@@ -29,19 +27,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.json/json
     implementation("org.json:json:20230227")
     implementation 'com.formdev:flatlaf:3.0'
-}
 
-sourceSets {
-    main {
-        java {
-            // srcDir 'src/env'
-            srcDir 'src/agt/jia'
-            srcDir 'src/interpreter'
-        }
-        resources {
-            srcDir 'src/resources'
-        }
-    }
 }
 
 task run (type: JavaExec, dependsOn: 'classes') {
@@ -52,13 +38,13 @@ task run (type: JavaExec, dependsOn: 'classes') {
     classpath sourceSets.main.runtimeClasspath
 }
 
-task buildJCMDeps (type: JavaExec, dependsOn: 'classes') {
-    mainClass = 'jacamo.infra.RunJaCaMoProject'
-    args = ['auction_ag.jcm', '--deps']
-    classpath sourceSets.main.runtimeClasspath
-}
-
-clean {
-    delete 'bin'
-    delete 'build'
+sourceSets {
+    main {
+        java {
+            srcDir 'src/agt'
+            srcDir 'src/agt/interpreter'
+            srcDir 'src/env'
+            srcDir 'src/env/interpreter'
+        }
+    }
 }

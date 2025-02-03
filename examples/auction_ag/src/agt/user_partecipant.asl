@@ -1,33 +1,16 @@
-{ include ("interpreter/instrumentation.asl") }
+{ include( "interpreter.asl" ) }
 
-// This are the literals from interpreter that handles some specific actions
-literals( interpreter, [ which_available_agents, which_are_your_available_plans, describe_plan ] ).
+instrumentation( true ).
+interpreter_class( "interpreter.LLMWithEmbeddingsInterpreter" ).
 
-!init_interpreter.
-
-// Init the interpreter
-// - create the chat artifact
-// - instrument all the agents and wait for the answers
-// - init the Interpreter implemented with LLM and embeddings
-//  with all the literals as parameters to generate the embeddings
-+!init_interpreter
-    :   true
-    <-  makeArtifact(chat, "interpreter.ChatArtifact", [], ArtId);
-        focus(ArtId);
-        !instrument_all;
-        ?literals( Literals );
-        ?beliefs( Beliefs );
-        ?plans( Plans );
-        .concat( Literals, Beliefs, Plans, AllLiterals );
-        makeArtifact(interpreter, "interpreter.LLMWithEmbeddingsInterpreter", [AllLiterals], ArtId2);
-        focus(ArtId2).
-
+// * KQML TO NATURAL LANGUAGE
 // Each message received is translated in a sentence and sent on the chat
 +!kqml_received( Sender, tell, Msg, X )
     <-  .print("Received ", Msg, " from ", Sender );
-        generate_sentence( Msg, Sentence );
+        generate_sentence( tell, Msg, Sentence );
         msg( Sender, Sentence ).
 
+// * NATURAL LANGUAGE TO KQML
 // If the user has asked one agent to describe a plan now the interpreter is waiting for the plan name
 +user_msg( Msg )
     :   plan_description_choice( Agent )
@@ -76,6 +59,18 @@ literals( interpreter, [ which_available_agents, which_are_your_available_plans,
             };
         }.
 
+// * INSTRUMENTATION PLANS
+// Every time other agents update their own beliefs, plans or other literals this plan is triggered
++!update_kn_base( beliefs( NewInfo) )
+    <-  update_embeddings( NewInfo ).
+
++!update_kn_base( plans( NewInfo) )
+    <-  update_embeddings( NewInfo ).
+
++!update_kn_base( literals( NewInfo) )
+    <-  update_embeddings( NewInfo ).
+
+// * AUX PLANS
 // Enumerates the name of the agents.
 +!enumerate_agents
     :   .all_names( Names ) & .my_name( Name )
