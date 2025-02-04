@@ -73,7 +73,7 @@ public class ChatArtifact extends GUIArtifact {
             // FlatLightLaf.setup();
             this.art = art;
 
-            setTitle( "..::SpeakAgent::.." );
+            setTitle( "..::ChatBDI::.." );
             setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
             setSize( 400, 500 );
             setLayout( new BorderLayout() );

@@ -11,17 +11,14 @@ myname(bob).
         .wait(1000);
         +trial(2);
         .wait(1000);
-        -+trial(3).
+        -+trial(3);
+        .broadcast( tell, hello ).
 
 +!start
     :   true
     <-  .wait(20000);
         .print("I'm sending the message");
         .broadcast(tell, myname(bob)).
-
-+!say_hello(Agent)
-    :   true
-    <-  .send(Agent, tell, hello).
 
 +!kqml_received( Sender, tell, Belief, _ )
     <-  .concat( "I received ", Belief, Sentence );

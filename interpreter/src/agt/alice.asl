@@ -18,3 +18,6 @@ interpreter_class( "interpreter.SampleInterpreter").
         .concat("Sended input: ", Msg, " to: ", Recipients, ", you can check the beliefs", NewMsg );
         .send( Recipients, tell, Belief );
         .print( "Input: ", Msg, ", property: ", Belief, ", performative: ", Performative ).
+
++!kqml_received( Sender, Performative, Msg, _ )
+    <-  msg( Sender, Msg ).
