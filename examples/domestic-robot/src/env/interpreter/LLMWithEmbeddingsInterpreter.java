@@ -82,10 +82,14 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
         log( "Best fitting embedding is " + best_literal );
         // If the literal is some of these cases that are ground terms of the interpreter we can directly return
-        if ( best_literal.equals( ASSyntax.createLiteral( "which_available_agents" ) ) ||
-                best_literal.equals( ASSyntax.createLiteral( "which_are_your_available_plans" ) ) ||
-                best_literal.equals( ASSyntax.createLiteral( "describe_plan" ) )
-        ) {
+        // if ( best_literal.equals( ASSyntax.createLiteral( "which_available_agents" ) ) ||
+        //         best_literal.equals( ASSyntax.createLiteral( "which_are_your_available_plans" ) ) ||
+        //         best_literal.equals( ASSyntax.createLiteral( "describe_plan" ) )
+        // ) {
+        //     property.set( best_literal );
+        //     return;
+        // }
+        if ( best_literal.isGround() ){
             property.set( best_literal );
             return;
         }
@@ -256,6 +260,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     private List<Double> compute_embedding( String literal ) {
         List<Double> embedding = new ArrayList<>();
+
+        literal = literal.replaceAll( "_", " " );
 
         String body = send_ollama( "embed", EMBEDDING_MODEL, literal );
 

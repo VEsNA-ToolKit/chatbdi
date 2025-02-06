@@ -12,9 +12,11 @@ ChatBDI provides also a set of plans to instrument the agents present in the mas
 
 You can substitute one of the agents as shown in `examples/auction_ag/` example or add a totally new agent to the mas, for example for explainability purposes as in `examples/domestic_robot/`.
 
-| Auction Example | Domestic Robot Example |
-|---|---|
-| ![Auction example image](./docs/img/chatbdi-auction.png) |![Auction example image](./docs/img/chatbdi-domestic-robot.png) | 
+The examples available are:
+
+| Auction Example | Domestic Robot Example | House Building |
+|---|---|---|
+| ![Auction example image](./docs/img/chatbdi-auction.png) |![Auction example image](./docs/img/chatbdi-domestic-robot.png) |![](./docs/img/chatbdi-house-building.png) |
 
 ## Usage
 > [!IMPORTANT]
@@ -170,9 +172,10 @@ An example can be found at `interpreter/src/env/SampleInterpreter.java`.
 In this repo are present two examples taken from the JaCaMo repository and adapted:
 
 - **Auction Example**: one auctioneer and four participants, the user is one of the participants (http://jacamo-lang.github.io/jacamo/tutorials/coordination/readme.html);
-- **Domestic Robot**: one owner, one robot and one supermarket, the user is added only to understand which are the agent and what they can do (adapted to JaCaMo from https://github.com/jason-lang/jason/tree/main/examples/domestic-robot).
+- **Domestic Robot**: one owner, one robot and one supermarket, the user is added only to understand which are the agent and what they can do (adapted to JaCaMo from https://github.com/jason-lang/jason/tree/main/examples/domestic-robot);
+- **House Building**: one house builder, many companies and one user that wants to build a house (taken from https://github.com/jacamo-lang/jacamo/tree/main/examples/house-building).
 
-These two projects use an interpreter artifact that uses LLM and embeddings to translate from natural language to logical properties and only the LLM from logical property to natural language.
+These three projects use an interpreter artifact that uses LLM and embeddings to translate from natural language to logical properties and only the LLM from logical property to natural language.
 
 To run these examples you need a further step, install **Ollama** (https://ollama.com/) and pull `codegemma` and `nomic-embed-text` models (you can change them in the Interpreter file if you want).
 

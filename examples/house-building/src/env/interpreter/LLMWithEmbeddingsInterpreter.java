@@ -2,6 +2,7 @@ package interpreter;
 
 import cartago.*;
 import jason.asSyntax.*;
+import static jason.asSyntax.ASSyntax.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -58,13 +59,13 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         sentence = sentence.toLowerCase();
         if (sentence.contains("which") && sentence.contains("available") ){
             if (sentence.contains("agents"))
-                property.set(ASSyntax.createLiteral("which_available_agents"));
+                property.set( createLiteral("which_available_agents"));
             else if ( sentence.contains("plans") )
-                property.set(ASSyntax.createLiteral("which_are_your_available_plans"));
+                property.set( createLiteral("which_are_your_available_plans") );
             return;
         }
         if ( sentence.contains("describe") && sentence.contains("plan") ){
-            property.set(ASSyntax.createLiteral("describe_plan"));
+            property.set( createLiteral("describe_plan") );
             return;
         }
         // Compute the embedding of the message
@@ -82,9 +83,9 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
         log( "Best fitting embedding is " + best_literal );
         // If the literal is some of these cases that are ground terms of the interpreter we can directly return
-        // if ( best_literal.equals( ASSyntax.createLiteral( "which_available_agents" ) ) ||
-        //         best_literal.equals( ASSyntax.createLiteral( "which_are_your_available_plans" ) ) ||
-        //         best_literal.equals( ASSyntax.createLiteral( "describe_plan" ) )
+        // if ( best_literal.equals( createLiteral( "which_available_agents" ) ) ||
+        //         best_literal.equals( createLiteral( "which_are_your_available_plans" ) ) ||
+        //         best_literal.equals( createLiteral( "describe_plan" ) )
         // ) {
         //     property.set( best_literal );
         //     return;
@@ -102,7 +103,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     @OPERATION
     public void generate_sentence( String performative, String literal_str, OpFeedbackParam<String> sentence ) {
         // Generate a sentence starting from the literal
-        sentence.set( generate_string( ASSyntax.createLiteral(literal_str) ) );
+        sentence.set( generate_string( createLiteral(literal_str) ) );
     }
 
     // init_embeddings takes all the literals from the agents and computes for each literal the embedding
@@ -111,7 +112,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         // Initialize embeddings hashmap
         embeddings = new HashMap<>();
         for ( Object o_literal : literals ) {
-            Literal literal = ASSyntax.createLiteral( (String) o_literal );
+            Literal literal = createLiteral( (String) o_literal );
             // Add the embedding only if it is not already present
             if ( embeddings.get( literal ) == null ){
                 List<Double> embedding = compute_embedding( literal.toString() );
@@ -123,9 +124,9 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     // This function updates the embeddings with new beliefs gained by agents
     @OPERATION
     public void update_embeddings( Object[] literals ) {
-        log( "Updating embeddings" );
+        // log( "Updating embeddings" );
         for (Object o_literal : literals ){
-            Literal literal = ASSyntax.createLiteral( (String) o_literal );
+            Literal literal = createLiteral( (String) o_literal );
             if ( embeddings.get( literal ) == null ){
                 List<Double> embedding = compute_embedding( literal.toString() );
                 embeddings.put( literal, embedding );
