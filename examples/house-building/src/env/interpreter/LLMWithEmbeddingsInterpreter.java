@@ -59,13 +59,13 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         sentence = sentence.toLowerCase();
         if (sentence.contains("which") && sentence.contains("available") ){
             if (sentence.contains("agents"))
-                property.set( createLiteral("which_available_agents"));
+                property.set( createLiteral( "which_available_agents" ) );
             else if ( sentence.contains("plans") )
-                property.set( createLiteral("which_are_your_available_plans") );
+                property.set( createLiteral( "which_are_your_available_plans" ) );
             return;
         }
         if ( sentence.contains("describe") && sentence.contains("plan") ){
-            property.set( createLiteral("describe_plan") );
+            property.set( createLiteral( "describe_plan" ) );
             return;
         }
         // Compute the embedding of the message
@@ -112,11 +112,15 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         // Initialize embeddings hashmap
         embeddings = new HashMap<>();
         for ( Object o_literal : literals ) {
-            Literal literal = createLiteral( (String) o_literal );
-            // Add the embedding only if it is not already present
-            if ( embeddings.get( literal ) == null ){
-                List<Double> embedding = compute_embedding( literal.toString() );
-                embeddings.put( literal, embedding );
+            try {
+                Literal literal = parseLiteral( (String) o_literal );
+                // Add the embedding only if it is not already present
+                if ( embeddings.get( literal ) == null ){
+                    List<Double> embedding = compute_embedding( literal.toString() );
+                    embeddings.put( literal, embedding );
+                }
+            } catch ( Exception e ) {
+                // System.out.println( "Error parsing literal: " + o_literal);
             }
         }
     }
@@ -126,10 +130,14 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     public void update_embeddings( Object[] literals ) {
         // log( "Updating embeddings" );
         for (Object o_literal : literals ){
-            Literal literal = createLiteral( (String) o_literal );
-            if ( embeddings.get( literal ) == null ){
-                List<Double> embedding = compute_embedding( literal.toString() );
-                embeddings.put( literal, embedding );
+            try {
+                Literal literal = parseLiteral( (String) o_literal );
+                if ( embeddings.get( literal ) == null ){
+                    List<Double> embedding = compute_embedding( literal.toString() );
+                    embeddings.put( literal, embedding );
+                }
+            } catch ( Exception e ) {
+                //System.out.println( "Error parsing literal: " + e.getMessage() );
             }
         }
     }
@@ -263,6 +271,9 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         List<Double> embedding = new ArrayList<>();
 
         literal = literal.replaceAll( "_", " " );
+        literal = literal.replaceAll( "\\(", " " );
+        literal = literal.replaceAll( "\\)", " " );
+        literal = literal.replaceAll( "my", "your" );
 
         String body = send_ollama( "embed", EMBEDDING_MODEL, literal );
 

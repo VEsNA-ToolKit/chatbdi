@@ -44,20 +44,34 @@ interpreter_class( "interpreter.LLMWithEmbeddingsInterpreter" ).
     :   true
     <-  .print( "Message to ", Recipients );
         generate_property( Msg, NewBelief );
+        .print( "Generated Property: ", NewBelief );
         for ( .member(Recipient, Recipients ) ){
-            if ( NewBelief == which_are_your_available_plans ) {
-                .send( Recipient, achieve, list_plans );
-            } else {
-                if ( NewBelief == describe_plan ) {
-                    +plan_description_choice( Recipient );
-                    ?plans( Plans )[ source( Recipient ) ];
-                    .concat( "Please write on the chat the plan you want: ", Plans, PlanChoice );
-                    msg( interpreter, PlanChoice );
-                } else {
-                    .send( Recipient, tell, NewBelief );
-                }
-            };
+            !manage_msg( Recipient, NewBelief );
         }.
+
++!manage_msg( Recipient, which_are_your_available_plans )
+    <-  .send( Recipient, achieve, list_plans ).
+
++!manage_msg( Recipient, describe_plan )
+    <-  +plan_description_choice( Recipient );
+        ?plans( Plans )[ source( Recipient ) ];
+        .concat( "Please write on the chat the plan you want: ", Plans, PlanChoice );
+        msg( interpreter, PlanChoice ).
+
++!manage_msg( Recipient, my_price( Target, _ ) )
+    <-  .send( Recipient, askOne, my_price( Target, P ) ).
+
++!manage_msg( Recipient, my_price( _ ) )
+    <-  .send( Recipient, askOne, my_price( P ) ).
+
++!manage_msg( Recipient, my_price )
+    <-  .send( Recipient, askOne, my_price( P ) );
+        .concat( "My price is ", P, Descripition );
+        .print( Description );
+        msg( Recipient, Descripition ).
+
++!manage_msg( Recipient, NewBelief )
+    <-  .send( Recipient, tell, NewBelief ).
 
 // * INSTRUMENTATION PLANS
 // Every time other agents update their own beliefs, plans or other literals this plan is triggered

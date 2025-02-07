@@ -14,7 +14,7 @@ number_of_tasks(NS) :- .findall( S, task(S), L) & .length(L,NS).
 
 +want_to_build_house
    :  interpreter( Interpreter )
-   <- .send( Interpreter, tell, describe( "Ok, I will make an auction with companies and build your house" ) );
+   <- .send( Interpreter, tell, i_say( "Ok, I will hold an auction with companies and build your house" ) );
       !have_a_house.
 
 /* Plans */
@@ -24,7 +24,7 @@ number_of_tasks(NS) :- .findall( S, task(S), L) & .length(L,NS).
    <- !contract; // hire the companies that will build the house
       !execute;  // (simulates) the execution of the construction
       .print("Done!");
-      .send( Interpreter, tell, describe( "Your house is ready, here are the keys!") ).
+      .send( Interpreter, tell, i_say( "Your house is ready, here are the keys!") ).
 
 -!have_a_house[error(E),error_msg(Msg),code(Cmd),code_src(Src),code_line(Line)]
    :  interpreter( Interpreter )
