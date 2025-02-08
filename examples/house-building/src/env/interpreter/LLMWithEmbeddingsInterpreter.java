@@ -302,7 +302,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     }
 
     private String generate_string( Literal literal ) {
-        String prompt = String.format( "Generate a sentence describing this logical property: %s.", literal.toString() );
+        String prompt = String.format( "Generate a sentence describing this logical property: %s. The sentence should contain all the information contain in the property without adding any invention. If it is not a logical property but a sentence, rephrase the sentence to be more natural and warm. Do not put quote signs.", literal.toString() );
         String body = send_ollama("generate", LOGIC_TO_NL_MODEL, prompt );
         assert body != null;
         JSONObject generate_json = new JSONObject( body );
