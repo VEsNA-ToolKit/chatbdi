@@ -1,8 +1,10 @@
-# ChatBDI
+# ChatBDI: Think BDI, Talk LLM
 
 This framework provides a template for building an interpreter agent using the [JaCaMo](https://jacamo-lang.github.io/) framework.
 
-![Hello World Mas](./docs/img/chatbdi-sample.png)
+| Hello World |
+|---|
+| ![Hello World Mas](./docs/img/chatbdi-sample.png) |
 
 With ChatBDI you can insert the user inside your multi-agent system. ChatBDI provides a chat interface:
  - each message sent via broadcast or sent specifically to the ChatBDI agent is displayed on the chat;
