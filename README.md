@@ -26,7 +26,7 @@ The examples available are:
 > **Requirements**
 >
 > - Java 23 (if you change version remember to change it in the `build.gradle` file)
-> - Gradle
+> - Gradle (tested with version 8.13)
 
 To run the demo you can simply enter the interpreter folder and run it. This is a simple "echo" mas.
 
