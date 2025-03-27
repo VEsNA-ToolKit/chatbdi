@@ -28,6 +28,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     private final String FROM_MODEL = "codegemma";
     private final String LOGIC_TO_NL_MODEL = "logic-to-nl";
     private final String NL_TO_LOGIC_MODEL = "nl-to-logic";
+    private final String CLASSIFICATION_MODEL = "classify-performative"; ////////<------init_generation_models
     private final float TEMPERATURE = 0.2f;
     private final String DEBUG_LOG = "interpreter.log";
 
@@ -39,6 +40,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     // 1. initializes the embeddings of each agent beliefs;
     // 2. creates the two generation models.
     //! init cannot signal because it is called before the agent focus on the artifact
+
+    //done
     void init( Object[] literals ) {
         if ( !check_ollama() ) {
             log( "The ollama server is not running! Please start it and try again." );
@@ -51,6 +54,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         defineObsProperty( "running", true );
     }
 
+
+    //done
     @OPERATION
     public void generate_property( String sentence, OpFeedbackParam<Literal> property ) {
         // Remove all the mentions from the string
@@ -100,12 +105,15 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         property.set( new_property );
     }
 
+
+    //done
     @OPERATION
     public void generate_sentence( String performative, String literal_str, OpFeedbackParam<String> sentence ) {
         // Generate a sentence starting from the literal
         sentence.set( generate_string( createLiteral(literal_str) ) );
     }
-
+    
+    //done
     // init_embeddings takes all the literals from the agents and computes for each literal the embedding
     private void init_embeddings( Object[] literals ){
         log( "Initializing embeddings;" );
@@ -124,6 +132,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
     }
 
+
+    //done ->uguale a init_embeddings ma anzichè inizializzarli, aggiorna con nuovi
     // This function updates the embeddings with new beliefs gained by agents
     @OPERATION
     public void update_embeddings( Object[] literals ) {
@@ -141,16 +151,20 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     }
 
     // This function creates the two models needed
+    //done
     private void init_generation_models() {
         log( "Initializing generations models;");
         JSONObject nl_to_logic_model = get_nl_to_logic_model();
         JSONObject logic_to_nl_model = get_logic_to_nl_model();
+        JSONObject classify_model = get_classify_model();
 
         create_model( nl_to_logic_model );
         create_model( logic_to_nl_model );
+        create_model( classify_model );
     }
 
     // Given the modelfile as JSON it sends the request to the Ollama API
+    //done
     private void create_model( JSONObject modelfile ){
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -165,6 +179,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
     }
 
+
+    //done
     private JSONObject get_nl_to_logic_model() {
         String system = """
             You are a logician who works with Prolog. You will receive a logical property and a sentence.
@@ -187,7 +203,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         """;
 
         JSONObject json = new JSONObject();
-        json.put( "model", NL_TO_LOGIC_MODEL );
+        json.put( "model", NL_TO_LOGIC_MODEL ); //json.put("chiave","valore")
         json.put( "from", FROM_MODEL );
         json.put( "system", system );
         JSONObject parameters = new JSONObject( );
@@ -199,6 +215,77 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         return json;
     }
 
+
+
+
+////////------------------------------------------------------------------------
+
+
+//1
+private JSONObject get_classify_model(){
+    
+    String system = """
+        You are a logician who works with Prolog. You will receive a sentence.
+        Your task is to classify this sentence based on its content. The sentence will be classified as 
+        "tell" if this sentence contains knowledge or information that is communicated. 
+        Otherwise the sentence is classified as "achieve" if it contains the giving of an order or the request to achieve the order. 
+        Your task, therefore, is to respond with "achieve" when you classify a sentence as achieve and with "tell" when you classify 
+        the sentence as communicated knowledge.
+
+
+        Examples:
+
+        Sentence: I ordered a sushi at 14:00.
+        Explanation: I'm reporting that I ordered sushi, that is, information
+        Answer: tell
+
+        Sentence: It will rain tomorrow.
+        Explanation: I'm saying it will rain tomorrow, that is, information
+        Answer: tell
+
+        Sentence: Bring me a pen.
+        Explanation: I'm ordering you to bring me a pen.
+        Answer: achieve
+
+        Sentence: could you bring me a pen?
+        Explanation: I'm asking you to bring me a pen, that is, to achieve a goal
+        Answer: achieve
+
+        """;
+    
+
+     JSONObject json = new JSONObject();
+        json.put( "model", CLASSIFICATION_MODEL); 
+        json.put( "from", FROM_MODEL );
+        json.put( "system", system );
+        JSONObject parameters = new JSONObject( );
+        parameters.put( "temperature", TEMPERATURE );
+        parameters.put( "penalize_newline", true );
+        json.put( "parameters", parameters );
+        json.put( "stream", false );
+
+        return json;
+
+
+}
+
+    //clasify_perf
+
+    @OPERATION 
+    public void classify_performative( String sentence, OpFeedbackParam<String>performative_type ){
+           
+            sentence = sentence.replaceAll("\\s*@\\S+", "");
+            sentence = sentence.toLowerCase();
+
+            String body = send_ollama( "generate", CLASSIFICATION_MODEL, sentence );
+            performative_type.set( ASSyntax.createLiteral(body).toString());
+
+    }
+
+
+
+////////------------------------------------------------------------------------
+    //done
     private JSONObject get_logic_to_nl_model() {
         String system = """
             You will receive a logical property and you will generate a sentence.
@@ -221,6 +308,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         return json;
     }
 
+
+    //done 
     private String send_ollama( String type, String model, String input ) {
         try {
             JSONObject json = new JSONObject();
@@ -246,6 +335,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         return null;
     }
 
+    //done
     private boolean check_ollama( ) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -265,6 +355,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         return false;
     }
 
+    //done -> basta sapere che il metodo restituisce l'embedding (vettore numerico)
     private List<Double> compute_embedding( String literal ) {
         List<Double> embedding = new ArrayList<>();
 
@@ -299,6 +390,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     }
 
+
+    //done
     private String generate_string( Literal literal ) {
         String prompt = String.format( "Generate a sentence describing this logical property: %s.", literal.toString() );
         String body = send_ollama("generate", LOGIC_TO_NL_MODEL, prompt );
@@ -307,6 +400,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         return generate_json.getString("response");
     }
 
+    //done -> basta sapere che calcola la distanza tra due vettori due vettori
     private double cosine_similarity( List<Double> embedding1, List<Double> embedding2 ) {
         if (embedding1 == null || embedding2 == null)
             failed( "One of the embeddings is null" );
