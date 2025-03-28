@@ -225,17 +225,30 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 private JSONObject get_classify_model(){
     
     String system = """
-        You are a logician who works with Prolog. You will receive a sentence.
-        Your task is to classify this sentence based on its content. The sentence will be classified as 
-        "tell" if this sentence contains knowledge or information that is communicated. 
-        Otherwise the sentence is classified as "achieve" if it contains the giving of an order or the request to achieve the order. 
-        Your task, therefore, is to respond with "achieve" when you classify a sentence as achieve and with "tell" when you classify 
-        the sentence as communicated knowledge.
+      You are a logician who works with Prolog. You will receive a sentence.
+        Your task is to classify this sentence based on its content.
+        The sentence can be classified as six different types: tell, achieve, tellHow, askOne, askAll and askHow
 
+        Sentence will be classified as "tell" if it contains knowledge or information that is communicated.
 
-        Examples:
+        Sentence will be classified as "achieve" if it contains the giving of an order or the request to achieve a goal.
 
-        Sentence: I ordered a sushi at 14:00.
+        Sentence will be classified as "tellHow" if it contains an explanation of how to carry out a task or action.
+
+        Sentence will be classified as "askOne" if it contains a request to provide a specific information or a specific knowledge
+        contained within the set of information involved.
+
+        Sentence will be classified as "askAll" if it contains a request to provide all information or all knowledge
+        contained within the set of information involved.
+
+        Sentence will be classified as "askHow" if it contains a request to provide an explanation of how to do a
+        specific task.
+
+        Your task, therefore, is to respond with one of the six types of sentence that you think fits better
+
+        Here a few Examples:
+
+        Sentence: I ordered sushi at 14:00.
         Explanation: I'm reporting that I ordered sushi, that is, information
         Answer: tell
 
@@ -247,9 +260,37 @@ private JSONObject get_classify_model(){
         Explanation: I'm ordering you to bring me a pen.
         Answer: achieve
 
-        Sentence: could you bring me a pen?
+        Sentence: Could you bring me a pen?
         Explanation: I'm asking you to bring me a pen, that is, to achieve a goal
         Answer: achieve
+
+        Sentence: To bring me a pen, you must go to my desk, pick it, come back to me, leave the pen to me
+        Explanation: I'm explaining how to do the task to you of bringing me a pen. In other words, I'm telling you a procedure consisting of a sequence of actions.
+        Answer: tellHow
+
+        Sentence: Can you tell me a commitment for tomorrow?
+        Explanation: I'm asking you to tell a single commitment present in the set of commitments you know.
+        Answer: askOne
+
+        Sentence: Tell me any type of vegetable present in the kitchen
+        Explanation: I'm asking you to tell a single type of vegetable in the set of vegetables you know.
+        Answer: askOne
+
+        Sentence: Can you tell me all commitments for tomorrow?
+        Explanation: I'm asking you to tell all commitment present in the set of commitments you know.
+        Answer: askAll
+
+        Sentence: Tell me all types of vegetable present in the kitchen
+        Explanation: I'm asking you to tell all types of vegetable in the set of vegetables you know.
+        Answer: askAll
+
+        Sentence: Can you show me how to play this videogame?
+        Explanation: I'm asking an explanation of which actions I need to perform to achieve the goal of playing videogame
+        Answer: askHow
+
+        Sentence: Can you tell me the procedure for cooking a nice pizza?
+        Explanation: I'm asking an explanation of which actions I need to perform to achieve the goal of cooking pizza
+        Answer: askHow
 
         """;
     
