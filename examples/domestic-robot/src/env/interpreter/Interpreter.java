@@ -13,7 +13,7 @@ public interface Interpreter {
     void generate_sentence( String performative, String literal, OpFeedbackParam<String> sentence );
 
     // This function takes a sentence and classifies the performative for the KQML message
-    default void classify_performative( String sentence, OpFeedbackParam<String> performative );
+    void classify_performative( String sentence, OpFeedbackParam<Literal> performative_type ); 
     //{
       //  performative.set( ASSyntax.createLiteral( "tell" ) );
     //}
