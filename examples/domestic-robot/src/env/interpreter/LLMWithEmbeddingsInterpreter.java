@@ -227,7 +227,7 @@ private JSONObject get_classify_model(){
     String system = """
       You are a logician who works with Prolog. You will receive a sentence.
         Your task is to classify this sentence based on its content.
-        The sentence can be classified as six different types: tell, achieve, tellHow, askOne, askAll and askHow
+        The sentence can be classified as seven different types: tell, achieve, tellHow, askOne, askAll, askHow and unclassified
 
         Sentence will be classified as "tell" if it contains knowledge or information that is communicated.
 
@@ -243,6 +243,8 @@ private JSONObject get_classify_model(){
 
         Sentence will be classified as "askHow" if it contains a request to provide an explanation of how to do a
         specific task.
+
+        If a sentence doesn't have any meaning, it will be classified as "unclassified"
 
         Your task, therefore, is to respond with one of the six types of sentence that you think fits better
 
@@ -292,6 +294,14 @@ private JSONObject get_classify_model(){
         Explanation: I'm asking an explanation of which actions I need to perform to achieve the goal of cooking pizza
         Answer: askHow
 
+        Sentence: The chair good job
+        Explanation: This sentence has no meaning
+        Answer: unclassified
+
+        Sentence: Aslkdj
+        Explanation: This sentence has no meaning
+        Answer: unclassified
+
         """;
     
 
@@ -313,13 +323,33 @@ private JSONObject get_classify_model(){
     //clasify_perf
 
     @OPERATION 
-    public void classify_performative( String sentence, OpFeedbackParam<String>performative_type ){
+    public void classify_performative( String sentence, OpFeedbackParam<Literal>performative_type ){
            
             sentence = sentence.replaceAll("\\s*@\\S+", "");
             sentence = sentence.toLowerCase();
 
             String body = send_ollama( "generate", CLASSIFICATION_MODEL, sentence );
-            performative_type.set( ASSyntax.createLiteral(body).toString());
+
+            //controllo tipo risposta
+
+            if (body.contains("tell"))
+                body = "tell";
+            else if (body.contains("achieve"))
+                body = "achieve";
+            else if (body.contains("tellHow"))
+                body = "tellHow";
+            else if (body.contains("askHow"))
+                body = "askHow";
+            else if (body.contains("askOne"))
+                body = "askOne";
+            else if (body.contains("askAll"))
+                body = "askAll";
+            else if(body.contains("unclassified"))
+                body = "unclassified";
+
+
+
+            performative_type.set( ASSyntax.createLiteral(body));
 
     }
 
