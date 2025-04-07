@@ -110,7 +110,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     @OPERATION
     public void generate_sentence( String performative, String literal_str, OpFeedbackParam<String> sentence ) {
         // Generate a sentence starting from the literal
-        sentence.set( generate_string( createLiteral(literal_str) ) );
+        sentence.set( generate_string( createLiteral(literal_str), performative ) );
     }
     
     //done
@@ -244,7 +244,7 @@ private JSONObject get_classify_model(){
         Sentence will be classified as "askHow" if it contains a request to provide an explanation of how to do a
         specific task.
 
-        If a sentence doesn't have any meaning, it will be classified as "unclassified"
+        If a sentence is a sequence of random letters, it will be classified as "unclassified"
 
         Your task, therefore, is to respond with one of the six types of sentence that you think fits better
 
@@ -294,9 +294,6 @@ private JSONObject get_classify_model(){
         Explanation: I'm asking an explanation of which actions I need to perform to achieve the goal of cooking pizza
         Answer: askHow
 
-        Sentence: The chair good job
-        Explanation: This sentence has no meaning
-        Answer: unclassified
 
         Sentence: Aslkdj
         Explanation: This sentence has no meaning
@@ -359,11 +356,33 @@ private JSONObject get_classify_model(){
     //done
     private JSONObject get_logic_to_nl_model() {
         String system = """
-            You will receive a logical property and you will generate a sentence.
-            You will tell the content of the property to me as if we are speaking and the content is something about you, so you should include all the information in the sentence and be conversational.
-            For example the logical property myname(alice) should be translated to "My name is Alice".
-            Another example: hasColor(apple, red) should be translated to "The apple is red".
-            Another example: meeting(tomorrow, room(102), [alice, bob, charles]) should be translated to "Tomorrow there is a meeting in room 102 with alice, bob and charles."
+            You will receive a logical property and a property type in the following format: logical property, property type.
+            Your task consists in generate a sentence based on the logical property and its type.
+
+            There are five types of property type:
+
+            tell: this type indicates that knowledge must be communicated.
+            askHow: this type indicates a request on how to do something, in other words you are requesting a sequence of instructions to complete a job.
+            askOne: this type indicates a request to provide specific knowledge in the set of knowledge considered.
+            askAll: this type indicates a request to provide all the knowledge in the set of knowledge considered.
+            achieve: this type indicates an order about to achieve a goal or complete a task.
+
+
+            You will tell the content of the property to me as if we are speaking and the content is something about you.
+            
+            Here's a few examples:
+            hasColor(apple, red), tell should be translated to "The apple is red".
+
+            meeting(tomorrow, room(102), [alice, bob, charles]), tell should be translated to "Tomorrow there is a meeting in room 102 with alice, bob and charles."
+            meeting(tomorrow, room(102), [alice, bob, charles]), achieve should be translated to "Tomorrow you have to go to a meeting in room 102 with Alice, Bob and Charles."
+
+            message(letter, grandma), achieve should be translated to "Could you text your grandma a letter?"
+            message(letter, grandma), askOne should be translated to "Have you written a letter to your grandmother?"
+
+            cooking(pizza, oven), askHow should be translated to "Can you explain to me how to cook pizza with the oven?"
+
+            revolution(france), askOne should be translated to "Tell me a revolution that happened in France"
+            revolution(france), askAll should be translated to "Tell all the revolutions that happened in France"
         """;
 
         JSONObject json = new JSONObject();
@@ -426,7 +445,6 @@ private JSONObject get_classify_model(){
         return false;
     }
 
-    //done -> basta sapere che il metodo restituisce l'embedding (vettore numerico)
     private List<Double> compute_embedding( String literal ) {
         List<Double> embedding = new ArrayList<>();
 
@@ -463,15 +481,15 @@ private JSONObject get_classify_model(){
 
 
     //done
-    private String generate_string( Literal literal ) {
+    private String generate_string( Literal literal, String performative ) {
         String prompt = String.format( "Generate a sentence describing this logical property: %s.", literal.toString() );
+        prompt = prompt +", "+ performative;
         String body = send_ollama("generate", LOGIC_TO_NL_MODEL, prompt );
         assert body != null;
         JSONObject generate_json = new JSONObject( body );
         return generate_json.getString("response");
     }
 
-    //done -> basta sapere che calcola la distanza tra due vettori due vettori
     private double cosine_similarity( List<Double> embedding1, List<Double> embedding2 ) {
         if (embedding1 == null || embedding2 == null)
             failed( "One of the embeddings is null" );
