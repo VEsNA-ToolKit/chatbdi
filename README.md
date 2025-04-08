@@ -1,6 +1,18 @@
 # ChatBDI: Think BDI, Talk LLM
 
-This framework provides a template for building an interpreter agent using the [JaCaMo](https://jacamo-lang.github.io/) framework.
+ChatBDI is a framework for building an interpreter agent using [JaCaMo](https://jacamo-lang.github.io/). The [paper describing ChatBDI]() can be cited as   
+Gatti, A., Mascardi, V., Ferrando, A.: ChatBDI: Think BDI, talk LLM. In: Vorobeychik, Y., Das, S., Nowé, A. (eds.) 24th International Conference on Autonomous
+Agents and Multiagent Systems (AAMAS 2025). International Foundation for Autonomous Agents and Multiagent Systems (2025)
+
+@inproceedings{chatBDI-aamas,  
+  author    = {Andrea Gatti and Viviana Mascardi and Angelo Ferrando},  
+  title     = {{ChatBDI}: Think {BDI}, Talk {LLM}},  
+  booktitle = {24th International Conference on Autonomous Agents and Multiagent Systems (AAMAS 2025)},  
+  publisher = {International Foundation for Autonomous Agents and Multiagent Systems},  
+  year      = {2025},  
+  editor = {Y. Vorobeychik and S. Das and A. Nowé}  
+}  
+
 
 | Hello World |
 |---|
