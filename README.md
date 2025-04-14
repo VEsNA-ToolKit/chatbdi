@@ -70,7 +70,7 @@ The structure of the project should follow this:
 
 Inside the `src/agt/` folder the `interpreter` folder contains a set of custom `InternalActions` used only with the instrumentation active. The folder `interpreter` insider `src/env/` instead contains the `Artifacts` used by ChatBDI.
 
-### Make an Agent an Interpreter
+### Turning a Jason Agent into a natural language interpreter
 
 > [!NOTE]
 >
