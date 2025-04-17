@@ -90,7 +90,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         //     property.set( best_literal );
         //     return;
         // }
-        if ( best_literal.isGround() ){
+        if ( best_literal.isGround() ){ // TODO: non devo controllare isGround ma se il funtore non ha parametri
             property.set( best_literal );
             return;
         }
