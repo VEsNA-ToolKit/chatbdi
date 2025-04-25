@@ -72,11 +72,15 @@
     <-  makeArtifact( chat, "interpreter.ChatArtifact", [], ChatArtId );
         focus( ChatArtId );
         !instrument_all;
-        ?literals( Literals );
-        ?beliefs( Beliefs );
-        ?plans( Plans );
-        .concat( Literals, Beliefs, Plans, AllLiterals );
-        makeArtifact( interpreter, InterpreterClass, [ AllLiterals ], IntArtId );
+        .findall( Literals, literals( Literals ), AllLiterals );
+        .findall( Beliefs, beliefs( Beliefs ), AllBeliefs );
+        .findall( Plans, plans( Plans ), AllPlans );
+        // .concat( Literals, Beliefs, Plans, AllLiterals );
+        .all_names( Agents );
+
+        //.print("LITERALS:",AllPlans);
+        makeArtifact( interpreter, InterpreterClass, [ Agents, AllLiterals, AllBeliefs, AllPlans ], IntArtId );
+      
         focus( IntArtId );
         ?running( Condition );
         if ( not Condition ){
