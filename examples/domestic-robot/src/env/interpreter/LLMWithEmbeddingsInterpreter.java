@@ -15,16 +15,21 @@ import java.net.ConnectException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.regex.*;
 
 public class LLMWithEmbeddingsInterpreter extends Artifact implements Interpreter{
 
     private final String OLLAMA_URL = "http://localhost:11434/api/";
     private final HttpClient client = HttpClient.newHttpClient();
     private final String EMBEDDING_MODEL = "nomic-embed-text";
+    //private final String EMBEDDING_MODEL = "snowflake-arctic-embed";
     private final String FROM_MODEL = "codegemma";
     private final String LOGIC_TO_NL_MODEL = "logic-to-nl";
     private final String NL_TO_LOGIC_MODEL = "nl-to-logic";
@@ -35,31 +40,117 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     // The map of embeddings with:
     // - a literal as key
     // - the corresponding embedding as value
-    private Map<Literal, List<Double>> embeddings;
-
+    private Map<Literal, List<Double>> embeddings;  
     // 1. initializes the embeddings of each agent beliefs;
     // 2. creates the two generation models.
     //! init cannot signal because it is called before the agent focus on the artifact
 
+    //map to list of literals for each agent
+    private Map<String, List<Literal>> ag_literals;
+
     //done
-    void init( Object[] literals ) {
+    void init( Object[] agentsList,  Object[] literalsList, Object[] beliefsList,  Object[] plansList ) {
+
         if ( !check_ollama() ) {
             log( "The ollama server is not running! Please start it and try again." );
             defineObsProperty( "running", false );
             return;
         }
+
         log( "Initializing Ollama models" );
-        init_embeddings( literals );
+        Object[] allLiterals = buildEmbeddingsList(literalsList, beliefsList, plansList);
+        build_personal_literals_dict(agentsList, literalsList, beliefsList, plansList);
+        init_embeddings( allLiterals );
         init_generation_models();
-        defineObsProperty( "running", true );
+        defineObsProperty( "running", true );  
+        
+    }
+
+
+    //this method takes all nested lists and returns a plain list with all literals
+    public static Object[] buildEmbeddingsList(Object[] literalsList, Object[] beliefsList,  Object[] plansList ) {
+        List<Object> list_embeddings = new LinkedList<>();
+
+        for (Object obj : literalsList) {
+            for (Object item : (Object[]) obj) {
+                list_embeddings.add(item);
+            }
+        }
+
+        for (Object obj : beliefsList) {
+            for (Object item : (Object[]) obj) {
+                list_embeddings.add(item);
+            }
+        }
+
+        for (Object obj : plansList) {
+            for (Object item : (Object[]) obj) {
+                list_embeddings.add(item);
+            }
+        }
+
+        return list_embeddings.toArray();
+
+
+    }
+
+    public void build_personal_literals_dict(Object[] agentsList,  Object[] literalsList, Object[] beliefsList,  Object[] plansList ){
+        
+        ag_literals = new HashMap<>();
+        for ( int i = 0; i < agentsList.length; i++ ){
+        
+            String ag_name =((String) agentsList[i]);
+            
+          //  System.out.print("NAME:"+ ag_name+":");
+
+            if(!ag_name.equals("user")){
+                Object[] list1 = (Object[]) literalsList[i];
+                Object[] list2 = (Object[]) beliefsList[i];
+                Object[] list3 = (Object[]) plansList[i];
+
+                List<Object> list_lit = new LinkedList<>();
+                Collections.addAll(list_lit, list1);
+                Collections.addAll(list_lit, list2);
+                Collections.addAll(list_lit, list3);
+
+                List<Literal> listAgLit = new ArrayList<>();
+                for (Object obj : list_lit){
+
+                    try{
+                        Literal literal = parseLiteral((String) obj);
+                        //System.out.println("Parsed literal "+(String) obj + " for "+ag_name);
+                        listAgLit.add(literal);
+                   
+                    }catch (Exception e){
+                        //System.out.println("Unable to parse literal "+(String) obj + " for "+ag_name);
+                    }
+                }
+                ag_literals.put(ag_name,listAgLit);
+            }
+
+          //  System.out.println("");
+        }
+
+        System.out.println("HashMap:"+ag_literals);
+
     }
 
 
     //done
     @OPERATION
     public void generate_property( String sentence, OpFeedbackParam<Literal> property ) {
+
+        
+        String recipient = null;
+        if (sentence.startsWith("@")) {
+            recipient = sentence.split(" ")[0].substring(1); // remove '@'
+            System.out.println("Recipient " + recipient);
+        }
+
         // Remove all the mentions from the string
         sentence = sentence.replaceAll("\\s*@\\S+", "");
+
+
         // Check some specific simple cases
         sentence = sentence.toLowerCase();
         if (sentence.contains("which") && sentence.contains("available") ){
@@ -75,16 +166,37 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
         // Compute the embedding of the message
         List<Double> embedding = compute_embedding( sentence );
+
+        
         // Find the literal with the closer embedding
         Literal best_literal = null;
         double best_distance = Double.MAX_VALUE;
-        for ( Literal literal : embeddings.keySet() ) {
-            List<Double> literal_embedding = embeddings.get( literal );
-            double distance = cosine_similarity( embedding, literal_embedding );
-            if ( distance < best_distance ) {
-                best_distance = distance;
-                best_literal = literal;
+
+
+        
+        if(recipient == null || !ag_literals.containsKey(recipient)){
+
+            for ( Literal literal : embeddings.keySet() ) {
+              //System.out.print("Literal:"+literal.toString()+" ");
+                List<Double> literal_embedding = embeddings.get( literal );
+                double distance = cosine_similarity( embedding, literal_embedding );
+                if ( distance < best_distance ) {
+                    best_distance = distance;
+                    best_literal = literal;
+                }
             }
+        }else{
+
+            for ( Literal literal : ag_literals.get(recipient) ) {
+              //System.out.print("Literal:"+literal.toString()+" ");
+                List<Double> literal_embedding = embeddings.get( literal );
+                double distance = cosine_similarity( embedding, literal_embedding );
+                if ( distance < best_distance ) {
+                    best_distance = distance;
+                    best_literal = literal;
+                }
+            }
+
         }
         log( "Best fitting embedding is " + best_literal );
         // If the literal is some of these cases that are ground terms of the interpreter we can directly return
@@ -115,22 +227,28 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     
     //done
     // init_embeddings takes all the literals from the agents and computes for each literal the embedding
-    private void init_embeddings( Object[] literals ){
-        log( "Initializing embeddings;" );
+    private void init_embeddings(  Object[] literals ) {
+       log( "Initializing embeddings;" );
+
         // Initialize embeddings hashmap
         embeddings = new HashMap<>();
         for ( Object o_literal : literals ) {
             try {
-                Literal literal = parseLiteral( (String) o_literal );
+          
+                String str =((String) o_literal).replace("+","").replace("!","").replace("-","");
+                Literal literal =  parseLiteral(str);
+                
                 // Add the embedding only if it is not already present
                 if ( embeddings.get( literal ) == null ){
                     List<Double> embedding = compute_embedding( literal.toString() );
                     embeddings.put( literal, embedding );
                 }
             } catch ( Exception e ) {
+               // System.out.println("ERRROR:"+e.getMessage()+"FOR LITERAL:"+o_literal);
             }
         }
     }
+
 
 
     //done ->uguale a init_embeddings ma anzichè inizializzarli, aggiorna con nuovi
@@ -449,6 +567,8 @@ private JSONObject get_classify_model(){
         List<Double> embedding = new ArrayList<>();
 
         literal = literal.replaceAll( "_", " " );
+      //  literal = literal.replaceAll( "+", "" );
+      //  literal = literal.replaceAll( "!", " " );
         literal = literal.replaceAll( "\\(", " " );
         literal = literal.replaceAll( "\\)", " " );
         literal = literal.replaceAll( "my", "your" );
@@ -515,5 +635,4 @@ private JSONObject get_classify_model(){
 
         return 1.0 - (dotProd / ( norm1 * norm2 ) );
     }
-
 }
