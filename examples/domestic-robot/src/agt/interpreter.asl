@@ -75,10 +75,9 @@
         .findall( Literals, literals( Literals ), AllLiterals );
         .findall( Beliefs, beliefs( Beliefs ), AllBeliefs );
         .findall( Plans, plans( Plans ), AllPlans );
-        // .concat( Literals, Beliefs, Plans, AllLiterals );
+       
         .all_names( Agents );
 
-        //.print("LITERALS:",AllPlans);
         makeArtifact( interpreter, InterpreterClass, [ Agents, AllLiterals, AllBeliefs, AllPlans ], IntArtId );
       
         focus( IntArtId );
@@ -134,13 +133,14 @@
 @provide_literals
 +!provide_literals
     :   interpreter( Interpreter )
-    <-  .my_name( Me );
+    <-  .my_name( Me ); 
         interpreter.list_plans( Plans );
         interpreter.list_beliefs( Beliefs );
         interpreter.list_useful_literals( Literals );
-        .send( Interpreter, tell, plans( Plans ) );
-        .send( Interpreter, tell, beliefs ( Beliefs ) );
-        .send( Interpreter, tell, literals( Literals ) ).
+    
+        .send( Interpreter, tell, plans( [ .my_name( Me )| Plans ] ) );
+        .send( Interpreter, tell, beliefs ( [ .my_name( Me ) | Beliefs ] ) );
+        .send( Interpreter, tell, literals( [ .my_name( Me ) | Literals ] ) ).
 
 // Manage all the instrumentation answers
 
