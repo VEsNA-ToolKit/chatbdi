@@ -1,3 +1,4 @@
+
 package interpreter;
 
 import cartago.*;
@@ -45,7 +46,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     // 2. creates the two generation models.
     //! init cannot signal because it is called before the agent focus on the artifact
 
-    //map to list of literals for each agent
+    //dictionary { nameAgent : ListOfAllLiterals }
     private Map<String, List<Literal>> ag_literals;
 
     //done
@@ -60,6 +61,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         log( "Initializing Ollama models" );
         Object[] allLiterals = buildEmbeddingsList(literalsList, beliefsList, plansList);
         build_personal_literals_dict(agentsList, literalsList, beliefsList, plansList);
+      
+        //System.out.println("HASHMAP:"+ag_literals);
         init_embeddings( allLiterals );
         init_generation_models();
         defineObsProperty( "running", true );  
@@ -67,7 +70,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     }
 
 
-    //this method takes all nested lists and returns a plain list with all literals
+    //this method takes all literals, beliefs, plans contained in nested lists and returns a plain list with all literals
     public static Object[] buildEmbeddingsList(Object[] literalsList, Object[] beliefsList,  Object[] plansList ) {
         List<Object> list_embeddings = new LinkedList<>();
 
@@ -94,45 +97,96 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     }
 
+    //method where ag_literals dictionary is initialized
     public void build_personal_literals_dict(Object[] agentsList,  Object[] literalsList, Object[] beliefsList,  Object[] plansList ){
         
         ag_literals = new HashMap<>();
-        for ( int i = 0; i < agentsList.length; i++ ){
-        
+
+        for(int i = 0; i < agentsList.length ; i++){
             String ag_name =((String) agentsList[i]);
+
+
+        //user is the name of agent that includes "interpeter.asl"
+            if(!ag_name.equals("user")){
+                ag_literals.put(ag_name,null);
+                //System.out.println(ag_name);
+            }
+        }
+
+
+
+        for ( int i = 0; i < agentsList.length - 1; i++ ){
+        
+            
             
           //  System.out.print("NAME:"+ ag_name+":");
 
-            if(!ag_name.equals("user")){
+
                 Object[] list1 = (Object[]) literalsList[i];
                 Object[] list2 = (Object[]) beliefsList[i];
                 Object[] list3 = (Object[]) plansList[i];
 
-                List<Object> list_lit = new LinkedList<>();
-                Collections.addAll(list_lit, list1);
-                Collections.addAll(list_lit, list2);
-                Collections.addAll(list_lit, list3);
+                //the first element of each list contains (.myname(AgentName) which you can understand whose literals they are)
+                String name1 = (String) list1[0];
 
-                List<Literal> listAgLit = new ArrayList<>();
-                for (Object obj : list_lit){
+                name1 = name1.substring(name1.indexOf('(') + 1, name1.indexOf(')'));
 
-                    try{
-                        Literal literal = parseLiteral((String) obj);
-                        //System.out.println("Parsed literal "+(String) obj + " for "+ag_name);
-                        listAgLit.add(literal);
-                   
-                    }catch (Exception e){
-                        //System.out.println("Unable to parse literal "+(String) obj + " for "+ag_name);
-                    }
-                }
-                ag_literals.put(ag_name,listAgLit);
-            }
+
+                String name2 = (String) list2[0];
+                name2 = name2.substring(name1.indexOf('(') + 1, name2.indexOf(')'));
+
+
+                String name3 = (String) list3[0];
+                name3 = name3.substring(name3.indexOf('(') + 1, name3.indexOf(')'));
+
+                build_single_agent_list(name1,list1);
+                build_single_agent_list(name2,list2);
+                build_single_agent_list (name3,list3);
 
           //  System.out.println("");
         }
 
-        System.out.println("HashMap:"+ag_literals);
+        
 
+    }
+
+    public void build_single_agent_list(String name, Object[]list){
+        
+        //in case a literal is not parsed, parameter name is equal to ".my_name(AgentName"
+        if (name.contains("my_name(")) {
+            name = name.substring(name.indexOf('(') + 1);
+        }
+
+       // System.out.println("I------------------------------------------------------------------------------------------");
+       // System.out.println("NAME:"+name);
+
+
+
+        List<Literal> temp = ag_literals.get(name);
+        
+        if (temp == null){
+            temp = new LinkedList<Literal>();
+        }
+
+        for( int i = 1; i < list.length; i++){
+            Object obj = list[i];
+            String objStr = ((String) obj).replace("+","").replace("!","").replace("-","");
+              
+             try{
+                    
+                    Literal literal = parseLiteral(objStr);
+                    //System.out.println("Parsed literal "+(String) obj + " for "+ag_name);
+                    if (!temp.contains(literal))
+                        temp.add(literal);
+                    //System.out.println(literal.toString());
+            }catch (Exception e){
+                       // System.out.println("Unable to parse literal:"+objStr+" ERROR:"+e.getMessage());
+            }
+        }
+
+        //System.out.print("TEMP:"+temp);
+        ag_literals.put(name,temp);
+        //System.out.println("F------------------------------------------------------------------------------------------");
     }
 
 
@@ -173,7 +227,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         double best_distance = Double.MAX_VALUE;
 
 
-        
+        //if there is no recipient or recipient isn't the name of an agent, compute the best fitting embedding on all literalls
         if(recipient == null || !ag_literals.containsKey(recipient)){
 
             for ( Literal literal : embeddings.keySet() ) {
@@ -244,7 +298,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
                     embeddings.put( literal, embedding );
                 }
             } catch ( Exception e ) {
-               // System.out.println("ERRROR:"+e.getMessage()+"FOR LITERAL:"+o_literal);
+               //System.out.println("ERRROR:"+e.getMessage()+"FOR LITERAL:"+o_literal);
             }
         }
     }
