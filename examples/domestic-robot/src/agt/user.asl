@@ -33,11 +33,26 @@ interpreter_class( "interpreter.LLMWithEmbeddingsInterpreter" ).
         generate_property( Msg, NewBelief );
         if ( NewBelief == which_available_agents ){
             .print( "I enumerate the agents for the user" );
+            
             !enumerate_agents;
         } else {
-            .broadcast( tell, NewBelief );
+            classify_performative( Msg,  Performative_type );
+            .term2string(Performative_type , Type_Performative);
+
+            if(Type_Performative == "unclassified" ){
+                
+                .print("Unable to determine the type of perfromative");
+
+            }else{
+
+                .print("Performative type ",Type_Performative);
+                .broadcast( Performative_type, NewBelief );
+                
+            }
         }.
 
+
+/////////////////////////////////////
 // The user sent a message with recipients -> send to all recipients
 // It manages the request from the user of available plans and describe a plan
 +user_msg( Recipients, Msg )
@@ -54,7 +69,21 @@ interpreter_class( "interpreter.LLMWithEmbeddingsInterpreter" ).
                     .concat( "Please write on the chat the plan you want: ", Plans, PlanChoice );
                     msg( interpreter, PlanChoice );
                 } else {
-                    .send( Recipient, tell, NewBelief );
+                    
+                    classify_performative( Msg,  Performative_type );
+                    .term2string(Performative_type , Type_Performative);
+
+                    if(Type_Performative == "unclassified" ){
+                
+                        .print("Unable to determine the type of perfromative");
+
+                    }else{
+                
+                        .print("Performative type ",Type_Performative);
+                        .send( Recipient, Performative_type, NewBelief );
+                
+                    }
+                    
                 }
             };
         }.

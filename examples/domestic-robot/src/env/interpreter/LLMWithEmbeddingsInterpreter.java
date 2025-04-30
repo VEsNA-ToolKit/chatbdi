@@ -1,3 +1,4 @@
+
 package interpreter;
 
 import cartago.*;
@@ -15,46 +16,195 @@ import java.net.ConnectException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.regex.*;
 
 public class LLMWithEmbeddingsInterpreter extends Artifact implements Interpreter{
 
     private final String OLLAMA_URL = "http://localhost:11434/api/";
     private final HttpClient client = HttpClient.newHttpClient();
     private final String EMBEDDING_MODEL = "nomic-embed-text";
+    //private final String EMBEDDING_MODEL = "snowflake-arctic-embed";
     private final String FROM_MODEL = "codegemma";
     private final String LOGIC_TO_NL_MODEL = "logic-to-nl";
     private final String NL_TO_LOGIC_MODEL = "nl-to-logic";
+    private final String CLASSIFICATION_MODEL = "classify-performative"; ////////<------init_generation_models
     private final float TEMPERATURE = 0.2f;
     private final String DEBUG_LOG = "interpreter.log";
 
     // The map of embeddings with:
     // - a literal as key
     // - the corresponding embedding as value
-    private Map<Literal, List<Double>> embeddings;
-
+    private Map<Literal, List<Double>> embeddings;  
     // 1. initializes the embeddings of each agent beliefs;
     // 2. creates the two generation models.
     //! init cannot signal because it is called before the agent focus on the artifact
-    void init( Object[] literals ) {
+
+    //dictionary { nameAgent : ListOfAllLiterals }
+    private Map<String, List<Literal>> ag_literals;
+
+    //done
+    void init( Object[] agentsList,  Object[] literalsList, Object[] beliefsList,  Object[] plansList ) {
+
         if ( !check_ollama() ) {
             log( "The ollama server is not running! Please start it and try again." );
             defineObsProperty( "running", false );
             return;
         }
+
         log( "Initializing Ollama models" );
-        init_embeddings( literals );
+        Object[] allLiterals = buildEmbeddingsList(literalsList, beliefsList, plansList);
+        build_personal_literals_dict(agentsList, literalsList, beliefsList, plansList);
+      
+        //System.out.println("HASHMAP:"+ag_literals);
+        init_embeddings( allLiterals );
         init_generation_models();
-        defineObsProperty( "running", true );
+        defineObsProperty( "running", true );  
+        
     }
 
+
+    //this method takes all literals, beliefs, plans contained in nested lists and returns a plain list with all literals
+    public static Object[] buildEmbeddingsList(Object[] literalsList, Object[] beliefsList,  Object[] plansList ) {
+        List<Object> list_embeddings = new LinkedList<>();
+
+        for (Object obj : literalsList) {
+            for (Object item : (Object[]) obj) {
+                list_embeddings.add(item);
+            }
+        }
+
+        for (Object obj : beliefsList) {
+            for (Object item : (Object[]) obj) {
+                list_embeddings.add(item);
+            }
+        }
+
+        for (Object obj : plansList) {
+            for (Object item : (Object[]) obj) {
+                list_embeddings.add(item);
+            }
+        }
+
+        return list_embeddings.toArray();
+
+
+    }
+
+    //method where ag_literals dictionary is initialized
+    public void build_personal_literals_dict(Object[] agentsList,  Object[] literalsList, Object[] beliefsList,  Object[] plansList ){
+        
+        ag_literals = new HashMap<>();
+
+        for(int i = 0; i < agentsList.length ; i++){
+            String ag_name =((String) agentsList[i]);
+
+
+        //user is the name of agent that includes "interpeter.asl"
+            if(!ag_name.equals("user")){
+                ag_literals.put(ag_name,null);
+                //System.out.println(ag_name);
+            }
+        }
+
+
+
+        for ( int i = 0; i < agentsList.length - 1; i++ ){
+        
+            
+            
+          //  System.out.print("NAME:"+ ag_name+":");
+
+
+                Object[] list1 = (Object[]) literalsList[i];
+                Object[] list2 = (Object[]) beliefsList[i];
+                Object[] list3 = (Object[]) plansList[i];
+
+                //the first element of each list contains (.myname(AgentName) which you can understand whose literals they are)
+                String name1 = (String) list1[0];
+
+                name1 = name1.substring(name1.indexOf('(') + 1, name1.indexOf(')'));
+
+
+                String name2 = (String) list2[0];
+                name2 = name2.substring(name1.indexOf('(') + 1, name2.indexOf(')'));
+
+
+                String name3 = (String) list3[0];
+                name3 = name3.substring(name3.indexOf('(') + 1, name3.indexOf(')'));
+
+                build_single_agent_list(name1,list1);
+                build_single_agent_list(name2,list2);
+                build_single_agent_list (name3,list3);
+
+          //  System.out.println("");
+        }
+
+        
+
+    }
+
+    public void build_single_agent_list(String name, Object[]list){
+        
+        //in case a literal is not parsed, parameter name is equal to ".my_name(AgentName"
+        if (name.contains("my_name(")) {
+            name = name.substring(name.indexOf('(') + 1);
+        }
+
+       // System.out.println("I------------------------------------------------------------------------------------------");
+       // System.out.println("NAME:"+name);
+
+
+
+        List<Literal> temp = ag_literals.get(name);
+        
+        if (temp == null){
+            temp = new LinkedList<Literal>();
+        }
+
+        for( int i = 1; i < list.length; i++){
+            Object obj = list[i];
+            String objStr = ((String) obj).replace("+","").replace("!","").replace("-","");
+              
+             try{
+                    
+                    Literal literal = parseLiteral(objStr);
+                    //System.out.println("Parsed literal "+(String) obj + " for "+ag_name);
+                    if (!temp.contains(literal))
+                        temp.add(literal);
+                    //System.out.println(literal.toString());
+            }catch (Exception e){
+                       // System.out.println("Unable to parse literal:"+objStr+" ERROR:"+e.getMessage());
+            }
+        }
+
+        //System.out.print("TEMP:"+temp);
+        ag_literals.put(name,temp);
+        //System.out.println("F------------------------------------------------------------------------------------------");
+    }
+
+
+    //done
     @OPERATION
     public void generate_property( String sentence, OpFeedbackParam<Literal> property ) {
+
+        
+        String recipient = null;
+        if (sentence.startsWith("@")) {
+            recipient = sentence.split(" ")[0].substring(1); // remove '@'
+            System.out.println("Recipient " + recipient);
+        }
+
         // Remove all the mentions from the string
         sentence = sentence.replaceAll("\\s*@\\S+", "");
+
+
         // Check some specific simple cases
         sentence = sentence.toLowerCase();
         if (sentence.contains("which") && sentence.contains("available") ){
@@ -70,16 +220,37 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
         // Compute the embedding of the message
         List<Double> embedding = compute_embedding( sentence );
+
+        
         // Find the literal with the closer embedding
         Literal best_literal = null;
         double best_distance = Double.MAX_VALUE;
-        for ( Literal literal : embeddings.keySet() ) {
-            List<Double> literal_embedding = embeddings.get( literal );
-            double distance = cosine_similarity( embedding, literal_embedding );
-            if ( distance < best_distance ) {
-                best_distance = distance;
-                best_literal = literal;
+
+
+        //if there is no recipient or recipient isn't the name of an agent, compute the best fitting embedding on all literalls
+        if(recipient == null || !ag_literals.containsKey(recipient)){
+
+            for ( Literal literal : embeddings.keySet() ) {
+              //System.out.print("Literal:"+literal.toString()+" ");
+                List<Double> literal_embedding = embeddings.get( literal );
+                double distance = cosine_similarity( embedding, literal_embedding );
+                if ( distance < best_distance ) {
+                    best_distance = distance;
+                    best_literal = literal;
+                }
             }
+        }else{
+
+            for ( Literal literal : ag_literals.get(recipient) ) {
+              //System.out.print("Literal:"+literal.toString()+" ");
+                List<Double> literal_embedding = embeddings.get( literal );
+                double distance = cosine_similarity( embedding, literal_embedding );
+                if ( distance < best_distance ) {
+                    best_distance = distance;
+                    best_literal = literal;
+                }
+            }
+
         }
         log( "Best fitting embedding is " + best_literal );
         // If the literal is some of these cases that are ground terms of the interpreter we can directly return
@@ -100,30 +271,41 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         property.set( new_property );
     }
 
+
+    //done
     @OPERATION
     public void generate_sentence( String performative, String literal_str, OpFeedbackParam<String> sentence ) {
         // Generate a sentence starting from the literal
-        sentence.set( generate_string( createLiteral(literal_str) ) );
+        sentence.set( generate_string( createLiteral(literal_str), performative ) );
     }
-
+    
+    //done
     // init_embeddings takes all the literals from the agents and computes for each literal the embedding
-    private void init_embeddings( Object[] literals ){
-        log( "Initializing embeddings;" );
+    private void init_embeddings(  Object[] literals ) {
+       log( "Initializing embeddings;" );
+
         // Initialize embeddings hashmap
         embeddings = new HashMap<>();
         for ( Object o_literal : literals ) {
             try {
-                Literal literal = parseLiteral( (String) o_literal );
+          
+                String str =((String) o_literal).replace("+","").replace("!","").replace("-","");
+                Literal literal =  parseLiteral(str);
+                
                 // Add the embedding only if it is not already present
                 if ( embeddings.get( literal ) == null ){
                     List<Double> embedding = compute_embedding( literal.toString() );
                     embeddings.put( literal, embedding );
                 }
             } catch ( Exception e ) {
+               //System.out.println("ERRROR:"+e.getMessage()+"FOR LITERAL:"+o_literal);
             }
         }
     }
 
+
+
+    //done ->uguale a init_embeddings ma anzichè inizializzarli, aggiorna con nuovi
     // This function updates the embeddings with new beliefs gained by agents
     @OPERATION
     public void update_embeddings( Object[] literals ) {
@@ -141,16 +323,20 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     }
 
     // This function creates the two models needed
+    //done
     private void init_generation_models() {
         log( "Initializing generations models;");
         JSONObject nl_to_logic_model = get_nl_to_logic_model();
         JSONObject logic_to_nl_model = get_logic_to_nl_model();
+        JSONObject classify_model = get_classify_model();
 
         create_model( nl_to_logic_model );
         create_model( logic_to_nl_model );
+        create_model( classify_model );
     }
 
     // Given the modelfile as JSON it sends the request to the Ollama API
+    //done
     private void create_model( JSONObject modelfile ){
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -165,6 +351,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
     }
 
+
+    //done
     private JSONObject get_nl_to_logic_model() {
         String system = """
             You are a logician who works with Prolog. You will receive a logical property and a sentence.
@@ -187,7 +375,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         """;
 
         JSONObject json = new JSONObject();
-        json.put( "model", NL_TO_LOGIC_MODEL );
+        json.put( "model", NL_TO_LOGIC_MODEL ); //json.put("chiave","valore")
         json.put( "from", FROM_MODEL );
         json.put( "system", system );
         JSONObject parameters = new JSONObject( );
@@ -199,13 +387,174 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         return json;
     }
 
+
+
+
+////////------------------------------------------------------------------------
+
+
+//1
+private JSONObject get_classify_model(){
+    
+    String system = """
+      You are a logician who works with Prolog. You will receive a sentence.
+        Your task is to classify this sentence based on its content.
+        The sentence can be classified as seven different types: tell, achieve, tellHow, askOne, askAll, askHow and unclassified
+
+        Sentence will be classified as "tell" if it contains knowledge or information that is communicated.
+
+        Sentence will be classified as "achieve" if it contains the giving of an order or the request to achieve a goal.
+
+        Sentence will be classified as "tellHow" if it contains an explanation of how to carry out a task or action.
+
+        Sentence will be classified as "askOne" if it contains a request to provide a specific information or a specific knowledge
+        contained within the set of information involved.
+
+        Sentence will be classified as "askAll" if it contains a request to provide all information or all knowledge
+        contained within the set of information involved.
+
+        Sentence will be classified as "askHow" if it contains a request to provide an explanation of how to do a
+        specific task.
+
+        If a sentence is a sequence of random letters, it will be classified as "unclassified"
+
+        Your task, therefore, is to respond with one of the six types of sentence that you think fits better
+
+        Here a few Examples:
+
+        Sentence: I ordered sushi at 14:00.
+        Explanation: I'm reporting that I ordered sushi, that is, information
+        Answer: tell
+
+        Sentence: It will rain tomorrow.
+        Explanation: I'm saying it will rain tomorrow, that is, information
+        Answer: tell
+
+        Sentence: Bring me a pen.
+        Explanation: I'm ordering you to bring me a pen.
+        Answer: achieve
+
+        Sentence: Could you bring me a pen?
+        Explanation: I'm asking you to bring me a pen, that is, to achieve a goal
+        Answer: achieve
+
+        Sentence: To bring me a pen, you must go to my desk, pick it, come back to me, leave the pen to me
+        Explanation: I'm explaining how to do the task to you of bringing me a pen. In other words, I'm telling you a procedure consisting of a sequence of actions.
+        Answer: tellHow
+
+        Sentence: Can you tell me a commitment for tomorrow?
+        Explanation: I'm asking you to tell a single commitment present in the set of commitments you know.
+        Answer: askOne
+
+        Sentence: Tell me any type of vegetable present in the kitchen
+        Explanation: I'm asking you to tell a single type of vegetable in the set of vegetables you know.
+        Answer: askOne
+
+        Sentence: Can you tell me all commitments for tomorrow?
+        Explanation: I'm asking you to tell all commitment present in the set of commitments you know.
+        Answer: askAll
+
+        Sentence: Tell me all types of vegetable present in the kitchen
+        Explanation: I'm asking you to tell all types of vegetable in the set of vegetables you know.
+        Answer: askAll
+
+        Sentence: Can you show me how to play this videogame?
+        Explanation: I'm asking an explanation of which actions I need to perform to achieve the goal of playing videogame
+        Answer: askHow
+
+        Sentence: Can you tell me the procedure for cooking a nice pizza?
+        Explanation: I'm asking an explanation of which actions I need to perform to achieve the goal of cooking pizza
+        Answer: askHow
+
+
+        Sentence: Aslkdj
+        Explanation: This sentence has no meaning
+        Answer: unclassified
+
+        """;
+    
+
+     JSONObject json = new JSONObject();
+        json.put( "model", CLASSIFICATION_MODEL); 
+        json.put( "from", FROM_MODEL );
+        json.put( "system", system );
+        JSONObject parameters = new JSONObject( );
+        parameters.put( "temperature", TEMPERATURE );
+        parameters.put( "penalize_newline", true );
+        json.put( "parameters", parameters );
+        json.put( "stream", false );
+
+        return json;
+
+
+}
+
+    //clasify_perf
+
+    @OPERATION 
+    public void classify_performative( String sentence, OpFeedbackParam<Literal>performative_type ){
+           
+            sentence = sentence.replaceAll("\\s*@\\S+", "");
+            sentence = sentence.toLowerCase();
+
+            String body = send_ollama( "generate", CLASSIFICATION_MODEL, sentence );
+
+            //controllo tipo risposta
+
+            if (body.contains("tell"))
+                body = "tell";
+            else if (body.contains("achieve"))
+                body = "achieve";
+            else if (body.contains("tellHow"))
+                body = "tellHow";
+            else if (body.contains("askHow"))
+                body = "askHow";
+            else if (body.contains("askOne"))
+                body = "askOne";
+            else if (body.contains("askAll"))
+                body = "askAll";
+            else if(body.contains("unclassified"))
+                body = "unclassified";
+
+
+
+            performative_type.set( ASSyntax.createLiteral(body));
+
+    }
+
+
+
+////////------------------------------------------------------------------------
+    //done
     private JSONObject get_logic_to_nl_model() {
         String system = """
-            You will receive a logical property and you will generate a sentence.
-            You will tell the content of the property to me as if we are speaking and the content is something about you, so you should include all the information in the sentence and be conversational.
-            For example the logical property myname(alice) should be translated to "My name is Alice".
-            Another example: hasColor(apple, red) should be translated to "The apple is red".
-            Another example: meeting(tomorrow, room(102), [alice, bob, charles]) should be translated to "Tomorrow there is a meeting in room 102 with alice, bob and charles."
+            You will receive a logical property and a property type in the following format: logical property, property type.
+            Your task consists in generate a sentence based on the logical property and its type.
+
+            There are five types of property type:
+
+            tell: this type indicates that knowledge must be communicated.
+            askHow: this type indicates a request on how to do something, in other words you are requesting a sequence of instructions to complete a job.
+            askOne: this type indicates a request to provide specific knowledge in the set of knowledge considered.
+            askAll: this type indicates a request to provide all the knowledge in the set of knowledge considered.
+            achieve: this type indicates an order about to achieve a goal or complete a task.
+
+
+            You will tell the content of the property to me as if we are speaking and the content is something about you.
+            
+            Here's a few examples:
+            hasColor(apple, red), tell should be translated to "The apple is red".
+
+            meeting(tomorrow, room(102), [alice, bob, charles]), tell should be translated to "Tomorrow there is a meeting in room 102 with alice, bob and charles."
+            meeting(tomorrow, room(102), [alice, bob, charles]), achieve should be translated to "Tomorrow you have to go to a meeting in room 102 with Alice, Bob and Charles."
+
+            message(letter, grandma), achieve should be translated to "Could you text your grandma a letter?"
+            message(letter, grandma), askOne should be translated to "Have you written a letter to your grandmother?"
+
+            cooking(pizza, oven), askHow should be translated to "Can you explain to me how to cook pizza with the oven?"
+
+            revolution(france), askOne should be translated to "Tell me a revolution that happened in France"
+            revolution(france), askAll should be translated to "Tell all the revolutions that happened in France"
         """;
 
         JSONObject json = new JSONObject();
@@ -221,6 +570,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         return json;
     }
 
+
+    //done 
     private String send_ollama( String type, String model, String input ) {
         try {
             JSONObject json = new JSONObject();
@@ -246,6 +597,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         return null;
     }
 
+    //done
     private boolean check_ollama( ) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -269,6 +621,8 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         List<Double> embedding = new ArrayList<>();
 
         literal = literal.replaceAll( "_", " " );
+      //  literal = literal.replaceAll( "+", "" );
+      //  literal = literal.replaceAll( "!", " " );
         literal = literal.replaceAll( "\\(", " " );
         literal = literal.replaceAll( "\\)", " " );
         literal = literal.replaceAll( "my", "your" );
@@ -299,8 +653,11 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     }
 
-    private String generate_string( Literal literal ) {
+
+    //done
+    private String generate_string( Literal literal, String performative ) {
         String prompt = String.format( "Generate a sentence describing this logical property: %s.", literal.toString() );
+        prompt = prompt +", "+ performative;
         String body = send_ollama("generate", LOGIC_TO_NL_MODEL, prompt );
         assert body != null;
         JSONObject generate_json = new JSONObject( body );
@@ -332,5 +689,4 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
         return 1.0 - (dotProd / ( norm1 * norm2 ) );
     }
-
 }
