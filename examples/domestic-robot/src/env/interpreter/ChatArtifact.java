@@ -64,7 +64,7 @@ public class ChatArtifact extends GUIArtifact {
         private JButton sendButton;
 
         public ChatView( ChatArtifact art ) {
-            FlatLightLaf.setup();
+            // FlatLightLaf.setup();
             this.art = art;
 
             setTitle("..::ChatBDI::..");
