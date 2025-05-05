@@ -118,7 +118,8 @@
         while( .count( literals( _ ), RecvN ) & RecvN < N - 1 ){
             .wait( 500 );
         };
-        .broadcast( tellHow, "+_ : interpreter( Interpreter ) <- interpreter.list_beliefs( Beliefs ); .send( Interpreter, tell, beliefs( Beliefs ) ).");
+        // .broadcast( tellHow, "+_ : interpreter( Interpreter ) <- interpreter.list_beliefs( Beliefs ); .send( Interpreter, tell, beliefs( Beliefs ) ).");
+        .broadcast( tellHow, "+NewBelief : interpreter( Interpreter ) <- .send( Interpreter, tell, new_belief( NewBelief ) )." );
         .broadcast( tellHow, "+!kqml_received( Agent, _, _, _ ) <- .send( Agent, tell, error_message ).").
 
 // This plan is broadcasted to all agents to enumerate the available plans
@@ -144,10 +145,14 @@
 
 // Manage all the instrumentation answers
 
-+!kqml_received( Sender, tell, beliefs( Beliefs ), _ )
-    :   beliefs( _ )[ source( Sender )] & instrumentation( true )
-    <-  !update_kn_base( beliefs( Beliefs )[source( Sender )] );
-        -+beliefs( Beliefs )[ source( Sender ) ].
++!kqml_received( Sender, tell, new_belief( NewBel ), _ )
+    :   beliefs( Beliefs )[ source( Sender )] & instrumentation( true )
+    <-  !update_kn_base( new_belief( NewBel )[source( Sender )] );
+        if ( not .member( NewBel, Beliefs ) ) {
+            .concat( NewBel, Beliefs, NewBeliefs );
+            -+beliefs( NewBeliefs )[ source( Sender ) ];
+        }.
+        // -+beliefs( Beliefs )[ source( Sender ) ].
 
 +!kqml_received( Sender, tell, beliefs( Beliefs ), _ )
     <-  -+beliefs( Beliefs )[ source( Sender ) ].

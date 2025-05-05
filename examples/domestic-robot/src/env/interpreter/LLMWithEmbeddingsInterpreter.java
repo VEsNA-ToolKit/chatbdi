@@ -45,7 +45,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     // The map of embeddings with:
     // - a literal as key
     // - the corresponding embedding as value
-    private Map<Literal, List<Double>> embeddings;  
+    private Map<Literal, List<Double>> embeddings;
     // 1. initializes the embeddings of each agent beliefs;
     // 2. creates the two generation models.
     //! init cannot signal because it is called before the agent focus on the artifact
@@ -187,14 +187,19 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
 
         if ( best_distance > THRESHOLD ) {
-            property.set( parseLiteral( "error( \"Sentence is out of context!\" )") );
-            return;
+            try {
+                property.set( parseLiteral( "error( \"Sentence is out of context!\" )") );
+                return;
+            } catch ( Exception e ) {
+                e.printStackTrace();
+            }
         }
         // If the literal is some of these cases that are ground and without terms (only functor) we can directly return
         if ( ! best_literal.hasTerm() ){
             property.set( best_literal );
             return;
         }
+        System.out.println( "Best embedding found: " + best_literal );
         // Modify the closest property with the values provided in the sentence
         Literal new_property = generate_literal( best_literal, sentence.toLowerCase() );
         log( "Generated property: " + new_property );
@@ -234,17 +239,18 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     //done ->uguale a init_embeddings ma anzichè inizializzarli, aggiorna con nuovi
     // This function updates the embeddings with new beliefs gained by agents
     @OPERATION
-    public void update_embeddings( Object[] literals ) {
-        log( "Updating embeddings" );
-        for (Object o_literal : literals ){
-            try {
-                Literal literal = parseLiteral( (String) o_literal );
-                if ( embeddings.get( literal ) == null ){
-                    List<Double> embedding = compute_embedding( literal.toString() );
-                    embeddings.put( literal, embedding );
-                }
-            } catch ( Exception e ) {
-            }
+    public void update_embeddings( String ag, Object o_literal ) throws Exception {
+        log( "Updating embeddings for " + ag );
+        if ( ! ag_literals.keySet().contains( ag ) ) {
+            failed( "The agent " + ag + " is not initialized for embeddings! Cannot update them." );
+            return;
+        }
+        Literal literal = parseLiteral( ( String ) o_literal );
+        if ( !ag_literals.get( ag ).contains( literal ) )
+            ag_literals.get( ag ).add( literal );
+        if ( embeddings.get( literal ) == null ) {
+            List<Double> embedding = compute_embedding( literal.toString() );
+            embeddings.put( literal, embedding ); 
         }
     }
 

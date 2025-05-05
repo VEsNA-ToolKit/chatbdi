@@ -41,7 +41,6 @@ too_much(B) :-
               " beers a day! I am very sorry about that!",M);
       .send(owner,tell,msg(M)).
 
-
 -!has(_,_)
    :  true
    <- .current_intention(I);

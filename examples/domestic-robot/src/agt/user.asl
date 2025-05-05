@@ -90,14 +90,8 @@ interpreter_class( "interpreter.LLMWithEmbeddingsInterpreter" ).
 
 // * INSTRUMENTATION PLANS
 // Every time other agents update their own beliefs, plans or other literals this plan is triggered
-+!update_kn_base( beliefs( NewInfo) )
-    <-  update_embeddings( NewInfo ).
-
-+!update_kn_base( plans( NewInfo) )
-    <-  update_embeddings( NewInfo ).
-
-+!update_kn_base( literals( NewInfo) )
-    <-  update_embeddings( NewInfo ).
++!update_kn_base( new_belief( NewBel )[ source( Sender ) ] )
+    <-  update_embeddings( Sender, NewBel ).
 
 // * AUX PLANS
 // Enumerates the name of the agents.
