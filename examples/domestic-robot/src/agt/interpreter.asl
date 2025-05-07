@@ -139,9 +139,9 @@
         interpreter.list_beliefs( Beliefs );
         interpreter.list_useful_literals( Literals );
     
-        .send( Interpreter, tell, plans( [ .my_name( Me )| Plans ] ) );
-        .send( Interpreter, tell, beliefs ( [ .my_name( Me ) | Beliefs ] ) );
-        .send( Interpreter, tell, literals( [ .my_name( Me ) | Literals ] ) ).
+        .send( Interpreter, tell, plans( Plans ) );
+        .send( Interpreter, tell, beliefs ( Beliefs ) );
+        .send( Interpreter, tell, literals( Literals ) ).
 
 // Manage all the instrumentation answers
 
@@ -152,7 +152,6 @@
             .concat( NewBel, Beliefs, NewBeliefs );
             -+beliefs( NewBeliefs )[ source( Sender ) ];
         }.
-        // -+beliefs( Beliefs )[ source( Sender ) ].
 
 +!kqml_received( Sender, tell, beliefs( Beliefs ), _ )
     <-  -+beliefs( Beliefs )[ source( Sender ) ].

@@ -37,7 +37,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     private final String FROM_MODEL = "codegemma";
     private final String LOGIC_TO_NL_MODEL = "logic-to-nl";
     private final String NL_TO_LOGIC_MODEL = "nl-to-logic";
-    private final String CLASSIFICATION_MODEL = "classify-performative"; ////////<------init_generation_models
+    private final String CLASSIFICATION_MODEL = "classify-performative";
     private final float TEMPERATURE = 0.2f;
     private final String DEBUG_LOG = "interpreter.log";
     private final float THRESHOLD = 1.0f;
@@ -50,7 +50,6 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     // 2. creates the two generation models.
     //! init cannot signal because it is called before the agent focus on the artifact
 
-    //dictionary { nameAgent : ListOfAllLiterals }
     private Map<String, List<Literal>> ag_literals;
 
     void init( Object[] agentsList,  Object[] literalsList, Object[] beliefsList,  Object[] plansList ) {
