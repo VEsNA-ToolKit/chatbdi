@@ -130,7 +130,7 @@ public class ChatArtifact extends GUIArtifact {
             JSONArray recipients = mention_json.getJSONArray( "recipients" );
             List<Literal> recipients_l = new ArrayList<>();
             for ( Object recipient : recipients ) {
-                recipients_l.add( ASSyntax.createLiteral( (String) recipient ) );
+                recipients_l.add( ASSyntax.parseLiteral( (String) recipient ) );
             }
             String msg_class = sender.equals("user") ? "sent" : "received";
 

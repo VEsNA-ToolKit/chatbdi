@@ -149,7 +149,7 @@
     :   beliefs( Beliefs )[ source( Sender )] & instrumentation( true )
     <-  !update_kn_base( new_belief( NewBel )[source( Sender )] );
         if ( not .member( NewBel, Beliefs ) ) {
-            .concat( NewBel, Beliefs, NewBeliefs );
+            .concat( [ NewBel ], Beliefs, NewBeliefs );
             -+beliefs( NewBeliefs )[ source( Sender ) ];
         }.
 

@@ -71,15 +71,16 @@ interpreter_class( "interpreter.LLMWithEmbeddingsInterpreter" ).
                 } else {
                     
                     classify_performative( Msg,  Performative_type );
-                    .term2string(Performative_type , Type_Performative);
+                    // .term2string(Performative_type , Type_Performative);
 
-                    if(Type_Performative == "unclassified" ){
+                    // if(Type_Performative == "unclassified" ){
+                    if( Performative_type == unclassified ){
                 
-                        .print("Unable to determine the type of perfromative");
+                        .print( "Unable to determine the type of perfromative" );
 
                     }else{
                 
-                        .print("Performative type ",Type_Performative);
+                        .print( "Performative type ", Performative_type );
                         .send( Recipient, Performative_type, NewBelief );
                 
                     }

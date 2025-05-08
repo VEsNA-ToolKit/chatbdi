@@ -209,7 +209,11 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
     @OPERATION
     public void generate_sentence( String performative, String literal_str, OpFeedbackParam<String> sentence ) {
         // Generate a sentence starting from the literal
-        sentence.set( generate_string( createLiteral(literal_str), performative ) );
+        try {
+            sentence.set( generate_string( parseLiteral(literal_str), performative ) );
+        } catch( Exception e ) {
+            failed( "Error parsing " + literal_str + " to Literal: " + e.getMessage() );
+        }
     }
     
     // init_embeddings takes all the literals from the agents and computes for each literal the embedding
@@ -448,8 +452,11 @@ private JSONObject get_classify_model(){
                 body = "unclassified";
 
 
-
-            performative_type.set( ASSyntax.createLiteral(body));
+            try {
+                performative_type.set( parseLiteral( body ) );
+            } catch ( Exception e ) {
+                failed( "Error parsing " + body + " to literal: " + e.getMessage() );
+            }
 
     }
 
@@ -578,7 +585,12 @@ private JSONObject get_classify_model(){
         assert body != null;
         JSONObject generate_json = new JSONObject( body );
         String new_property = generate_json.getString("response");
-        return ASSyntax.createLiteral( new_property );
+        try {
+            return parseLiteral( new_property );
+        } catch( Exception e ) {
+            failed( "Error parsing literal " + e.getMessage() );
+        }
+        return null;
 
     }
 
