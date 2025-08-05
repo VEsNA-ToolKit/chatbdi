@@ -141,8 +141,8 @@ def update_csv_data( ) -> None:
         gen_domain_df, emb_domain_df = load_domain( domain )
         gen_df = pd.concat( [gen_df, gen_domain_df ], axis=0 )
         emb_df = pd.concat( [emb_df, emb_domain_df ], axis=0 )
-    gen_df.to_csv( '.cache/gen.csv', mode='w+' )
-    emb_df.to_csv( '.cache/emb.csv', mode='w+' )
+    gen_df.to_csv( 'data/gen.csv', mode='w+' )
+    emb_df.to_csv( 'data/emb.csv', mode='w+' )
 
 def analyse_emb():
     st.header( "Embeddings" )
@@ -151,7 +151,7 @@ def analyse_emb():
         on the sidebar you can choose from which models and domains see the results.
         By default they are all selected.
         """)
-    df : pd.DataFrame = pd.read_csv( '.cache/emb.csv' )
+    df : pd.DataFrame = pd.read_csv( 'data/emb.csv' )
     models = df[ 'model' ].drop_duplicates()
     domains = df[ 'domain' ].drop_duplicates()
     with st.sidebar:
@@ -213,7 +213,7 @@ def analyse_gen( ):
         As for the embeddings, you can modify the values used for the visualization in the sidebar.
         Last but not least, we also computed the Levenshtein distance between the generated term and the expected one.
         """)
-    df : pd.DataFrame = pd.read_csv( '.cache/gen.csv' )
+    df : pd.DataFrame = pd.read_csv( 'data/gen.csv' )
     temps = [ 0.0, 0.2, 0.4, 0.6, 0.8, 1.0 ]
     models = df[ 'model' ].drop_duplicates()
     domains = df[ 'domain' ].drop_duplicates()
