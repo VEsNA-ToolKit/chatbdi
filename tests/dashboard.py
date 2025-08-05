@@ -10,12 +10,12 @@ import streamlit as st
 import altair as alt
 
 OUT_FOLDER : str = "../llm-test-py/out/"
-prolog : Prolog = Prolog()
-prolog.consult( "are_equals.pl" )
-
-parser = argparse.ArgumentParser()
-parser.add_argument( '-r', '--reload', help='Update the csv files used to visualize results', action='store_true')
-args = parser.parse_args()
+# prolog : Prolog = Prolog()
+# prolog.consult( "are_equals.pl" )
+#
+# parser = argparse.ArgumentParser()
+# parser.add_argument( '-r', '--reload', help='Update the csv files used to visualize results', action='store_true')
+# args = parser.parse_args()
 
 class colors():
 	emb_pri = "#35A77C"
