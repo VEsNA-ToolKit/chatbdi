@@ -327,6 +327,8 @@ def analyse_gen( ):
 def main() -> None :
     st.set_page_config(page_title="NL2KQML Results Viewer", page_icon='📊', layout="wide")
     st.title( "NL2KQML Results Viewer" )
+    st.write( f"Current directory: {os.getcwd()} ")
+    st.write( f"Files here:{ os.listdir() }" )
     with st.sidebar:
         st.header( "Configuration" )
     st.markdown( """
