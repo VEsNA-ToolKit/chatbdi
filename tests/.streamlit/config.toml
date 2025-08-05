@@ -1,0 +1,51 @@
+[[theme.fontFaces]]
+family="Bebas Neue"
+url="https://fonts.gstatic.com/s/bebasneue/v15/JTUSjIg69CK48gW7PXoo9WdhyyTh89ZNpQ.woff2"
+# style="normal"
+# weight="400"
+
+[[theme.fontFaces]]
+family="Space Grotesk"
+url="https://fonts.gstatic.com/s/spacegrotesk/v21/V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2"
+style="normal"
+weight="300 700"
+
+[[theme.fontFaces]]
+family="Space Mono"
+url="https://fonts.gstatic.com/s/spacemono/v17/i7dNIFZifjKcF5UAWdDRYERMR3K_MQacbw.woff2"
+style="italic"
+weight="400"
+
+[[theme.fontFaces]]
+family="Space Mono"
+url="https://fonts.gstatic.com/s/spacemono/v17/i7dPIFZifjKcF5UAWdDRYEF8RXi4EwQ.woff2"
+style="normal"
+weight="400"
+
+[[theme.fontFaces]]
+family="Space Mono"
+url="https://fonts.gstatic.com/s/spacemono/v17/i7dSIFZifjKcF5UAWdDRYERE_FeqHCSRRXaPYw.woff2"
+style="italic"
+weight="700"
+
+[[theme.fontFaces]]
+family="Space Mono"
+url="https://fonts.gstatic.com/s/spacemono/v17/i7dMIFZifjKcF5UAWdDRaPpZUFWaHi6WZ3Q.woff2"
+style="normal"
+weight="700"
+
+[theme]
+base="light"
+primaryColor="#93B259"
+backgroundColor="#FFFBEF"
+secondaryBackgroundColor = "#F8F5E4"
+textColor="#5C6A72"
+font="'Space Mono', monospace"
+baseFontSize=16
+showSidebarBorder = true
+headingFont="'Space Grotesk'"
+
+
+[theme.sidebar]
+primaryColor="#364E00"
+backgroundColor="#F2EFDF"
