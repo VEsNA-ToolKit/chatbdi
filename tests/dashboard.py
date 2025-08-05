@@ -1,11 +1,11 @@
 import os
 import pandas as pd
 import json
-from pyswip import Prolog
-from number_parser import parse
-import re
-from Levenshtein import distance
-import argparse
+# from pyswip import Prolog
+# from number_parser import parse
+# import re
+# from Levenshtein import distance
+# import argparse
 import streamlit as st
 import altair as alt
 
