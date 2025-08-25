@@ -401,7 +401,7 @@ def main() -> None :
 	st.markdown( """
 	Here you can find the raw dataframe used to create the charts and metrics subdivided by domain.
 	""")
-	domains = [ folder for folder in os.listdir( "input" ) if folder != ".DS_Store" ]
+	domains = [ folder for folder in os.listdir( "tests/input" ) if folder != ".DS_Store" ]
 	tabs = st.tabs( domains )
 	for i, domain in enumerate( domains ):
 		col1, col2 = tabs[ i ].columns( [3, 1] )
