@@ -1,0 +1,24 @@
+sentence;performative;embedding;solution
+the last booking id is 4;tell;last_booking_id/1;last_booking_id(4)
+gigi checked into room 12;tell;check_in/2;"check_in(gigi, 12)"
+The price of a double room is 50 euros per night;tell;room_price/2;"room_price(double, 50)"
+Payment for booking room 23 is completed succesfully;tell;payment_status/2;"payment_status(23, successful)"
+"They just called me, they cancelled booking number 38";tell;cancel_booking/1;cancel_booking(38)
+A double room is available from the 25th December 2025;tell;available/3;"available(double, ""25/12/2025"", _)"
+Jonhatan did the checkout yesterday;tell;check_out/1;check_out(jonhatan)
+There are no more available rooms for 13 August 2025;tell;fully_booked/1;"fully_booked(""13/08/2025"")"
+Carlo booked a single room from 10/10/2025 to 15/10/2025;tell;booking/4;"booking(carlo, single, ""10/10/2025"", ""15/10/2025"")"
+Is there a reservation with 12 as a ID?;askOne;has_reservation/2;"has_reservation(_, 12)"
+Is there a booking from Franco?;askOne;booking/4;"booking(franco, _, _, _)"
+Was Alfredo's payment for booking number 8 successful?;askOne;payment_status/2;"payment_status(8, successful)"
+Is single room available from 8th October 2025?;askOne;available/3;"available(single, ""8/10/2025"", _)"
+Can you tell me the name of a hotel with 4 star rating?;askOne;review/2;"review(_, 4)"
+Is booking number 21 cancelled?;askOne;cancel_booking/1;cancel_booking(21)
+How much does a single room cost?;askOne;room_price/2;"room_price(single, _)"
+Did Pino request an early checkin for 12/12/2025?;askOne;request_early_checkin/2;"request_early_checkin(pino, ""12/12/2025"")"
+I want to know all the hotels with 5 stars review;askAll;review/2;"review(_, 5)"
+Can you send me the prices of all rooms?;askAll;room_price/2;"room_price(_, _)"
+Which are all the days in which we are fully booked?;askAll;fully_booked/1;fully_booked(_)
+Which are the names of all the people that have a reservation?;askAll;has_reservation/2;"has_reservation(_, _)"
+Tell me every payment with a rejected status;askAll;payment_status/2;"payment_status(_, rejected)"
+Which rooms are available from the 12th Semptember 2025?;askAll;available/3;"available(_, ""12/9/2025"", _)"

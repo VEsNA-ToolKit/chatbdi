@@ -1,0 +1,21 @@
+sentence;performative;embedding;solution
+The robot is charging;tell;robot_status/1;robot_status(recharging)
+The battery is at 80%;tell;battery_level/1;battery_level(80)
+Customer C28 asked for infos about SamsungS3;tell;customer_request/2;"customer_request(""C28"", ""SamsungS3"")"
+SamsungWatch are now compatible with XiaomiRedmi;tell;accessory_compatible/2;"accessory_compatible(""SamsungWatch"", ""XiaomiRedmi"")"
+"Robot completed task ""HelpElderMan""";tell;task_completed/1;"task_completed(""HelpElderMan"")"
+There are no more VRs available;tell;out_of_stock/1;"out_of_stock(""VR"")"
+There is a Laptop on PC display;tell;product_on_display/2;"product_on_display(laptop, pc)"
+Motorola has a 20% discount valid from 1/1/2025 to 1/2/2025;tell;promotion_active/4;"promotion_active(""Motorola2"", 20, ""1/1/2025"", ""1/2/2025"")"
+Which are all the available return processes for Samsung devices?;askAll;return_process/2;"return_process(_, ""Samsung"")"
+I'd like to get all the names about unavailable products;askAll;out_of_stock/1;out_of_stock(_)
+Could you give me a full rundown of promotions active untill 1/1/2026?;askAll;promotion_active/4;"promotion_active(_, _, _, ""1/1/2026"")"
+Tell me all the product which quantity remaining is 9;askAll;product_in_stockroom/2;"product_in_stockroom(_, 9)"
+I'd like to know all the customers that are interested in dishwashers;askAll;customer_request/2;"customer_request(_, dishwasher)"
+Tell me all the compatible accessories with PixelPhone3;askAll;accessory_compatible/2;"accessory_compatible(""PixelPhone3"", _)"
+What is the robot battery level?;askOne;battery_level/1;battery_level(_)
+Any info about robot charging?;askOne;charging_status/1;charging_status(_)
+Is there any request from customer 21 about XiaomiRedmi?;askOne;customer_request/2;"customer_request(21, ""XiaomiRedmi"")"
+Is SamsungS3 out on stock?;askOne;out_of_stock/1;"out_of_stock(""SamsungS3"")"
+"Did you completed the task ""Clear""?";askOne;task_completed/1;task_completed(clear)
+Did you finish the return process of Transaction 99?;askOne;return_process/2;"return_process(99, _)"

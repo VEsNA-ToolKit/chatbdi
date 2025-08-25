@@ -1,0 +1,23 @@
+sentence;performative;embedding;solution
+the last transaction ID is 12;tell;last_transaction_id/1;last_transaction_id(12)
+User Pippo01 is offline;tell;login_status/2;"login_status(""Pippo01"", offline)"
+User ErTrota04 failed to login;tell;failed_login/1;"failed_login(""ErTrota04"")"
+I send to user 3232 notification number 2;tell;send_notification/2;"send_notification(3232, 2)"
+Account 01343 has 3000 euros;tell;account/3;"account(01343, _, 3000)"
+Fabiuccio222 has loggedin successfully;tell;successful_login/1;"successful_login(""Fabiuccio222"")"
+Credit Card 0021 has been blocked;tell;card_status/2;"card_status(0021, blocked)"
+There is a transaction of 200 euros from account 0123 on 12/12/2021;tell;transaction/6;"transaction(_, 0123, _, 200, ""12/12/2021"", _)"
+"Yesterday someone tried to authenticate in Pluto account, but he failed";tell;authentication_attempt/3;"authentication_attempt(""Pluto"", _, failed)"
+Tell me all the cards whose status is blocked;askAll;card_status/2;"card_status(_, blocked)"
+I need to know which are the IDs of those who received alert notifications;askAll;security_alert/2;"security_alert(_, _)"
+Which accounts were unable to log in?;askAll;failed_login/1;failed_login(_)
+"tell me all login attempts to user ""Bulbasaur15"" on 4/12/2023";askAll;authentication_attempt/3;"authentication_attempt(""Bulbasaur15"", ""4/12/2023"", _)"
+Which accounts have 200 euro daily limits?;askAll;transfer_limit/2;"transfer_limit(_, 200)"
+Which accounts received alert number 213;askAll;security_alert/2;"security_alert(_, 213)"
+What is te last transaction id?;askOne;last_transaction_id/1;last_transaction_id(_)
+What is the transfer limit of premium accounts?;askOne;transfer_limit/2;"transfer_limit(premium, _)"
+"Tell me the status of account ""Giratina12""";askOne;login_status/2;"login_status(""Giratina12"", _)"
+What is the username of customer number 11;askOne;user/3;"user(_, _, 11)"
+Tell me the status of card number 321;askOne;card_status/2;"card_status(321, _)"
+Tell me the pending transaction of account 122;askOne;pending_transaction/2;"pending_transaction( _, 122)"
+I need to know the amount of payment 222;askOne;bill_payment/5;"bill_payment(222, _, _, _, _)"
