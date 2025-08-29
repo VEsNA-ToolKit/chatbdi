@@ -63,11 +63,11 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         log( "Initializing Ollama models" );
         Literal[] allLiterals = buildEmbeddingsList(literalsList, beliefsList, plansList);
         ag_literals = build_personal_literals_dict(agentsList, literalsList, beliefsList, plansList);
-      
+
         init_embeddings( allLiterals );
         init_generation_models();
-        defineObsProperty( "running", true );  
-        
+        defineObsProperty( "running", true );
+
     }
 
 
@@ -111,7 +111,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
     //method where ag_literals dictionary is initialized
     public Map<String, List<Literal>> build_personal_literals_dict(Object[] agentsList,  Object[] literalsList, Object[] beliefsList,  Object[] plansList ){
-        
+
         HashMap<String, List<Literal>> ag_literals = new HashMap<>();
         List<String> ag_names = Arrays.stream( agentsList ).map( obj -> ( String ) obj ).collect( Collectors.toList() );
         ag_names.remove( "user" );
@@ -156,7 +156,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         }
         // Compute the embedding of the message
         List<Double> embedding = compute_embedding( sentence );
-        
+
         // Find the literal with the closer embedding
         Literal best_literal = null;
         double best_distance = Double.MAX_VALUE;
@@ -215,7 +215,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
             failed( "Error parsing " + literal_str + " to Literal: " + e.getMessage() );
         }
     }
-    
+
     // init_embeddings takes all the literals from the agents and computes for each literal the embedding
     private void init_embeddings(  Literal[] literals ) {
        log( "Initializing embeddings;" );
@@ -225,7 +225,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
         for ( Literal literal : literals ) {
             try {
                 // String str =((String) o_literal).replace("+","").replace("!","").replace("-","");
-                
+
                 // Add the embedding only if it is not already present
                 if ( embeddings.get( literal ) == null ){
                     List<Double> embedding = compute_embedding( literal.toString() );
@@ -253,7 +253,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
             ag_literals.get( ag ).add( literal );
         if ( embeddings.get( literal ) == null ) {
             List<Double> embedding = compute_embedding( literal.toString() );
-            embeddings.put( literal, embedding ); 
+            embeddings.put( literal, embedding );
         }
     }
 
@@ -330,7 +330,7 @@ public class LLMWithEmbeddingsInterpreter extends Artifact implements Interprete
 
 //1
 private JSONObject get_classify_model(){
-    
+
     String system = """
       You are a logician who works with Prolog. You will receive a sentence.
         Your task is to classify this sentence based on its content.
@@ -407,10 +407,10 @@ private JSONObject get_classify_model(){
         Answer: unclassified
 
         """;
-    
+
 
      JSONObject json = new JSONObject();
-        json.put( "model", CLASSIFICATION_MODEL); 
+        json.put( "model", CLASSIFICATION_MODEL);
         json.put( "from", FROM_MODEL );
         json.put( "system", system );
         JSONObject parameters = new JSONObject( );
@@ -426,9 +426,9 @@ private JSONObject get_classify_model(){
 
     //clasify_perf
 
-    @OPERATION 
+    @OPERATION
     public void classify_performative( String sentence, OpFeedbackParam<Literal>performative_type ){
-           
+
             sentence = sentence.replaceAll("\\s*@\\S+", "");
             sentence = sentence.toLowerCase();
 
@@ -479,7 +479,7 @@ private JSONObject get_classify_model(){
 
 
             You will tell the content of the property to me as if we are speaking and the content is something about you.
-            
+
             Here's a few examples:
             hasColor(apple, red), tell should be translated to "The apple is red".
 
@@ -509,7 +509,7 @@ private JSONObject get_classify_model(){
     }
 
 
-    //done 
+    //done
     private String send_ollama( String type, String model, String input ) {
         try {
             JSONObject json = new JSONObject();
@@ -611,7 +611,7 @@ private JSONObject get_classify_model(){
         assert embedding1 != null && embedding2 != null;
         if ( embedding1.size() != embedding2.size() )
             failed( "Embeddings have different sizes" );
-        
+
         double dotProd = 0.0;
         double norm1 = 0.0;
         double norm2 = 0.0;

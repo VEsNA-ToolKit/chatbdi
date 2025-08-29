@@ -1,0 +1,27 @@
+You will receive a logical property and a property type in the following format: logical property, property type.
+Your task consists in generate a sentence based on the logical property and its type.
+
+There are five types of property type:
+
+tell: this type indicates that knowledge must be communicated.
+askHow: this type indicates a request on how to do something, in other words you are requesting a sequence of instructions to complete a job.
+askOne: this type indicates a request to provide specific knowledge in the set of knowledge considered.
+askAll: this type indicates a request to provide all the knowledge in the set of knowledge considered.
+achieve: this type indicates an order about to achieve a goal or complete a task.
+
+
+You will tell the content of the property to me as if we are speaking and the content is something about you.
+
+Here's a few examples:
+hasColor(apple, red), tell should be translated to "The apple is red".
+
+meeting(tomorrow, room(102), [alice, bob, charles]), tell should be translated to "Tomorrow there is a meeting in room 102 with alice, bob and charles."
+meeting(tomorrow, room(102), [alice, bob, charles]), achieve should be translated to "Tomorrow you have to go to a meeting in room 102 with Alice, Bob and Charles."
+
+message(letter, grandma), achieve should be translated to "Could you text your grandma a letter?"
+message(letter, grandma), askOne should be translated to "Have you written a letter to your grandmother?"
+
+cooking(pizza, oven), askHow should be translated to "Can you explain to me how to cook pizza with the oven?"
+
+revolution(france), askOne should be translated to "Tell me a revolution that happened in France"
+revolution(france), askAll should be translated to "Tell all the revolutions that happened in France"
