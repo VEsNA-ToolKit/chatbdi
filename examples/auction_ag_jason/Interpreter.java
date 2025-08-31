@@ -5,9 +5,23 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Queue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import jason.asSyntax.*;
 import static jason.asSyntax.ASSyntax.*;
+import jason.infra.local.RunLocalMAS;
 
 import jason.runtime.RuntimeServices;
 
@@ -15,6 +29,9 @@ import jason.architecture.AgArch;
 import jason.asSemantics.*;
 import jason.bb.*;
 import jason.pl.*;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Interpreter extends AgArch {
 
@@ -43,6 +60,7 @@ public class Interpreter extends AgArch {
 		getTS().getLogger().log( Level.INFO, "Initializing Ollama models" );
 		init_embeddings();
 		init_generation_models();
+		ChatView chatView = new ChatView();
 	}
 
 	@Override
@@ -52,7 +70,13 @@ public class Interpreter extends AgArch {
 		System.out.println( "Mailbox: " + mbox );
 		for ( Message m : mbox ) {
 			System.out.println( m );
+			String user_msg = generate_sentence( m );
 		}
+	}
+
+	private String generate_sentence( Message m ) {
+		String ans = ollama.generate( LOG2NL_MODEL, m.getPropCont().toString() );
+		return ans;
 	}
 
 	private void init_embeddings() {
@@ -62,7 +86,7 @@ public class Interpreter extends AgArch {
 		try {
 			Collection<String> ag_names = getRuntimeServices().getAgentsName();
 			for ( String ag_name : ag_names ) {
-				Agent ag = getRuntimeServices().getAgentSnapshot( ag_name );
+				Agent ag = RunLocalMAS.getRunner().getAg( ag_name ).getTS().getAg();
 				BeliefBase bb = ag.getBB().clone();
 				PlanLibrary pl = ag.getPL().clone();
 
@@ -129,6 +153,163 @@ public class Interpreter extends AgArch {
 		// return the functor repeated 4 times followed by the preprocessed terms
 		// this way, we give more importance to the functor with respect to the terms
 		return functor.repeat( 4 ) + terms.trim();
+	}
+
+	class ChatView extends JFrame {
+		// private ChatArtifact art;
+		private JTextPane chatPane;
+		private JTextField inputField;
+		private JButton sendButton;
+
+		public ChatView( ) {
+			// FlatLightLaf.setup();
+			// this.art = art;
+
+			setTitle("..::ChatBDI::..");
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			setSize(400, 500);
+			setLayout(new BorderLayout());
+
+			chatPane = new JTextPane();
+			chatPane.setContentType("text/html");
+			chatPane.setEditable(false);
+			JScrollPane scrollPane = new JScrollPane( chatPane );
+
+			inputField = new JTextField();
+
+			sendButton = new JButton("Send");
+
+			JPanel inputPanel = new JPanel(new BorderLayout());
+			inputPanel.add(inputField, BorderLayout.CENTER);
+			inputPanel.add(sendButton, BorderLayout.EAST);
+
+			add(scrollPane, BorderLayout.CENTER);
+			add(inputPanel, BorderLayout.SOUTH);
+
+			sendButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					sendMessage();
+				}
+			});
+
+			// inputField.addActionListener(new ActionListener() {
+			// @Override
+			// 	public void actionPerformed(ActionEvent e) {
+			// 		sendMessage();
+			// 	}
+			// });
+
+			setVisible(true);
+		}
+
+		private void sendMessage() {
+            String message = inputField.getText();
+            if ( !message.trim().isEmpty() ) {
+                List<Literal> recipients = visMsg( "user", message );
+                inputField.setText("");
+                // try {
+                //     art.beginExtSession();
+                //     if ( recipients.size() > 0 )
+                //         art.notify_new_msg( recipients, message );
+                //     else
+                //         art.notify_new_msg( message );
+                // } finally {
+                //     art.endExtSession();
+                // }
+                // log("Sent " + message);
+            }
+        }
+
+		public List<Literal> visMsg( String sender, String msg ) {
+			JSONObject mention_json = highlight_mentions( msg );
+            String msg_with_hm = mention_json.getString( "display" );
+            JSONArray recipients = mention_json.getJSONArray( "recipients" );
+            List<Literal> recipients_l = new ArrayList<>();
+            for ( Object recipient : recipients ) {
+                recipients_l.add( ASSyntax.createLiteral( (String) recipient ) );
+            }
+			String msg_class = sender.equals("user") ? "sent" : "received";
+
+            String currentContent = chatPane.getText();
+            int bodyStart = currentContent.indexOf("<body>") + 6;
+            int bodyEnd = currentContent.lastIndexOf("</body>");
+            String bodyContent = currentContent.substring(bodyStart, bodyEnd);
+            String headerContent = """
+                    <html>
+                    <head>
+                        <style>
+
+                            body {
+                                font-family: Roboto, sans-serif;
+                                font-size: 12px;
+                            }
+                            span {
+                                background: #F4A261;
+                                color: #fff;
+                                padding: 5px 10px;
+                                margin: 0 5px;
+                            }
+
+                            .sent {
+                                text-align: right;
+                                background: #2c6e49;
+                                padding: 10px;
+                                margin: 5px;
+                            }
+
+                            .received {
+                                text-align: left;
+                                background: #05668d;
+                                padding: 10px;
+                                margin: 5px;
+                            }
+
+                            .sender {
+                                font-weight: bold;
+                                font-size: 10px;
+                                color: white;
+                            }
+
+                            .content {
+                                font-weight: bold;
+                                color: white;
+                            }
+
+                        </style>
+                    </head>
+                    <body>
+                    """;
+            if ( !bodyContent.contains( "div" ) ){
+                bodyContent = "";
+            }
+            String sender_div = "<div class='sender'> " + sender + "</div>";
+            String content_div = "<div class='content'>" + msg_with_hm + "</div>";
+            String msg_div = "<div class='" + msg_class + "'>" + sender_div + content_div + "</div>";
+            String updatedContent = bodyContent + msg_div;
+
+            chatPane.setText(headerContent + updatedContent + "</div></body></html>");
+
+            return recipients_l;
+		}
+
+		private JSONObject highlight_mentions( String msg ) {
+            Pattern pattern = Pattern.compile("@\\w+");
+            Matcher matcher = pattern.matcher( msg );
+            StringBuffer sb = new StringBuffer();
+            List<String> mentions = new ArrayList<>();
+
+            while ( matcher.find() ){
+                String mention = matcher.group();
+                mentions.add(mention.substring(1));
+                matcher.appendReplacement( sb, "<span>" + mention + "</span>");
+            }
+            matcher.appendTail( sb );
+            JSONObject json = new JSONObject();
+            json.put( "display", sb.toString() );
+            json.put( "recipients", mentions );
+            return json;
+        }
 	}
 
 }
