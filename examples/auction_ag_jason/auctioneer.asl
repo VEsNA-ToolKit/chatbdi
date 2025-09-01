@@ -13,4 +13,5 @@ ciao(20, prova_di_carico).
       .print("Winner is ",W," with ", V);
       show_winner(N,W); // show it in the GUI
       .broadcast(tell, winner(W));
+      .send( giacomo, tell, ciao );
       .abolish(place_bid(N,_)).

@@ -24,6 +24,7 @@ dependencies {
     implementation group: 'org.java-websocket', name: 'Java-WebSocket', version: '1.5.6'
     // https://mvnrepository.com/artifact/org.json/json
     implementation("org.json:json:20230227")
+    implementation 'com.formdev:flatlaf:3.0'
 }
 
 sourceSets {

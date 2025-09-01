@@ -19,6 +19,8 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import com.formdev.flatlaf.FlatLightLaf;
+
 import jason.asSyntax.*;
 import static jason.asSyntax.ASSyntax.*;
 import jason.infra.local.RunLocalMAS;
@@ -45,6 +47,7 @@ public class Interpreter extends AgArch {
 	private final float TEMPERATURE = 0.2f;
 	private final String DEBUG_LOG = "interpreter.log";
 	private Ollama ollama;
+	private ChatView chatView;
 
 	private Map<Literal, List<Double>> embeddings;
 	private Map<String, List<Literal>> ag_literals;
@@ -60,23 +63,29 @@ public class Interpreter extends AgArch {
 		getTS().getLogger().log( Level.INFO, "Initializing Ollama models" );
 		init_embeddings();
 		init_generation_models();
-		ChatView chatView = new ChatView();
+		chatView = new ChatView();
 	}
 
 	@Override
 	public void checkMail() {
 		super.checkMail();
 		Queue<Message> mbox = getTS().getC().getMailBox();
-		System.out.println( "Mailbox: " + mbox );
-		for ( Message m : mbox ) {
-			System.out.println( m );
-			String user_msg = generate_sentence( m );
-		}
+		if ( mbox.isEmpty() )
+			return;
+		Message m = mbox.peek();
+		System.out.println( m );
+		String user_msg = generate_sentence( m );
+		System.out.println( user_msg );
+		chatView.visMsg( m.getSender(), user_msg );
 	}
 
 	private String generate_sentence( Message m ) {
-		String ans = ollama.generate( LOG2NL_MODEL, m.getPropCont().toString() );
-		return ans;
+		String prompt = "You received a message from " + m.getSender() +
+			" with performative " + m.getIlForce() + " and content: " + m.getPropCont() +
+			". You have to impersonate the sender and translate the logical term into a natural language sentence as you were telling it to me.";
+		JSONObject ans = new JSONObject( ollama.generate( LOG2NL_MODEL, prompt ) );
+		System.out.println( m.getReceiver() );
+		return ans.getString( "response" );
 	}
 
 	private void init_embeddings() {
@@ -122,9 +131,9 @@ public class Interpreter extends AgArch {
 
 	private void init_generation_models() {
 		getTS().getLogger().log( Level.INFO, "Initializing generation models" );
-		ollama.create( GEN_MODEL, NL2LOG_MODEL, TEMPERATURE, "modelfiles/nl2log.txt" );
-		ollama.create( GEN_MODEL, CLASS_MODEL, TEMPERATURE, "modelfiles/classifier.txt" );
-		ollama.create( GEN_MODEL, LOG2NL_MODEL, TEMPERATURE, "modelfiles/log2nl.txt" );
+		ollama.create( GEN_MODEL, NL2LOG_MODEL, TEMPERATURE, "java/modelfiles/nl2log.txt" );
+		ollama.create( GEN_MODEL, CLASS_MODEL, TEMPERATURE, "java/modelfiles/classifier.txt" );
+		ollama.create( GEN_MODEL, LOG2NL_MODEL, TEMPERATURE, "java/modelfiles/log2nl.txt" );
 	}
 
 	private String preprocess( Literal bel ) {
@@ -162,7 +171,7 @@ public class Interpreter extends AgArch {
 		private JButton sendButton;
 
 		public ChatView( ) {
-			// FlatLightLaf.setup();
+			FlatLightLaf.setup();
 			// this.art = art;
 
 			setTitle("..::ChatBDI::..");

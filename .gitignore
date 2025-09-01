@@ -5,3 +5,6 @@
 **bin/
 **.settings/
 **rasa/
+**.idea
+interpreter/gradlew.bat
+interpreter/gradlew
