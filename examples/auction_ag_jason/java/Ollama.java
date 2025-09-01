@@ -90,6 +90,27 @@ public class Ollama {
 		return null;
 	}
 
+	public String generate( String model, String str, String format ) {
+		JSONObject json = new JSONObject();
+		json.put( "model", model );
+		json.put( "prompt", str );
+		json.put( "stream", false );
+
+		HttpRequest req = HttpRequest.newBuilder()
+			.uri( URI.create( URL + "generate" ) )
+			.header( "Content-Type", "application/json" )
+			.POST( HttpRequest.BodyPublishers.ofString( json.toString() ) )
+			.build();
+
+		try {
+			HttpResponse<String> res = client.send( req, HttpResponse.BodyHandlers.ofString() );
+			return res.body();
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public void create( String from, String model, float t, String sys_file ) {
 		JSONObject params = new JSONObject();
 		params.put( "temperature", t );

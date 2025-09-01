@@ -46,8 +46,13 @@ public class Interpreter extends AgArch {
 	private final String CLASS_MODEL = "classify-performative";
 	private final float TEMPERATURE = 0.2f;
 	private final String DEBUG_LOG = "interpreter.log";
+	private final String[] SUPPORTED_ILF = { "tell", "askOne", "askAll", "askOne" };
 	private Ollama ollama;
-	private ChatView chatView;
+
+	private JFrame chatView;
+	private JTextPane chatPane;
+	private JTextField inputField;
+	private JButton sendButton;
 
 	private Map<Literal, List<Double>> embeddings;
 	private Map<String, List<Literal>> ag_literals;
@@ -63,8 +68,140 @@ public class Interpreter extends AgArch {
 		getTS().getLogger().log( Level.INFO, "Initializing Ollama models" );
 		init_embeddings();
 		init_generation_models();
-		chatView = new ChatView();
+		chatView = new JFrame();
+
+		FlatLightLaf.setup();
+		// this.art = art;
+
+		chatView.setTitle("..::ChatBDI::..");
+		chatView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		chatView.setSize(400, 500);
+		chatView.setLayout(new BorderLayout());
+
+		chatPane = new JTextPane();
+		chatPane.setContentType("text/html");
+		chatPane.setEditable(false);
+		JScrollPane scrollPane = new JScrollPane( chatPane );
+
+		inputField = new JTextField();
+
+		sendButton = new JButton("Send");
+
+		JPanel inputPanel = new JPanel(new BorderLayout());
+		inputPanel.add(inputField, BorderLayout.CENTER);
+		inputPanel.add(sendButton, BorderLayout.EAST);
+
+		chatView.add(scrollPane, BorderLayout.CENTER);
+		chatView.add(inputPanel, BorderLayout.SOUTH);
+
+		sendButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendMessage();
+			}
+		});
+
+		chatView.setVisible(true);
 	}
+
+	private void sendMessage() {
+        String message = inputField.getText();
+        if ( !message.trim().isEmpty() ) {
+            List<Literal> recipients = visMsg( "user", message );
+            inputField.setText("");
+            generate_property( message );
+        }
+    }
+
+		public List<Literal> visMsg( String sender, String msg ) {
+			JSONObject mention_json = highlight_mentions( msg );
+              String msg_with_hm = mention_json.getString( "display" );
+              JSONArray recipients = mention_json.getJSONArray( "recipients" );
+              List<Literal> recipients_l = new ArrayList<>();
+              for ( Object recipient : recipients ) {
+                  recipients_l.add( ASSyntax.createLiteral( (String) recipient ) );
+              }
+			String msg_class = sender.equals("user") ? "sent" : "received";
+
+              String currentContent = chatPane.getText();
+              int bodyStart = currentContent.indexOf("<body>") + 6;
+              int bodyEnd = currentContent.lastIndexOf("</body>");
+              String bodyContent = currentContent.substring(bodyStart, bodyEnd);
+              String headerContent = """
+                      <html>
+                      <head>
+                          <style>
+
+                              body {
+                                  font-family: Roboto, sans-serif;
+                                  font-size: 12px;
+                              }
+                              span {
+                                  background: #F4A261;
+                                  color: #fff;
+                                  padding: 5px 10px;
+                                  margin: 0 5px;
+                              }
+
+                              .sent {
+                                  text-align: right;
+                                  background: #2c6e49;
+                                  padding: 10px;
+                                  margin: 5px;
+                              }
+
+                              .received {
+                                  text-align: left;
+                                  background: #05668d;
+                                  padding: 10px;
+                                  margin: 5px;
+                              }
+
+                              .sender {
+                                  font-weight: bold;
+                                  font-size: 10px;
+                                  color: white;
+                              }
+
+                              .content {
+                                  font-weight: bold;
+                                  color: white;
+                              }
+
+                          </style>
+                      </head>
+                      <body>
+                      """;
+              if ( !bodyContent.contains( "div" ) ){
+                  bodyContent = "";
+              }
+              String sender_div = "<div class='sender'> " + sender + "</div>";
+              String content_div = "<div class='content'>" + msg_with_hm + "</div>";
+              String msg_div = "<div class='" + msg_class + "'>" + sender_div + content_div + "</div>";
+              String updatedContent = bodyContent + msg_div;
+
+              chatPane.setText(headerContent + updatedContent + "</div></body></html>");
+
+              return recipients_l;
+		}
+
+		private JSONObject highlight_mentions( String msg ) {
+              Pattern pattern = Pattern.compile("@\\w+");
+              Matcher matcher = pattern.matcher( msg );
+              StringBuffer sb = new StringBuffer();
+              List<String> mentions = new ArrayList<>();
+
+              while ( matcher.find() ){
+                  String mention = matcher.group();
+                  mentions.add(mention.substring(1));
+                  matcher.appendReplacement( sb, "<span>" + mention + "</span>");
+              }
+              matcher.appendTail( sb );
+              JSONObject json = new JSONObject();
+              json.put( "display", sb.toString() );
+              json.put( "recipients", mentions );
+              return json;
+          }
 
 	@Override
 	public void checkMail() {
@@ -73,19 +210,62 @@ public class Interpreter extends AgArch {
 		if ( mbox.isEmpty() )
 			return;
 		Message m = mbox.peek();
-		System.out.println( m );
 		String user_msg = generate_sentence( m );
-		System.out.println( user_msg );
-		chatView.visMsg( m.getSender(), user_msg );
+		visMsg( m.getSender(), user_msg );
 	}
 
 	private String generate_sentence( Message m ) {
-		String prompt = "You received a message from " + m.getSender() +
-			" with performative " + m.getIlForce() + " and content: " + m.getPropCont() +
+		String prompt = "You are " + m.getSender() +
+			" and you are " + m.getIlForce() + " and content: " + m.getPropCont() +
 			". You have to impersonate the sender and translate the logical term into a natural language sentence as you were telling it to me.";
 		JSONObject ans = new JSONObject( ollama.generate( LOG2NL_MODEL, prompt ) );
 		System.out.println( m.getReceiver() );
 		return ans.getString( "response" );
+	}
+
+	private Literal generate_property( String sentence ) {
+		// remove all the mentions inside sentence
+		sentence = sentence.replaceAll( "\\s*@\\S+", "" );
+		Literal performative = classify( sentence );
+		System.out.println( performative );
+		Literal nearest = find_nearest( sentence );
+		// List<Literal> examples = get_examples( nearest );
+		// Literal term = get_term( sentence, performative, nearest, examples );
+		return createLiteral( "p" );
+	}
+
+	private Literal classify( String sentence ) {
+		JSONObject performative = new JSONObject();
+		performative.put( "type", "string" );
+		performative.put( "enum", SUPPORTED_ILF );
+		JSONObject properties = new JSONObject();
+		properties.put( "performative", performative );
+		JSONObject json = new JSONObject();
+		json.put( "type", "object" );
+		json.put( "properties", properties );
+		json.put( "required", new JSONArray().put( "performative" ) );
+		JSONObject ans = new JSONObject( ollama.generate( CLASS_MODEL, sentence, json.toString() ) );
+		String perf_obj_str = ans.getString( "response" )
+			.replaceAll( "```json\\s*", "" )
+			.replaceAll( "```\\s*$", "" )
+			.trim();
+		JSONObject perf_obj = new JSONObject( perf_obj_str );
+		return createLiteral( perf_obj.getString( "performative" ) );
+	}
+
+	private Literal find_nearest( String sentence ) {
+		List<Double> embedding = ollama.embed( EMBED_MODEL, sentence );
+		Literal best_lit = null;
+		double best_dist = Double.MAX_VALUE;
+		for ( Literal lit : embeddings.keySet() ) {
+			List<Double> lit_emb = embeddings.get( lit );
+			double dist = cosine_similarity( emb, lit_emb );
+			if ( dist < emb_dist ) {
+				best_dist = dist;
+				best_lit = lit;
+			}
+		}
+		log( "Best fitting embedding is " + best_lit );
 	}
 
 	private void init_embeddings() {
@@ -162,163 +342,6 @@ public class Interpreter extends AgArch {
 		// return the functor repeated 4 times followed by the preprocessed terms
 		// this way, we give more importance to the functor with respect to the terms
 		return functor.repeat( 4 ) + terms.trim();
-	}
-
-	class ChatView extends JFrame {
-		// private ChatArtifact art;
-		private JTextPane chatPane;
-		private JTextField inputField;
-		private JButton sendButton;
-
-		public ChatView( ) {
-			FlatLightLaf.setup();
-			// this.art = art;
-
-			setTitle("..::ChatBDI::..");
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			setSize(400, 500);
-			setLayout(new BorderLayout());
-
-			chatPane = new JTextPane();
-			chatPane.setContentType("text/html");
-			chatPane.setEditable(false);
-			JScrollPane scrollPane = new JScrollPane( chatPane );
-
-			inputField = new JTextField();
-
-			sendButton = new JButton("Send");
-
-			JPanel inputPanel = new JPanel(new BorderLayout());
-			inputPanel.add(inputField, BorderLayout.CENTER);
-			inputPanel.add(sendButton, BorderLayout.EAST);
-
-			add(scrollPane, BorderLayout.CENTER);
-			add(inputPanel, BorderLayout.SOUTH);
-
-			sendButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					sendMessage();
-				}
-			});
-
-			// inputField.addActionListener(new ActionListener() {
-			// @Override
-			// 	public void actionPerformed(ActionEvent e) {
-			// 		sendMessage();
-			// 	}
-			// });
-
-			setVisible(true);
-		}
-
-		private void sendMessage() {
-            String message = inputField.getText();
-            if ( !message.trim().isEmpty() ) {
-                List<Literal> recipients = visMsg( "user", message );
-                inputField.setText("");
-                // try {
-                //     art.beginExtSession();
-                //     if ( recipients.size() > 0 )
-                //         art.notify_new_msg( recipients, message );
-                //     else
-                //         art.notify_new_msg( message );
-                // } finally {
-                //     art.endExtSession();
-                // }
-                // log("Sent " + message);
-            }
-        }
-
-		public List<Literal> visMsg( String sender, String msg ) {
-			JSONObject mention_json = highlight_mentions( msg );
-            String msg_with_hm = mention_json.getString( "display" );
-            JSONArray recipients = mention_json.getJSONArray( "recipients" );
-            List<Literal> recipients_l = new ArrayList<>();
-            for ( Object recipient : recipients ) {
-                recipients_l.add( ASSyntax.createLiteral( (String) recipient ) );
-            }
-			String msg_class = sender.equals("user") ? "sent" : "received";
-
-            String currentContent = chatPane.getText();
-            int bodyStart = currentContent.indexOf("<body>") + 6;
-            int bodyEnd = currentContent.lastIndexOf("</body>");
-            String bodyContent = currentContent.substring(bodyStart, bodyEnd);
-            String headerContent = """
-                    <html>
-                    <head>
-                        <style>
-
-                            body {
-                                font-family: Roboto, sans-serif;
-                                font-size: 12px;
-                            }
-                            span {
-                                background: #F4A261;
-                                color: #fff;
-                                padding: 5px 10px;
-                                margin: 0 5px;
-                            }
-
-                            .sent {
-                                text-align: right;
-                                background: #2c6e49;
-                                padding: 10px;
-                                margin: 5px;
-                            }
-
-                            .received {
-                                text-align: left;
-                                background: #05668d;
-                                padding: 10px;
-                                margin: 5px;
-                            }
-
-                            .sender {
-                                font-weight: bold;
-                                font-size: 10px;
-                                color: white;
-                            }
-
-                            .content {
-                                font-weight: bold;
-                                color: white;
-                            }
-
-                        </style>
-                    </head>
-                    <body>
-                    """;
-            if ( !bodyContent.contains( "div" ) ){
-                bodyContent = "";
-            }
-            String sender_div = "<div class='sender'> " + sender + "</div>";
-            String content_div = "<div class='content'>" + msg_with_hm + "</div>";
-            String msg_div = "<div class='" + msg_class + "'>" + sender_div + content_div + "</div>";
-            String updatedContent = bodyContent + msg_div;
-
-            chatPane.setText(headerContent + updatedContent + "</div></body></html>");
-
-            return recipients_l;
-		}
-
-		private JSONObject highlight_mentions( String msg ) {
-            Pattern pattern = Pattern.compile("@\\w+");
-            Matcher matcher = pattern.matcher( msg );
-            StringBuffer sb = new StringBuffer();
-            List<String> mentions = new ArrayList<>();
-
-            while ( matcher.find() ){
-                String mention = matcher.group();
-                mentions.add(mention.substring(1));
-                matcher.appendReplacement( sb, "<span>" + mention + "</span>");
-            }
-            matcher.appendTail( sb );
-            JSONObject json = new JSONObject();
-            json.put( "display", sb.toString() );
-            json.put( "recipients", mentions );
-            return json;
-        }
 	}
 
 }
