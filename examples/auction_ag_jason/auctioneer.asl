@@ -1,5 +1,7 @@
 // this agent manages the auction and identify the winner
 ciao(20, prova_di_carico).
+ciao(10, altra_prova).
+ciao(3, 2).
 
 +!start_auction(N)   // this goal is created by the GUI of the agent
     <- .broadcast(tell, auction(N)).

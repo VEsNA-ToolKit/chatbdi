@@ -94,6 +94,7 @@ public class Ollama {
 		JSONObject json = new JSONObject();
 		json.put( "model", model );
 		json.put( "prompt", str );
+		json.put( "format", format );
 		json.put( "stream", false );
 
 		HttpRequest req = HttpRequest.newBuilder()
@@ -114,7 +115,6 @@ public class Ollama {
 	public void create( String from, String model, float t, String sys_file ) {
 		JSONObject params = new JSONObject();
 		params.put( "temperature", t );
-		params.put( "penalize_newline", true );
 		JSONObject json = new JSONObject();
 		json.put( "from", from );
 		json.put( "model", model );
