@@ -1,3 +1,4 @@
+// UTILS IMPORT
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,31 +12,36 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.IOException;
+
+// UI IMPORT
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+// FlatLaf is good for Linux devices but does not execute on Mac Os.
+// Feel free to remove it (and the setup call)
 import com.formdev.flatlaf.FlatLightLaf;
 
+// JASON IMPORTS
 import jason.asSyntax.*;
 import static jason.asSyntax.ASSyntax.*;
 import jason.infra.local.RunLocalMAS;
-
 import jason.runtime.RuntimeServices;
-
 import jason.architecture.AgArch;
 import jason.asSemantics.*;
 import jason.bb.*;
 import jason.pl.*;
 import jason.asSyntax.parser.ParseException;
 
+// JSON IMPORTS
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -48,56 +54,79 @@ public class Interpreter extends AgArch {
 	private final String LOG2NL_MODEL = "logic-to-nl";
 	private final String NL2LOG_MODEL = "nl-to-logic";
 	private final String CLASS_MODEL = "classify-performative";
-	private final float TEMPERATURE = 0.2f;
+	private final float TEMPERATURE = 0.0f;
+	private final int SEED = 42;
 	private final String DEBUG_LOG = "interpreter.log";
 	private final String[] SUPPORTED_ILF = { "tell", "askOne", "askAll", "askOne" };
+	// Ollama object is used to communicate with Ollama
 	private Ollama ollama;
 
+	// Chat UI objects
 	private JFrame chatView;
 	private JTextPane chatPane;
 	private JTextField inputField;
 	private JButton sendButton;
 
+	// Embeddings is a map containing all literals and corresponding embedding
+	// This way even if multiple agents have the same belief we can compute them once
 	private Map<Literal, List<Double>> embeddings;
+	// ag_literals contains the list of literals for each agent
 	private Map<String, List<Literal>> ag_literals;
+	// TODO: add also a plan/triggering event/belief differentiation (for askHow it is essential)
 
 	// Init method: we get the beliefs and plans from the other agents.
 	@Override
 	public void init() throws Exception {
 
-		// Check if the Ollama server is up and running
+		// Initialize the Ollama connection
 		ollama = new Ollama( OLLAMA_URL );
 
-		// Initialize embeddings and generation models
+		// Initialize embeddings and create prompted generation models
 		getTS().getLogger().log( Level.INFO, "Initializing Ollama models" );
 		init_embeddings();
 		init_generation_models();
+
+		// Create the Chat View
+		init_ui();
+	}
+
+	private void init_ui() {
+
+		// Create the frame
 		chatView = new JFrame();
 
 		FlatLightLaf.setup();
-		// this.art = art;
 
+		// Set frame title, dimentions and layout
 		chatView.setTitle("..::ChatBDI::..");
 		chatView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		chatView.setSize(400, 500);
 		chatView.setLayout(new BorderLayout());
 
+		// CHAT BOX
+		// create the TextPane that will be used for the chat
 		chatPane = new JTextPane();
 		chatPane.setContentType("text/html");
 		chatPane.setEditable(false);
+		// Put the TextPane onto a scrollable panel
 		JScrollPane scrollPane = new JScrollPane( chatPane );
 
+		// INPUT PANEL
+		// Create the input field for user messages
 		inputField = new JTextField();
-
+		// Create the send button
 		sendButton = new JButton("Send");
-
+		// Add all the input elements to a panel
 		JPanel inputPanel = new JPanel(new BorderLayout());
 		inputPanel.add(inputField, BorderLayout.CENTER);
 		inputPanel.add(sendButton, BorderLayout.EAST);
 
+		// Add the Chat Box and the Input Panel to the frame
 		chatView.add(scrollPane, BorderLayout.CENTER);
 		chatView.add(inputPanel, BorderLayout.SOUTH);
 
+		// Add the event listeners when the Send button is pressed or
+		// when the user presses Enter in the input field
 		sendButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -105,122 +134,102 @@ public class Interpreter extends AgArch {
 			}
 		});
 
+		inputField.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendMessage();
+			}
+		});
+
+		// Show the chat view
 		chatView.setVisible(true);
 	}
 
+	// sendMessage is called when a message is sent from the user on the chat
 	private void sendMessage() {
-        String message = inputField.getText();
-        if ( message.trim().isEmpty() )
-        	return;
-        List<Literal> recipients = visMsg( "user", message );
-        inputField.setText("");
-        String performative = classify( message ).toString();
-        Literal term = generate_property( performative, message );
-        Message m = new Message( performative, this.getAgName(), null, term );
-        try {
-	        if ( recipients.isEmpty() ) {
-	        	broadcast( m );
-	         	return;
-	        }
-	        for ( Literal recipient : recipients ) {
-	        	m.setReceiver( recipient.toString() );
-	         	sendMsg( m );
-	        }
-        } catch ( Exception e) {
-            System.err.println("Error sending message: " + e.getMessage());
-        }
-        return;
-    }
-
-		public List<Literal> visMsg( String sender, String msg ) {
-			JSONObject mention_json = highlight_mentions( msg );
-              String msg_with_hm = mention_json.getString( "display" );
-              JSONArray recipients = mention_json.getJSONArray( "recipients" );
-              List<Literal> recipients_l = new ArrayList<>();
-              for ( Object recipient : recipients ) {
-                  recipients_l.add( ASSyntax.createLiteral( (String) recipient ) );
-              }
-			String msg_class = sender.equals("user") ? "sent" : "received";
-
-              String currentContent = chatPane.getText();
-              int bodyStart = currentContent.indexOf("<body>") + 6;
-              int bodyEnd = currentContent.lastIndexOf("</body>");
-              String bodyContent = currentContent.substring(bodyStart, bodyEnd);
-              String headerContent = """
-                      <html>
-                      <head>
-                          <style>
-
-                              body {
-                                  font-family: Roboto, sans-serif;
-                                  font-size: 12px;
-                              }
-                              span {
-                                  background: #F4A261;
-                                  color: #fff;
-                                  padding: 5px 10px;
-                                  margin: 0 5px;
-                              }
-
-                              .sent {
-                                  text-align: right;
-                                  background: #2c6e49;
-                                  padding: 10px;
-                                  margin: 5px;
-                              }
-
-                              .received {
-                                  text-align: left;
-                                  background: #05668d;
-                                  padding: 10px;
-                                  margin: 5px;
-                              }
-
-                              .sender {
-                                  font-weight: bold;
-                                  font-size: 10px;
-                                  color: white;
-                              }
-
-                              .content {
-                                  font-weight: bold;
-                                  color: white;
-                              }
-
-                          </style>
-                      </head>
-                      <body>
-                      """;
-              if ( !bodyContent.contains( "div" ) ){
-                  bodyContent = "";
-              }
-              String sender_div = "<div class='sender'> " + sender + "</div>";
-              String content_div = "<div class='content'>" + msg_with_hm + "</div>";
-              String msg_div = "<div class='" + msg_class + "'>" + sender_div + content_div + "</div>";
-              String updatedContent = bodyContent + msg_div;
-
-              chatPane.setText(headerContent + updatedContent + "</div></body></html>");
-
-              return recipients_l;
+		// Get the message
+		String msg = inputField.getText();
+		// If it is empty, do nothing
+		if ( msg.trim().isEmpty() )
+			return;
+		// Get the receivers from the message (e.g. @bob)
+		List<Literal> receivers = visMsg( "user", msg );
+		// Remove the message from the input field
+		inputField.setText("");
+		// Classify the message Illocutionary Force
+		String ilf = classify( msg ).toString();
+		// Generate the Jason term from the sentence
+		Literal term = generate_property( ilf, msg );
+		// Create a message with the Jason term
+		Message m = new Message( ilf, this.getAgName(), null, term );
+		try {
+			// If the user specified no receivers, broadcast the message
+			if ( receivers.isEmpty() ) {
+				broadcast( m );
+			 	return;
+			}
+			// Iterate over the receivers and send the message to each one
+			for ( Literal receiver : receivers ) {
+				m.setReceiver( receiver.toString() );
+			 	sendMsg( m );
+			}
+		} catch ( Exception e) {
+			System.err.println("Error sending message: " + e.getMessage());
 		}
+		return;
+	}
 
-		private JSONObject highlight_mentions( String msg ) {
-              Pattern pattern = Pattern.compile("@\\w+");
-              Matcher matcher = pattern.matcher( msg );
-              StringBuffer sb = new StringBuffer();
-              List<String> mentions = new ArrayList<>();
+	// Visualize a new message on the chat ( returns the list of receivers )
+	public List<Literal> visMsg( String sender, String msg ) {
+		// highlight_mentions will create the 
+		JSONObject mention_json = highlight_mentions( msg );
+		String msg_with_hm = mention_json.getString( "display" );
+		JSONArray recipients = mention_json.getJSONArray( "recipients" );
+		List<Literal> recipients_l = new ArrayList<>();
+		for ( Object recipient : recipients )
+			recipients_l.add( ASSyntax.createLiteral( (String) recipient ) );
+		String msg_class = sender.equals("user") ? "sent" : "received";
 
-              while ( matcher.find() ){
-                  String mention = matcher.group();
-                  mentions.add(mention.substring(1));
-                  matcher.appendReplacement( sb, "<span>" + mention + "</span>");
-              }
-              matcher.appendTail( sb );
-              JSONObject json = new JSONObject();
-              json.put( "display", sb.toString() );
-              json.put( "recipients", mentions );
-              return json;
-          }
+		String currentContent = chatPane.getText();
+		int bodyStart = currentContent.indexOf("<body>") + 6;
+		int bodyEnd = currentContent.lastIndexOf("</body>");
+		String bodyContent = currentContent.substring(bodyStart, bodyEnd);
+		String headerContent = "";
+		try {
+			headerContent = Files.readString( Path.of( "java/headerContent.html" ) );
+		} catch ( IOException e ) {
+			e.printStackTrace();
+		}
+		if ( !bodyContent.contains( "div" ) ){
+			bodyContent = "";
+		}
+		String sender_div = "<div class='sender'> " + sender + "</div>";
+		String content_div = "<div class='content'>" + msg_with_hm + "</div>";
+		String msg_div = "<div class='" + msg_class + "'>" + sender_div + content_div + "</div>";
+		String updatedContent = bodyContent + msg_div;
+
+		chatPane.setText(headerContent + updatedContent + "</div></body></html>");
+
+		return recipients_l;
+	}
+
+	private JSONObject highlight_mentions( String msg ) {
+			Pattern pattern = Pattern.compile("@\\w+");
+			Matcher matcher = pattern.matcher( msg );
+			StringBuffer sb = new StringBuffer();
+			List<String> mentions = new ArrayList<>();
+
+			while ( matcher.find() ){
+				String mention = matcher.group();
+				mentions.add(mention.substring(1));
+				matcher.appendReplacement( sb, "<span>" + mention + "</span>");
+			}
+			matcher.appendTail( sb );
+			JSONObject json = new JSONObject();
+			json.put( "display", sb.toString() );
+			json.put( "recipients", mentions );
+			return json;
+		}
 
 	@Override
 	public void checkMail() {
@@ -431,9 +440,9 @@ public class Interpreter extends AgArch {
 
 	private void init_generation_models() {
 		getTS().getLogger().log( Level.INFO, "Initializing generation models" );
-		ollama.create( GEN_MODEL, NL2LOG_MODEL, TEMPERATURE, "java/modelfiles/nl2log.txt" );
-		ollama.create( GEN_MODEL, CLASS_MODEL, TEMPERATURE, "java/modelfiles/classifier.txt" );
-		ollama.create( GEN_MODEL, LOG2NL_MODEL, TEMPERATURE, "java/modelfiles/log2nl.txt" );
+		ollama.create( GEN_MODEL, NL2LOG_MODEL, TEMPERATURE, "java/modelfiles/nl2log.txt", SEED );
+		ollama.create( GEN_MODEL, CLASS_MODEL, TEMPERATURE, "java/modelfiles/classifier.txt", SEED );
+		ollama.create( GEN_MODEL, LOG2NL_MODEL, TEMPERATURE, "java/modelfiles/log2nl.txt", SEED );
 	}
 
 	private String preprocess( Literal bel ) {
@@ -465,29 +474,29 @@ public class Interpreter extends AgArch {
 	}
 
 	private double cosine_similarity( List<Double> emb1, List<Double> emb2 ) {
-        if (emb1 == null || emb2 == null)
-            throw new IllegalArgumentException( "One of the embeddings is null" );
-        assert emb1 != null && emb2 != null;
-        if ( emb1.size() != emb2.size() )
-            throw new IllegalArgumentException( "Embeddings have different sizes" );
+		if (emb1 == null || emb2 == null)
+			throw new IllegalArgumentException( "One of the embeddings is null" );
+		assert emb1 != null && emb2 != null;
+		if ( emb1.size() != emb2.size() )
+			throw new IllegalArgumentException( "Embeddings have different sizes" );
 
-        double dotProd = 0.0;
-        double norm1 = 0.0;
-        double norm2 = 0.0;
+		double dotProd = 0.0;
+		double norm1 = 0.0;
+		double norm2 = 0.0;
 
-        for ( int i=0; i<emb1.size(); i++ ) {
-            dotProd += emb1.get(i) * emb2.get(i);
-            norm1 += emb1.get(i) * emb1.get(i);
-            norm2 += emb2.get(i) * emb2.get(i);
-        }
+		for ( int i=0; i<emb1.size(); i++ ) {
+			dotProd += emb1.get(i) * emb2.get(i);
+			norm1 += emb1.get(i) * emb1.get(i);
+			norm2 += emb2.get(i) * emb2.get(i);
+		}
 
-        norm1 = Math.sqrt(norm1);
-        norm2 = Math.sqrt(norm2);
+		norm1 = Math.sqrt(norm1);
+		norm2 = Math.sqrt(norm2);
 
-        if ( norm1 == 0 || norm2 == 0 )
-            throw new IllegalArgumentException( "Embedding norm cannot be ZERO");
+		if ( norm1 == 0 || norm2 == 0 )
+			throw new IllegalArgumentException( "Embedding norm cannot be ZERO");
 
-        return 1.0 - (dotProd / ( norm1 * norm2 ) );
-    }
+		return 1.0 - (dotProd / ( norm1 * norm2 ) );
+	}
 
 }

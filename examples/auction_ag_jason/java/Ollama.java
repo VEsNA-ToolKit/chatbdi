@@ -135,4 +135,27 @@ public class Ollama {
 			e.printStackTrace();
 		}
 	}
+
+	public void create( String from, String model, float t, String sys_file, int seed ) {
+		JSONObject params = new JSONObject();
+		params.put( "temperature", t );
+		params.put( "seed", seed );
+		JSONObject json = new JSONObject();
+		json.put( "from", from );
+		json.put( "model", model );
+		json.put( "stream", false );
+		json.put( "parameters", params );
+		try {
+			json.put( "system", Files.readString( Path.of(sys_file ) ) );
+			HttpRequest request = HttpRequest.newBuilder()
+				.uri( URI.create( URL + "create" ) )
+				.header( "Content-Type", "application/json" )
+				.POST( HttpRequest.BodyPublishers.ofString( json.toString() ) )
+				.build();
+
+			HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+		} catch ( Exception e ) {
+			e.printStackTrace();
+		}
+	}
 }
