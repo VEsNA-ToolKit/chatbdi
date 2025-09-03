@@ -253,7 +253,7 @@ public class Interpreter extends AgArch {
 		for ( String hint : hints.keySet() ) {
 			prompt += " - " + hint + " should contain the " + hints.get( hint ) + "; if the content is provided, it MUST be here, otherwise place an underscore or null";
 		}
-		String ans = ollama.generate( GEN_MODEL, prompt, schema.toString() );
+		String ans = ollama.generate( GEN_MODEL, prompt, schema );
 		System.out.println( ans );
 		return createLiteral( "p" );
 	}
@@ -293,11 +293,17 @@ public class Interpreter extends AgArch {
 				else if ( v.isUnnamedVar() )
 					curr_type.add( "null" );
 			}
-			if ( curr_type.size() == 1 ) {
-				properties.put( key, new JSONObject().put( "type", curr_type.iterator().next() ) );
-			} else {
-				properties.put( key, new JSONObject().put( "anyOf", curr_type.toArray() ) );
+			// if ( curr_type.size() == 1 ) {
+			// 	properties.put( key, new JSONObject().put( "type", curr_type.iterator().next() ) );
+			// } else {
+			List<JSONObject> types = new ArrayList();
+			for ( String t : curr_type ) {
+				types.add( new JSONObject().put( "type", t ) );
 			}
+			if ( !curr_type.contains( "null" ) )
+				types.add( new JSONObject().put( "type", "null" ) );
+			properties.put( key, new JSONObject().put( "anyOf", types.toArray() ) );
+			// }
 		}
 		json.put( "properties", properties );
 		return json;
@@ -316,7 +322,7 @@ public class Interpreter extends AgArch {
 
 	private Literal classify( String sentence ) {
 		JSONObject performative = new JSONObject();
-		performative.put( "type", "enum" );
+		performative.put( "type", "string" );
 		performative.put( "enum", SUPPORTED_ILF );
 		JSONObject properties = new JSONObject();
 		properties.put( "performative", performative );
@@ -325,7 +331,7 @@ public class Interpreter extends AgArch {
 		json.put( "properties", properties );
 		json.put( "required", new JSONArray().put( "performative" ) );
 		System.out.println( json.toString() );
-		JSONObject ans = new JSONObject( ollama.generate( CLASS_MODEL, sentence, json.toString() ) );
+		JSONObject ans = new JSONObject( ollama.generate( CLASS_MODEL, sentence, json ) );
 		String perf_obj_str = ans.getString( "response" )
 			.replaceAll( "```json\\s*", "" )
 			.replaceAll( "```\\s*$", "" )

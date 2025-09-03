@@ -90,12 +90,14 @@ public class Ollama {
 		return null;
 	}
 
-	public String generate( String model, String str, String format ) {
+	public String generate( String model, String str, JSONObject format ) {
 		JSONObject json = new JSONObject();
 		json.put( "model", model );
 		json.put( "prompt", str );
 		json.put( "format", format );
 		json.put( "stream", false );
+
+		System.out.println( json.toString() );
 
 		HttpRequest req = HttpRequest.newBuilder()
 			.uri( URI.create( URL + "generate" ) )
