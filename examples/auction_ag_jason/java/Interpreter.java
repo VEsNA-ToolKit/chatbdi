@@ -34,6 +34,7 @@ import jason.architecture.AgArch;
 import jason.asSemantics.*;
 import jason.bb.*;
 import jason.pl.*;
+import jason.asSyntax.parser.ParseException;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -109,11 +110,26 @@ public class Interpreter extends AgArch {
 
 	private void sendMessage() {
         String message = inputField.getText();
-        if ( !message.trim().isEmpty() ) {
-            List<Literal> recipients = visMsg( "user", message );
-            inputField.setText("");
-            generate_property( message );
+        if ( message.trim().isEmpty() )
+        	return;
+        List<Literal> recipients = visMsg( "user", message );
+        inputField.setText("");
+        String performative = classify( message ).toString();
+        Literal term = generate_property( performative, message );
+        Message m = new Message( performative, this.getAgName(), null, term );
+        try {
+	        if ( recipients.isEmpty() ) {
+	        	broadcast( m );
+	         	return;
+	        }
+	        for ( Literal recipient : recipients ) {
+	        	m.setReceiver( recipient.toString() );
+	         	sendMsg( m );
+	        }
+        } catch ( Exception e) {
+            System.err.println("Error sending message: " + e.getMessage());
         }
+        return;
     }
 
 		public List<Literal> visMsg( String sender, String msg ) {
@@ -226,17 +242,20 @@ public class Interpreter extends AgArch {
 		return ans.getString( "response" );
 	}
 
-	private Literal generate_property( String sentence ) {
+	private Literal generate_property( String performative, String sentence ) {
 		// remove all the mentions inside sentence
 		sentence = sentence.replaceAll( "\\s*@\\S+", "" );
-		Literal performative = classify( sentence );
-		System.out.println( performative );
 		Literal nearest = find_nearest( sentence );
-		Literal term = get_term( sentence, performative, nearest );
-		return createLiteral( "p" );
+		try {
+			Literal term = get_term( sentence, performative, nearest );
+			return term;
+		} catch( ParseException pe ) {
+			System.err.println( "Error parsing term: " + pe.getMessage() );
+		}
+		return createLiteral( "error" );
 	}
 
-	private Literal get_term( String sentence, Literal performative, Literal nearest ) {
+	private Literal get_term( String sentence, String performative, Literal nearest ) throws ParseException {
 		List<Literal> examples = get_examples( nearest );
 		System.out.println( examples );
 		List<JSONObject> json_terms = new ArrayList<>();
@@ -253,9 +272,16 @@ public class Interpreter extends AgArch {
 		for ( String hint : hints.keySet() ) {
 			prompt += " - " + hint + " should contain the " + hints.get( hint ) + "; if the content is provided, it MUST be here, otherwise place an underscore or null";
 		}
-		String ans = ollama.generate( GEN_MODEL, prompt, schema );
+		JSONObject ans = new JSONObject( ollama.generate( GEN_MODEL, prompt, schema ) );
+		JSONObject json = new JSONObject( ans.getString( "response" ) );
 		System.out.println( ans );
-		return createLiteral( "p" );
+		System.out.println( json );
+		String p = json.getString( "functor" ) + "(";
+		for ( int i = 0; i < json.length() - 1; i++ ) {
+			p += json.get( "arg" + i ) + ", ";
+		}
+		p = p.substring( 0, p.length() - 2 ) + ")";
+		return parseLiteral( p );
 	}
 
 	private JSONObject term_to_json( Literal term ) {
@@ -293,9 +319,6 @@ public class Interpreter extends AgArch {
 				else if ( v.isUnnamedVar() )
 					curr_type.add( "null" );
 			}
-			// if ( curr_type.size() == 1 ) {
-			// 	properties.put( key, new JSONObject().put( "type", curr_type.iterator().next() ) );
-			// } else {
 			List<JSONObject> types = new ArrayList();
 			for ( String t : curr_type ) {
 				types.add( new JSONObject().put( "type", t ) );
@@ -303,7 +326,6 @@ public class Interpreter extends AgArch {
 			if ( !curr_type.contains( "null" ) )
 				types.add( new JSONObject().put( "type", "null" ) );
 			properties.put( key, new JSONObject().put( "anyOf", types.toArray() ) );
-			// }
 		}
 		json.put( "properties", properties );
 		return json;
