@@ -5,10 +5,11 @@ interpreter_class( "interpreter.LLMWithEmbeddingsInterpreter" ).
 
 // * KQML TO NATURAL LANGUAGE
 // Each message received is translated in a sentence and sent on the chat
-+!kqml_received( Sender, tell, Msg, X )
-    <-  .print("Received ", Msg, " from ", Sender );
-        generate_sentence( tell, Msg, Sentence );
-        msg( Sender, Sentence ).
+    +!kqml_received( Sender, Performative, Msg, X )
+        <-  .term2string(Performative, StringPerformative);
+            .print("Received ", Msg, " from ", Sender, " type:", StringPerformative  );
+            generate_sentence( Performative, Msg, Sentence );
+            msg( Sender, Sentence ).
 
 // * NATURAL LANGUAGE TO KQML
 // If the user has asked one agent to describe a plan now the interpreter is waiting for the plan name
