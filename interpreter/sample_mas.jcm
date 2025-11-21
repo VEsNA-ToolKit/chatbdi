@@ -1,6 +1,0 @@
-mas sample_mas {
-
-    agent alice:alice.asl
-    agent bob:bob.asl
-    
-}

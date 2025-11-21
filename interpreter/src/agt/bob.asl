@@ -2,11 +2,14 @@
 
 myname(bob).
 
+hello.
+
 !add_belief.
 
 +!add_belief
     :   true
     <-  .wait(3000);
+        .print( "Hello" );
         +trial;
         .wait(1000);
         +trial(2);

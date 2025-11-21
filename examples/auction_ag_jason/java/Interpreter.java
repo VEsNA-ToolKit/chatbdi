@@ -403,6 +403,7 @@ public class Interpreter extends AgArch {
 		ag_literals = new HashMap<>();
 		try {
 			Collection<String> ag_names = getRuntimeServices().getAgentsName();
+			System.out.println( "Agents: " + ag_names );
 			for ( String ag_name : ag_names ) {
 				Agent ag = RunLocalMAS.getRunner().getAg( ag_name ).getTS().getAg();
 				BeliefBase bb = ag.getBB().clone();

@@ -1,0 +1,9 @@
+MAS sample_mas {
+
+    agents:
+        bob     bob.asl;
+        alice   alice.asl agentArchClass chatbdi.Interpreter;
+    
+    aslSourcePath:
+        "src/agt";
+}
