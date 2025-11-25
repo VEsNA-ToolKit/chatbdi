@@ -9,8 +9,6 @@ import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Queue;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import jason.asSyntax.*;
 import jason.asSemantics.*;
@@ -74,7 +72,6 @@ public class Interpreter extends AgArch {
         
         Message m = mbox.peek();
         String msg = kqml2nl( m );
-        // TODO: function to vis the msg
         try {
             chatUI.showMsg( m.getSender(), msg );
         } catch ( IOException ioe ) {
@@ -103,7 +100,12 @@ public class Interpreter extends AgArch {
     }
 
     protected String kqml2nl( Message m ) {
-        return "";
+        try {
+            return ollama.generate( m );
+        } catch ( IOException ioe ) {
+            logSevere( ioe.getMessage() );
+        }
+        return "Error showing the message";
     }
 
     private Literal generateTerm( List<String> receivers, Literal ilf, String msg ) throws ParseException {

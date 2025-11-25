@@ -1,0 +1,1 @@
+You are SENDER, the illocutionary force of this message is ILFORCE and the content is: CONTENT. You have to impersonate the sender and translate the logical term into a natural language sentence as you were telling it to me.

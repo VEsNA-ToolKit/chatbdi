@@ -18,9 +18,9 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 import jason.asSyntax.*;
+import jason.asSemantics.Message;
 import static jason.asSyntax.ASSyntax.*;
 
-import java.io.IOException;
 import jason.asSyntax.parser.ParseException;
 
 public class Ollama {
@@ -37,6 +37,7 @@ public class Ollama {
     private final int SEED = 42;
     // Specialized prompts
     private final String NL2LOG_PROMPT = "src/agt/interpreter/modelfiles/nl2logPrompt.txt";
+    private final String LOG2NL_PROMPT = "src/agt/interpreter/modelfiles/log2nlPrompt.txt";
     private final String NL2LOG_MODELFILE = "src/agt/interpreter/modelfiles/nl2log.txt";
     private final String LOG2NL_MODELFILE = "src/agt/interpreter/modelfiles/log2nl.txt";
     private final String CLASS_MODELFILE = "src/agt/interpreter/modelfiles/classifier.txt";
@@ -185,6 +186,15 @@ public class Ollama {
         JSONObject answer = new JSONObject( generate( GEN_MODEL, prompt, schema ) );
         JSONObject response = new JSONObject( answer.getString( "response" ) );
         return Tools.jsonToTerm( response );
+	}
+
+	public String generate( Message msg ) throws IOException {
+		String prompt = Files.readString( Path.of( LOG2NL_PROMPT ) )
+			.replace( "SENDER", msg.getSender() )
+			.replace( "ILFORCE", msg.getIlForce() )
+			.replace( "CONTENT", msg.getPropCont().toString() );
+		JSONObject answer = new JSONObject( generate(LOG2NL_MODEL, prompt) );
+		return answer.getString( "response" ).replaceAll( "(?s)<think>.*?</think>", "" );
 	}
 
 	private String generate( String model, String str, JSONObject format ) {

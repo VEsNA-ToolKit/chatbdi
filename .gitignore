@@ -8,3 +8,5 @@
 **.idea
 interpreter/gradlew.bat
 interpreter/gradlew
+examples/auction_ag_jason/.project
+examples/house-building/.project
