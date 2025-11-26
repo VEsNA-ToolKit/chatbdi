@@ -37,6 +37,11 @@ task run (type: JavaExec, dependsOn: 'classes') {
     classpath sourceSets.main.runtimeClasspath
 }
 
+javadoc {
+    destinationDir = file( "$buildDir/docs/javadoc" )
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+}
+
 sourceSets {
     main {
         java {

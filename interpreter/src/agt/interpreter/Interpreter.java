@@ -53,7 +53,7 @@ public class Interpreter extends AgArch {
             embSpace = new EmbeddingSpace( ollama );
             initEmbeddingSpace();
             logInfo( "Initializing the Embedding Space" );
-            chatUI = new ChatUI();
+            chatUI = new ChatUI( getAgName() );
         } catch ( ConnectException ce ) {
             logSevere( ce.getMessage() );
         } catch ( RemoteException re ) {
@@ -80,7 +80,7 @@ public class Interpreter extends AgArch {
     }
 
     // ! Questo è sbagliato! La nl2kqml non deve mandare, deve solo ritornare il termine
-    protected void nl2kqml( List<String> receivers, String msg ) throws Exception {
+    protected void nl2kqml( List<String> receivers, String msg ) throws Exception, ParseException {
         if ( msg.trim().isEmpty() )
             return;
         Literal ilf = ollama.classify( msg );
