@@ -54,8 +54,8 @@ public class Ollama {
 		}
 		System.out.println( "Initializing generation models" );
 		create( GEN_MODEL, NL2LOG_MODEL, TEMPERATURE, NL2LOG_MODELFILE, SEED );
-		create( GEN_MODEL, CLASS_MODEL, TEMPERATURE, LOG2NL_MODELFILE, SEED );
-		create( GEN_MODEL, LOG2NL_MODEL, TEMPERATURE, CLASS_MODELFILE, SEED );
+		create( GEN_MODEL, LOG2NL_MODEL, TEMPERATURE, LOG2NL_MODELFILE, SEED );
+		create( GEN_MODEL, CLASS_MODEL, TEMPERATURE, CLASS_MODELFILE, SEED );
 	}
 
 	private boolean is_online() {
@@ -203,8 +203,6 @@ public class Ollama {
 		json.put( "prompt", str );
 		json.put( "format", format );
 		json.put( "stream", false );
-
-		System.out.println( json.toString() );
 
 		HttpRequest req = HttpRequest.newBuilder()
 			.uri( URI.create( URL + "generate" ) )
