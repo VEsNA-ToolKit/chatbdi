@@ -100,7 +100,7 @@ public class Tools {
      * <li> a(b, c, d) -> [a, b, c, d] </li>
      * <li> a(b) :- c &amp; d(e) -> [a, b, c, d, e] </li>
      * </ul>
-     * It is inductive
+     * It is inductive.
      */
     public static List<Pred> formulaToList( LogicalFormula formula ) {
         List<Pred> preds = new ArrayList<>();

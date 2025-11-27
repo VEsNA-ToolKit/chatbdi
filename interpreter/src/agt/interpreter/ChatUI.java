@@ -114,7 +114,7 @@ public class ChatUI {
      * - takes the message inside the inputField;
      * - takes the receivers;
      * - shows the message on the chat;
-     * - calls the nl2kqml function of the agent.
+     * - calls the handleUserMsg function of the agent.
      */
     private void handleSendMsg( ) {
         // Get the text from the input field
@@ -125,21 +125,16 @@ public class ChatUI {
         try {
             // show the message on the chat formatted with receivers highlighet (and take them)
             receivers = showMsg( myName, msg );
-            // translate and send message to the receivers
-            // ag.nl2kqml( receivers, msg );
         } catch ( IOException ioe ) {
             ag.logSevere("Cannot display message because the header.html file cannot be opened.");
             return;
         }
-        // } catch ( Exception e ) {
-        //     ag.logSevere( "Cannot translate or send the current message. Error: " + e.getStackTrace() );
-        // }
 
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
                 try {
-                ag.nl2kqml( receivers, msg );
+                ag.handleUserMsg( receivers, msg );
                 } catch( IOException ioe ) {
                     ag.logSevere("Cannot display message because the header.html file cannot be opened.");
                     return null;

@@ -29,22 +29,33 @@ import java.rmi.RemoteException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import static chatbdi.Tools.*;
+
+/**
+ * Interpreter is an Agent Architecture that enables the user to interact with the agents in the mas
+ * @author Andrea Gatti
+ */
 public class Interpreter extends AgArch {
 
-    // Supported Illocutionary forces for the classifier
+    /** Supported Illocutionary forces for the classifier */
     private final String[] SUPPORTED_ILF = { "tell", "askOne", "askAll" };
-    // Logging
+    /** Logging file */
     private final String DEBUG_LOG = "interpreter.log";
 
-    // Ollama manages the connection with the daemon
+    /** Ollama manages the connection with the daemon */
     private Ollama ollama;
-    // ChatUI manages the GUI
+    /** ChatUI manages the GUI */
     private ChatUI chatUI;
-    // EmbeddingSpace manages the embedding space
+    /** EmbeddingSpace manages the embedding space */
     private EmbeddingSpace embSpace;
-    // Tools contains a set of useful tools for standardized stuff
-    // private Tools tools;
 
+    /**
+     * Initializes all what is needed for the interpreter:
+     * <ul>
+     * <li> the Ollama client </li>
+     * <li> the embedding space </li>
+     * <li> the chat UI </li>
+     */
     @Override
     public void init() {
         try {
@@ -61,6 +72,10 @@ public class Interpreter extends AgArch {
         }
     }
 
+    /**
+     * Interpreter overwrites the checkMail method: 
+     * every message received by the agent triggers a translation to Natural Language and displays it on the chat.
+     */
     @Override
     public void checkMail() {
         super.checkMail();
@@ -79,24 +94,49 @@ public class Interpreter extends AgArch {
         }
     }
 
-    // ! Questo è sbagliato! La nl2kqml non deve mandare, deve solo ritornare il termine
-    protected void nl2kqml( List<String> receivers, String msg ) throws Exception, ParseException {
-        if ( msg.trim().isEmpty() )
+    /**
+     * Translates and send a user message to the agents
+     * @param receivers the list of receiver agents
+     * @param msg the message written on the chat
+     */
+    protected void handleUserMsg( List<String> receivers, String msg ) {
+        // Translates the message into a KQML Message
+        Message m = nl2kqml( receivers, msg );
+        if ( m == null )
             return;
-        Literal ilf = ollama.classify( msg );
-        Literal term = generateTerm( receivers, ilf, msg );
-        if ( ilf.equalsAsStructure( createLiteral( "askHow" ) ) )
-            term = new Trigger( Trigger.TEOperator.add, Trigger.TEType.achieve, term );
-        Message m = new Message( ilf.toString(), this.getAgName(), null, term );
-        logInfo( "Sending msg " + m );
+        // Broadcast if no receivers are set
         if ( receivers.isEmpty() ) {
             broadcast( m );
             return;
         }
+        // Send it to all receivers
         for ( String receiver : receivers ) {
             m.setReceiver( receiver );
             sendMsg( m );
         }
+    }
+
+    /**
+     * Translates a user message into a KQML Message object
+     * @param receivers the list of receiver agents
+     * @param msg the message written on the chat
+     * @return the KQML Message
+     * @throws ParseException if the resulting translation is not syntactically correct
+     * @throws Exception if it fails sending or broadcasting the message
+     */
+    protected Message nl2kqml( List<String> receivers, String msg ) throws Exception, ParseException {
+        // If the message is empty return
+        if ( msg.trim().isEmpty() )
+            return null;
+        // Classify the message
+        Literal ilf = ollama.classify( msg );
+        // Generate the final term
+        Literal term = generateTerm( receivers, ilf, msg );
+        // If the computed ilf is an askHow add the triggering +! part to the term
+        if ( ilf.equalsAsStructure( createLiteral( "askHow" ) ) )
+            term = new Trigger( Trigger.TEOperator.add, Trigger.TEType.achieve, term );
+
+        return new Message( ilf.toString(), this.getAgName(), null, term );
     }
 
     protected String kqml2nl( Message m ) {
@@ -145,7 +185,7 @@ public class Interpreter extends AgArch {
                     Literal head = ( (Rule) bel ).getHead();
                     embSpace.addTerm( agName, head );
                     LogicalFormula body = ( (Rule) bel ).getBody();
-                    List<Pred> preds = Tools.formulaToList( body );
+                    List<Pred> preds = formulaToList( body );
                     for ( Pred p : preds )
                         embSpace.addTerm( agName, p );
                     continue; // necessary to do not call the addTerm this line + 2
@@ -161,7 +201,7 @@ public class Interpreter extends AgArch {
                 if ( !plan.getTrigger().isAchvGoal() && embSpace.containsTerm( triggerLit ) )
                     continue;
                 LogicalFormula context = plan.getContext();
-                List<Pred> contextList = Tools.formulaToList( context );
+                List<Pred> contextList = formulaToList( context );
                 for ( Pred pred : contextList )
                     embSpace.addTerm( agName, pred );
                 if ( plan.getTrigger().isAchvGoal() )
