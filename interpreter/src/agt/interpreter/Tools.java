@@ -12,14 +12,30 @@ import org.json.JSONArray;
 import jason.asSyntax.parser.ParseException;
 import static jason.asSyntax.ASSyntax.*;
 
+/**
+ * This class provides a set of static methods to use inside the whole project
+ * @author Andrea Gatti
+ */
 public class Tools {
 
+    /**
+     * Given a literal preprocess it for being embedded
+     * @param lit the literal to preprocess
+     * @return a string with the value to embed ( 4 times the head + terms )
+     * It gives more weight to the head of the literal
+     */
     public static String preprocess( Literal lit ) {
         // Note: 'replace' replaces all the occurrences. 'replaceAll' takes a regex as first arg
+
+		// Get the functor
         String functor = lit.getFunctor().replace( "_", " " ).replace( "my", "your" ) + " ";
         String terms = "";
+
+		// If the term does not have nested terms return it repeated 4 times (weighted)
         if ( !lit.hasTerm() )
             return functor.repeat( 4 );
+
+		// Preprocess the term arguments
         for ( Term t : lit.getTerms() ) {
             String tStr = t.toString();
             tStr = tStr.replace( "_", " ");
@@ -32,16 +48,31 @@ public class Tools {
             tStr = tStr.trim();
             terms += tStr + " ";
         }
+
+		// repeat the functor 4 times and append the arguments
         return functor.repeat( 4 ) + terms.trim();
     }
 
+    /**
+     * Computes the cosine distance between two vectors
+     * @param emb1 the first vector
+     * @param emb2 the second vector
+     * @return the distance as a double in [0.0, 2.0]
+     * @throws IllegalArgumentException if one of the embedding is null or if they have different sizes
+     * @see <a href="https://en.wikipedia.org/wiki/Cosine_similarity#Cosine_distance">Wikipedia</a>
+     */
     public static double cosineDistance( List<Double> emb1, List<Double> emb2 ) {
+
+        // Sanity checks
         if ( emb1 == null || emb2 == null )
             throw new IllegalArgumentException( "One of the embeddings is null" );
         assert emb1 != null && emb2 != null;
+
         if ( emb1.size() != emb2.size() )
             throw new IllegalArgumentException( "Embeddings have different sizes: " +  emb1.size() + " and " + emb2.size() );
+        assert emb1.size() == emb2.size();
         
+        // Compute the distance
         double dotProd = 0.0;
         double norm1 = 0.0;
         double norm2 = 0.0;
@@ -60,6 +91,17 @@ public class Tools {
         return 1.0 - ( dotProd / ( norm1 * norm2 ) );
     }
 
+    /**
+     * Given a formula it creates a list of subpredicates
+     * @param formula the formula can be either a real formula or a simple predicate
+     * @return the list of single predicates
+     * For example:
+     * <ul>
+     * <li> a(b, c, d) -> [a, b, c, d] </li>
+     * <li> a(b) :- c &amp; d(e) -> [a, b, c, d, e] </li>
+     * </ul>
+     * It is inductive
+     */
     public static List<Pred> formulaToList( LogicalFormula formula ) {
         List<Pred> preds = new ArrayList<>();
         if ( formula instanceof Pred ) {
@@ -85,6 +127,13 @@ public class Tools {
         return preds;
     }
 
+    /**
+     * Converts a term to its JSON object
+     * @param term the term to convert
+     * @return a JSONObject with the conversion
+     * Example: 
+     * a(b) -> { "functor": "a", "arg0": "b"}
+     */
     public static JSONObject termToJSON( Literal term ) {
         JSONObject json = new JSONObject();
         String functor = term.getFunctor();
@@ -94,6 +143,12 @@ public class Tools {
         return json;
     }
 
+    /**
+     * Converts a JSON object into the corresponding term
+     * @param json the JSONObject to convert
+     * @return a Literal with the conversion
+     * @throws ParseException if the provided JSON object produces syntax errors
+     */
     public static Literal jsonToTerm( JSONObject json ) throws ParseException {
         if ( json.length() == 1 )
             return createLiteral( json.getString( "functor" ) );
@@ -108,6 +163,13 @@ public class Tools {
         return parseLiteral( term );
     }
 
+    /**
+     * Given a list of JSONObject generates a schema with the most general set of Json types
+     * @param examples the list of all the terms (all with same functor and arity by design)
+     * @return a JSONObject containing a json schema
+     * The schema is built iterating over all the arguments and creating a list of all the possible json types for the arg.
+     * Null is used for underscore.
+     */
     public static JSONObject genJSONSchema( List<JSONObject> examples ) {
         JSONObject schema = new JSONObject();
         schema.put( "type", "object" );
@@ -140,6 +202,12 @@ public class Tools {
         return schema;
     }
 
+    /**
+     * Given the set of examples returns a list of all the found var names for each argument.
+     * This is useful for the LLM to help translation
+     * @param examples the list of all the literals
+     * @return a list of set of terms, one set for each argument
+     */
     public static List<Set<Term>> getVarNames( List<Literal> examples ) {
         List<Set<Term>> varNames = new ArrayList<>();
         for ( int i = 0; i < examples.get( 0 ).getArity(); i++ )

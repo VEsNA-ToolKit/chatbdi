@@ -23,6 +23,8 @@ import static jason.asSyntax.ASSyntax.*;
 
 import jason.asSyntax.parser.ParseException;
 
+import static chatbdi.Tools.*;
+
 /**
  * The Ollama class provides an API to call the Ollama models
  * @author Andrea Gatti
@@ -102,9 +104,12 @@ public class Ollama {
 	/**
 	 * Checks if Ollama is online
 	 * @return true if available and ready (status code: 200), false otherwise
-	 * @throws ConnectExcept if the server is not reachable
-	 * @throws IOException if the message cannot be send
-	 * @throws InterruptedException if the connection is interrupted
+	 * Can handle:
+	 * <ul>
+	 * <li> ConnectExcept if the server is not reachable </li>
+	 * <li> IOException if the message cannot be send </li>
+	 * <li> InterruptedException if the connection is interrupted </li>
+	 * </ul>
 	 */
 	private boolean is_online() {
 		try {
@@ -172,31 +177,7 @@ public class Ollama {
 	 * @return a list of double (the embedding vector). The size depends on the model used.
 	 */
 	public List<Double> embed( Literal term ) {
-        // Note: 'replace' replaces all the occurrences. 'replaceAll' takes a regex as first arg
-
-		// Get the functor
-        String functor = term.getFunctor().replace( "_", " " ).replace( "my", "your" ) + " ";
-        String terms = "";
-		// If the term does not have nested terms return it repeated 4 times (weighted)
-        if ( !term.hasTerm() )
-            return embed( functor.repeat( 4 ) );
-		// Preprocess the term arguments
-        for ( Term t : term.getTerms() ) {
-            String tStr = t.toString();
-            tStr = tStr.replace( "_", " ");
-            tStr = tStr.replace( "(", " ( " );
-            tStr = tStr.replace( ")", " ) " );
-            tStr = tStr.replace( ",", " , " );
-            tStr = tStr.replace( "my", "your" );
-            tStr = tStr.replaceAll( "([=<>!]+)", " $1 " );
-            tStr = tStr.replaceAll( "\\s+", " " );
-            tStr = tStr.trim();
-            terms += tStr + " ";
-        }
-		// repeat the functor 4 times and append the arguments
-        String processedTerm = functor.repeat( 4 ) + terms.trim();
-		// return the emnbedding
-		return embed( processedTerm );
+		return embed( preprocess( term ) );
 	}
 
 	/**
@@ -263,6 +244,7 @@ public class Ollama {
 	 * @param nearest the nearest term in the embedding space
 	 * @param ilf the classified Illocutionary Force
 	 * @param examples a list of all the terms with same functor and arity of the nearest
+	 * @return the nearest literal
 	 * @throws IOException if fails reading the NL2LOG_PROMPT file
 	 * @throws ParseException if the provided answer is not a valid Jason term
 	 */
@@ -270,12 +252,12 @@ public class Ollama {
 
         List<JSONObject> jsonExamples = new ArrayList<>();
 		// Translate the term in JSON
-        JSONObject nearestJson = Tools.termToJSON( nearest );
+        JSONObject nearestJson = termToJSON( nearest );
 		// Translate all the examples
         for ( Literal example : examples )
-            jsonExamples.add( Tools.termToJSON( example ) );
+            jsonExamples.add( termToJSON( example ) );
 		// Generate a schema with types provided in the examples for each arg
-        JSONObject schema = Tools.genJSONSchema( jsonExamples );
+        JSONObject schema = genJSONSchema( jsonExamples );
 		// Read the prompt and replace needed placeholders
         String prompt = Files.readString( Path.of( NL2LOG_PROMPT ) )
             .replace( "SENTENCE", msg )
@@ -283,7 +265,7 @@ public class Ollama {
             .replace( "ILF", ilf.toString() )
             .replace( "EXAMPLES", jsonExamples.toString() );
 		// List variable names: they may have meaningful names
-        List<Set<Term>> varNames = Tools.getVarNames( examples );
+        List<Set<Term>> varNames = getVarNames( examples );
         for ( int i = 0; i < varNames.size(); i++ )
             if ( !varNames.get( i ).isEmpty() )
                 prompt += " - arg" + i + " should contain " + varNames.get( i ) +
@@ -292,7 +274,7 @@ public class Ollama {
 		// Generate the new term
         JSONObject answer = new JSONObject( generate( GEN_MODEL, prompt, schema ) );
         JSONObject response = new JSONObject( answer.getString( "response" ) );
-        return Tools.jsonToTerm( response );
+        return jsonToTerm( response );
 	}
 
 	/**
@@ -315,7 +297,7 @@ public class Ollama {
 	 * @param model the model to use
 	 * @param str the input message
 	 * @param format the Json Schema for the output
-	 * @throws IOException if the client fails to send the message
+	 * @return the JSON string received (to handle)
 	 */
 	private String generate( String model, String str, JSONObject format ) {
 		JSONObject json = new JSONObject();

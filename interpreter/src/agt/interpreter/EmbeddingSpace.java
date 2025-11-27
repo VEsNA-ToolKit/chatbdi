@@ -10,6 +10,8 @@ import java.util.HashSet;
 import jason.asSyntax.*;
 import static jason.asSyntax.ASSyntax.*;
 
+import static chatbdi.Tools.*;
+
 /**
  * This class implements the embedding space and all the necessary methods.
  * The embedding space is subdivided into two subspaces: one for the plan heads and one for all the other terms.
@@ -84,6 +86,12 @@ public class EmbeddingSpace {
         return containsTerm( l ) || containsPlan( l );
     }
 
+    /**
+     * Checks if the Literal is contained in the agent domain
+     * @param agName the agent to consider
+     * @param l the literal to check
+     * @return true if contined, false otherwise
+     */
     protected boolean isInAgDomain( String agName, Literal l ) {
         return this.agDomain.get( agName ).contains( l );
     }
@@ -270,7 +278,7 @@ public class EmbeddingSpace {
         for ( Literal lit : getAgsSubSpace( ags, subSpace ) ) {
             List<Double> litEmb = getEmbedding( subSpace, lit );
             // Compute the distance and consider it
-            double dist = Tools.cosineDistance( emb, litEmb );
+            double dist = cosineDistance( emb, litEmb );
             if ( dist < nearestDist ) {
                 nearestDist = dist;
                 nearestLiteral = lit;
