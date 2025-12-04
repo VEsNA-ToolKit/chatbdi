@@ -37,6 +37,9 @@ public class EmbeddingSpace {
      */
     private Ollama ollama;
 
+    /** Build an embedding space with the ollama object to use
+     * @param ollama the Ollama object to use for embeddings
+     */
     public EmbeddingSpace( Ollama ollama ) {
         this.plans = new HashMap<>();
         this.terms = new HashMap<>();
@@ -178,7 +181,7 @@ public class EmbeddingSpace {
 
     /**
      * Get the embedding vector of a specific term
-     * @param plan the plan head
+     * @param term the term head
      * @return the vector as a list of Double
      */
     private List<Double> getTermEmbedding( Literal term ) {

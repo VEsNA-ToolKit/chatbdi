@@ -22,6 +22,8 @@ import jason.asSemantics.Message;
 import static jason.asSyntax.ASSyntax.*;
 
 import jason.asSyntax.parser.ParseException;
+import jason.infra.local.RunLocalMAS;
+import jason.runtime.Settings;
 
 import static chatbdi.Tools.*;
 
@@ -30,45 +32,32 @@ import static chatbdi.Tools.*;
  * @author Andrea Gatti
  */
 public class Ollama {
-	/**
-	 * The url at which the Ollama server listens
-	 */
-    private final String URL = "http://localhost:11434/api/";
-	/**
-	 * The embedding model to use
-	 */
-    protected final String EMB_MODEL = "all-minilm";
-	/**
-	 * The generation model to use
-	 */
-    protected final String GEN_MODEL = "qwen2.5-coder";
-	/**
-	 * The name that will be assigned to the model that translates KQML to NL
-	 */
+	/** The url at which the Ollama server listens */
+    private String URL = "http://localhost:11434/api/";
+	/** The embedding model to use */
+    protected String EMB_MODEL;
+	/** The generation model to use */
+    protected String GEN_MODEL;
+	/** The name that will be assigned to the model that translates KQML to NL */
     private final String LOG2NL_MODEL = "logic-to-nl";
-	/**
-	 * The name that will be assigned to the model that translates NL to KQML
-	 */
+	/** The name that will be assigned to the model that translates NL to KQML */
     private final String NL2LOG_MODEL = "nl-to-logic";
-	/**
-	 * The name that will be assigned to the model that classifies the Illocutionary Force
-	 */
+	/** The name that will be assigned to the model that classifies the Illocutionary Force */
     private final String CLASS_MODEL = "classify-ilf";
 
-	/**
-	 * The temperature for the generation models
-	 */
-    private final float TEMPERATURE = 0.0f;
-	/**
-	 * The seed for the generation models (to be reproducible)
-	 */
-    private final int SEED = 42;
+	/** The temperature for the generation models */
+    private float TEMPERATURE = 0.0f;
+	/** The seed for the generation models (to be reproducible) */
+    private int SEED = 42;
 
-    private final String NL2LOG_PROMPT = "src/agt/interpreter/modelfiles/nl2logPrompt.txt";
-    private final String LOG2NL_PROMPT = "src/agt/interpreter/modelfiles/log2nlPrompt.txt";
-    private final String NL2LOG_MODELFILE = "src/agt/interpreter/modelfiles/nl2log.txt";
-    private final String LOG2NL_MODELFILE = "src/agt/interpreter/modelfiles/log2nl.txt";
-    private final String CLASS_MODELFILE = "src/agt/interpreter/modelfiles/classifier.txt";
+	/** The Agent name (for log printing) */
+	private String agName;
+
+    private String NL2LOG_PROMPT;
+    private String LOG2NL_PROMPT;
+    private String NL2LOG_MODELFILE;
+    private String LOG2NL_MODELFILE;
+    private String CLASS_MODELFILE ;
 
 	/**
 	 * List of the supported Illocutionary Forces
@@ -84,7 +73,26 @@ public class Ollama {
 	 * @param supportedIlfs the list of supported Illocuctionary Forces
 	 * @throws ConnectException if the ollama server is not available
 	 */
-	public Ollama( String[] supportedIlfs ) throws ConnectException {
+	public Ollama( String[] supportedIlfs, String agName, Settings stts ) throws ConnectException {
+
+		this.agName = agName;
+		NL2LOG_PROMPT = stts.getUserParameter("nl2log_prompt");
+		LOG2NL_PROMPT = stts.getUserParameter("log2nl_prompt");
+		NL2LOG_MODELFILE = stts.getUserParameter("nl2log_model");
+		LOG2NL_MODELFILE = stts.getUserParameter("log2nl_model");
+		CLASS_MODELFILE = stts.getUserParameter("class_model");
+		GEN_MODEL = stts.getUserParameter( "gen_model" );
+		EMB_MODEL = stts.getUserParameter( "emb_model" );
+		String sttsTemperature = stts.getUserParameter( "temperature" );
+		if ( sttsTemperature != null )
+			TEMPERATURE = Float.parseFloat(sttsTemperature);
+		String sttsSeed = stts.getUserParameter( "seed" );
+		if ( sttsSeed != null )
+			SEED = Integer.parseInt(sttsSeed);
+		String sttsUrl = stts.getUserParameter( "ollama_url" );
+		if ( sttsUrl != null )
+			URL = sttsUrl;
+ 
 		// Store the supported Illocutionary Forces
 		SUPPORTED_ILF = new String[ supportedIlfs.length ];
 		for ( int i = 0; i < supportedIlfs.length; i++ )
@@ -124,9 +132,11 @@ public class Ollama {
 		} catch( ConnectException e ) {
 			return false;
 		} catch( IOException e ) {
-			e.printStackTrace();
+			Interpreter ag = (Interpreter) RunLocalMAS.getRunner().getAg( agName ).getTS().getAgArch();
+			ag.logSevere(e.getMessage());
 		} catch( InterruptedException e ) {
-			e.printStackTrace();
+			Interpreter ag = (Interpreter) RunLocalMAS.getRunner().getAg( agName ).getTS().getAgArch();
+			ag.logSevere(e.getMessage());
 		}
 		return false;
 	}

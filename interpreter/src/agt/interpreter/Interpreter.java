@@ -18,6 +18,7 @@ import jason.asSemantics.Agent;
 import jason.asSemantics.Message;
 import jason.infra.local.RunLocalMAS;
 import jason.runtime.RuntimeServices;
+import jason.runtime.Settings;
 import jason.bb.*;
 import jason.pl.*;
 
@@ -55,11 +56,13 @@ public class Interpreter extends AgArch {
      * <li> the Ollama client </li>
      * <li> the embedding space </li>
      * <li> the chat UI </li>
+     * </ul>
      */
     @Override
     public void init() {
         try {
-            ollama = new Ollama( SUPPORTED_ILF );
+            Settings stts = getTS().getSettings();
+            ollama = new Ollama( SUPPORTED_ILF, getAgName(), stts );
             logInfo( "Initializing Ollama models" );
             embSpace = new EmbeddingSpace( ollama );
             initEmbeddingSpace();
@@ -98,8 +101,9 @@ public class Interpreter extends AgArch {
      * Translates and send a user message to the agents
      * @param receivers the list of receiver agents
      * @param msg the message written on the chat
+     * @throws Exception if broadcast or sendMsg raise it
      */
-    protected void handleUserMsg( List<String> receivers, String msg ) {
+    protected void handleUserMsg( List<String> receivers, String msg ) throws Exception {
         // Translates the message into a KQML Message
         Message m = nl2kqml( receivers, msg );
         if ( m == null )
@@ -139,6 +143,11 @@ public class Interpreter extends AgArch {
         return new Message( ilf.toString(), this.getAgName(), null, term );
     }
 
+    /**
+     * This method translates KQML into Natural Language
+     * @param m the KQML Message
+     * @return the translation
+     */
     protected String kqml2nl( Message m ) {
         try {
             return ollama.generate( m );
@@ -148,6 +157,14 @@ public class Interpreter extends AgArch {
         return "Error showing the message";
     }
 
+    /**
+     * Generates the final term to send 
+     * @param receivers who will receive the message: we will use their BB and PL for translation
+     * @param ilf the Illocutionary Force classified
+     * @param msg the message sent by the user
+     * @return the term generated from the message
+     * @throws ParseException if the generated term is not syntactically correct
+     */
     private Literal generateTerm( List<String> receivers, Literal ilf, String msg ) throws ParseException {
         msg = msg.replaceAll( "\\s*@\\S+", "" );
         String subSpace = "terms";
@@ -165,6 +182,10 @@ public class Interpreter extends AgArch {
         }
     }
 
+    /**
+     * Inititalizes the embedding space
+     * @throws RemoteException if the agent fails accessing BB or PL of another agent
+     */
     private void initEmbeddingSpace() throws RemoteException {
         logInfo( "Initializing content of the Embedding Space" );
         Collection<String> agNames = getRuntimeServices().getAgentsName();
@@ -212,10 +233,16 @@ public class Interpreter extends AgArch {
         }
     }
 
+    /** Prints INFO on the agent log 
+     * @param msg what to print
+    */
     protected void logInfo( String msg ) {
         getTS().getLogger().log( Level.INFO, msg );
     }
 
+    /** Prints ERROR on the agent log
+     * @param msg what to print
+     */
     protected void logSevere( String msg ) {
         getTS().getLogger().log( Level.SEVERE, msg );
     }

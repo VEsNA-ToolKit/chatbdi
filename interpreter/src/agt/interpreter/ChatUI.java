@@ -167,18 +167,30 @@ public class ChatUI {
      */
     private class Message {
 
+        /** The content of the message */
         private String content;
+        /** The @receivers of the message */
         private List<String> receivers;
 
+        /** Creates a new Message with content and receivers 
+         * @param content the content of the message
+         * @param receivers the list of receivers of the message
+        */
         private Message( String content, List<String> receivers ) {
             this.content = content;
             this.receivers = receivers;
         }
 
+        /** Simple getter
+         * @return the message content
+        */
         private String getContent() {
             return this.content;
         }
 
+        /** Simple getter
+         * @return the list of receivers
+         */
         private List<String> getReceivers() {
             return this.receivers;
         }
