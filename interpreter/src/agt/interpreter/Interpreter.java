@@ -89,12 +89,13 @@ public class Interpreter extends AgArch {
             return;
         
         Message m = mbox.peek();
+        String sender = m.getSender();
+        
+        chatUI.setTyping(sender, true);
         String msg = kqml2nl( m );
-        try {
-            chatUI.showMsg( m.getSender(), msg );
-        } catch ( IOException ioe ) {
-            logSevere( ioe.getMessage() );
-        }
+            // ensure any typing indicator for this sender is removed when the actual message arrives
+        chatUI.setTyping(sender, false);
+        chatUI.showMsg( m.getSender(), msg );
     }
 
     /**
@@ -104,6 +105,17 @@ public class Interpreter extends AgArch {
      * @throws Exception if broadcast or sendMsg raise it
      */
     protected void handleUserMsg( List<String> receivers, String msg ) throws Exception {
+        Collection<String> agNames = getRuntimeServices().getAgentsName();
+        if (!receivers.isEmpty() ) {
+            for ( int i=0; i<receivers.size(); i++ ) {
+                if ( !agNames.contains( receivers.get(i) ) ) {
+                    chatUI.showAgentNotFoundNotice( receivers.get(i) );
+                    receivers.remove( receivers.get(i) );
+                }
+            }
+            if ( receivers.isEmpty() )
+                return;
+        }
         // Translates the message into a KQML Message
         Message m = nl2kqml( receivers, msg );
         if ( m == null )
@@ -115,8 +127,10 @@ public class Interpreter extends AgArch {
         }
         // Send it to all receivers
         for ( String receiver : receivers ) {
-            m.setReceiver( receiver );
-            sendMsg( m );
+            if ( agNames.contains( receiver ) ) {
+                m.setReceiver( receiver );
+                sendMsg( m );
+            }
         }
     }
 
