@@ -1,0 +1,19 @@
+// simple implementation of first-price sealed-bid auction
+
+MAS auction {
+
+    agents: ag1;
+            ag2;
+            ag3        [mindinspector="gui(cycle,html,history)"]; // this agent has a GUI mind inspector
+            auctioneer agentArchClass AuctioneerGUI;
+            user user.asl [
+                nl2log_prompt =     "../../../interpreter/src/agt/chatbdi/modelfiles/nl2logPrompt.txt",
+                log2nl_prompt =     "../../../interpreter/src/agt/chatbdi/modelfiles/log2nlPrompt.txt",
+                nl2log_model =      "../../../interpreter/src/agt/chatbdi/modelfiles/nl2log.txt",
+                log2nl_model =      "../../../interpreter/src/agt/chatbdi/modelfiles/log2nl.txt",
+                class_model =       "../../../interpreter/src/agt/chatbdi/modelfiles/classifier.txt",
+                gen_model = "qwen2.5-coder",
+                emb_model = "all-minilm"
+            ]
+            agentArchClass chatbdi.Interpreter;
+}
