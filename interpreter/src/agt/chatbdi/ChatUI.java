@@ -170,7 +170,7 @@ public class ChatUI {
         }
 
         // scroll to bottom
-        messageList.ensureIndexIsVisible( listModel.size() - 1 );
+        // messageList.ensureIndexIsVisible( listModel.size() - 1 );
 
         return entry;
     }

@@ -106,24 +106,34 @@ public class Interpreter extends AgArch {
      */
     protected int handleUserMsg( List<String> receivers, String msg ) throws Exception {
         Collection<String> agNames = getRuntimeServices().getAgentsName();
+        logInfo("Starting");
         boolean partial = false;
         if (!receivers.isEmpty() ) {
+            logInfo("There are receivers" );
             for ( int i=0; i<receivers.size(); i++ ) {
                 if ( !agNames.contains( receivers.get(i) ) ) {
+                    logInfo("The agent " + receivers.get(i) + " does not exist" );
                     partial = true;
                     chatUI.showAgentNotFoundNotice( receivers.get(i) );
                     receivers.remove( receivers.get(i) );
                 }
             }
-            if ( receivers.isEmpty() )
+            if ( receivers.isEmpty() ) {
+                logInfo("Receivers is now empty!");
                 return -1;
+            }
         }
         // Translates the message into a KQML Message
+        logInfo("Translating the message");
         Message m = nl2kqml( receivers, msg );
-        if ( m == null )
+
+        if ( m == null ) {
+            logInfo( "The generated message is null");
             return -1;
+        }
         // Broadcast if no receivers are set
         if ( receivers.isEmpty() ) {
+            logInfo("Broadcasting the message");
             broadcast( m );
             return 1;
         }
@@ -158,6 +168,7 @@ public class Interpreter extends AgArch {
         // If the computed ilf is an askHow add the triggering +! part to the term
         if ( ilf.equalsAsStructure( createLiteral( "askHow" ) ) )
             term = new Trigger( Trigger.TEOperator.add, Trigger.TEType.achieve, term );
+        logInfo( "Generated: \n ilf: " + ilf + "\n term: " + term );
 
         return new Message( ilf.toString(), this.getAgName(), null, term );
     }

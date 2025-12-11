@@ -7,7 +7,7 @@
 @pb1[atomic]
 +place_bid(N,_)     // receives bids and checks for new winner
    :  .findall(b(V,A),place_bid(N,V)[source(A)],L) &
-      .length(L,3)  // all 3 expected bids was received
+      .length(L,4)  // all 4 expected bids was received
    <- .max(L,b(V,W));
       .print("Winner is ",W," with ", V);
       show_winner(N,W); // show it in the GUI
