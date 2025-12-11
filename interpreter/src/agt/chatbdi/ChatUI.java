@@ -33,6 +33,7 @@ import java.awt.event.ActionListener;
 import jason.infra.local.RunLocalMAS;
 
 import com.github.rjeschke.txtmark.Processor;
+import com.formdev.flatlaf.FlatLightLaf;
 
 /**
  * The ChatUI class manages the io visible to the user, using a JList for messages.
@@ -52,6 +53,13 @@ public class ChatUI {
     private String myName;
 
     public ChatUI( String myName ) {
+
+        // Initialize FlatLaf Look and Feel
+        try {
+            FlatLightLaf.setup();
+        } catch (Exception e) {
+            System.err.println("Failed to initialize FlatLaf: " + e.getMessage());
+        }
 
         // init the interpreter agent name
         this.myName = myName;
@@ -124,11 +132,13 @@ public class ChatUI {
             @Override
             protected Integer doInBackground() {
                 try {
-                    return ag.handleUserMsg( entry.getReceivers(), entry.getContent() );
+                    String plainContent = entry.getContent().replaceAll("<[^>]*>", "");
+                    return ag.handleUserMsg( entry.getReceivers(), plainContent );
                 } catch( IOException ioe ) {
                     ag.logSevere("Cannot handle user message: " + ioe.getMessage());
                 } catch ( Exception e ) {
-                    ag.logSevere( "Cannot translate or send the current message. Error: " + e.toString() );
+                    // ag.logSevere( "Cannot translate or send the current message. Error: " + e.getStackTrace().toString() );
+                    e.printStackTrace();
                 }
                 return -1;
             }

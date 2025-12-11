@@ -261,13 +261,16 @@ public class Ollama {
 	public Literal generate( String msg, Literal nearest, Literal ilf, List<Literal> examples ) throws IOException, ParseException {
 
         List<JSONObject> jsonExamples = new ArrayList<>();
+		System.out.println("[LOG] nearest: " + nearest );
 		// Translate the term in JSON
-        JSONObject nearestJson = termToJSON( nearest );
+        Map<String, Term> nearestJson = termToMap( nearest );
+		System.out.println("[LOG] nearest json: " + nearestJson );
 		// Translate all the examples
         for ( Literal example : examples )
             jsonExamples.add( termToJSON( example ) );
 		// Generate a schema with types provided in the examples for each arg
         JSONObject schema = genJSONSchema( jsonExamples );
+		System.out.println( "[LOG] Sentence: " + msg + ", nearest: " + nearestJson + ", ilf: " + ilf + ", examples: " + jsonExamples );
 		// Read the prompt and replace needed placeholders
         String prompt = Files.readString( Path.of( NL2LOG_PROMPT ) )
             .replace( "SENTENCE", msg )

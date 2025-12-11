@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -134,12 +136,31 @@ public class Tools {
      * Example: 
      * a(b) -> { "functor": "a", "arg0": "b"}
      */
-    public static JSONObject termToJSON( Literal term ) {
-        JSONObject json = new JSONObject();
+    public static Map<String, Term> termToMap( Literal term ) {
+        Map<String, Term> jsonMap = new HashMap<>();
         String functor = term.getFunctor();
-        json.put( "functor", functor );
-        for ( int i = 0; i < term.getArity(); i++ )
-            json.put( "arg" + i, term.getTerm( i ) );
+        jsonMap.put( "functor", createLiteral( functor ) );
+        for ( int i = 0; i < term.getArity(); i++ ) {
+            jsonMap.put( "arg" + i, term.getTerm( i ) );
+        }
+        System.out.println( "[LOG] Map: " + jsonMap.toString() );
+        return jsonMap;
+    }
+
+    public static JSONObject mapToJson( Map<String, Term> map ) {
+        JSONObject json = new JSONObject();
+        for (String key: map.keySet() ) {
+            Term value = map.get( key );
+            if ( value.isString() ) {
+                json.put( key, value.toString() );
+            } else if ( value.isNumeric() ) {
+                json.put( key, value.solve() );
+            } else if ( value.isUnnamedVar() ) {
+                json.put( key, "_" );
+            } else {
+                json.put( key, value.toString() );
+            }
+        }
         return json;
     }
 
@@ -150,14 +171,24 @@ public class Tools {
      * @throws ParseException if the provided JSON object produces syntax errors
      */
     public static Literal jsonToTerm( JSONObject json ) throws ParseException {
+        // TODO: Consider that the arg can be also null or an Integer
         if ( json.length() == 1 )
             return createLiteral( json.getString( "functor" ) );
         String term = json.getString( "functor" ) + "(";
         for ( int i = 0; i < json.length() - 1; i++ ) {
-            if ( json.isNull( "arg" + i ) || json.getString( "arg" + i ).equals( "null" ) )
-                term += " _, ";
-            else
-                term += json.get( "arg" + i ) + ", ";
+            if ( json.isNull( "arg" + i ) )
+                term += "_, ";
+            Object value = json.get( "arg" + i );
+            if ( value instanceof String ) {
+                if ( json.getString( "arg" + i ).equals( "null" ) )
+                    term += " _, ";
+                else
+                    term += json.getString( "arg" + i ) + ", ";
+            } else if ( value instanceof Integer ) {
+                term += value.toString() + ", ";
+            } else {
+                term += value.toString() + ", ";
+            }
         }
         term = term.substring( 0, term.length() - 2) + ")";
         return parseLiteral( term );
