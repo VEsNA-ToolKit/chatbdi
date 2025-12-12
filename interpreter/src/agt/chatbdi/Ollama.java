@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +25,7 @@ import static jason.asSyntax.ASSyntax.*;
 import jason.asSyntax.parser.ParseException;
 import jason.infra.local.RunLocalMAS;
 import jason.runtime.Settings;
+import jason.NoValueException;
 
 import static chatbdi.Tools.*;
 
@@ -261,15 +263,23 @@ public class Ollama {
 	public Literal generate( String msg, Literal nearest, Literal ilf, List<Literal> examples ) throws IOException, ParseException {
 
         List<JSONObject> jsonExamples = new ArrayList<>();
+		List<Map<String, Term>> mapExamples = new ArrayList<>();
 		System.out.println("[LOG] nearest: " + nearest );
 		// Translate the term in JSON
         Map<String, Term> nearestJson = termToMap( nearest );
 		System.out.println("[LOG] nearest json: " + nearestJson );
 		// Translate all the examples
-        for ( Literal example : examples )
-            jsonExamples.add( termToJSON( example ) );
+        for ( Literal example : examples ) {
+			try {
+				Map<String, Term> mapExample = termToMap( example );
+				mapExamples.add( mapExample );
+				jsonExamples.add( mapToJson( mapExample ) );
+			} catch ( NoValueException nve ) {
+				nve.printStackTrace();
+			}
+		}
 		// Generate a schema with types provided in the examples for each arg
-        JSONObject schema = genJSONSchema( jsonExamples );
+        JSONObject schema = genJSONSchema( mapExamples );
 		System.out.println( "[LOG] Sentence: " + msg + ", nearest: " + nearestJson + ", ilf: " + ilf + ", examples: " + jsonExamples );
 		// Read the prompt and replace needed placeholders
         String prompt = Files.readString( Path.of( NL2LOG_PROMPT ) )

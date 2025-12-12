@@ -10,6 +10,9 @@ import java.util.HashSet;
 import jason.asSyntax.*;
 import static jason.asSyntax.ASSyntax.*;
 
+import jason.bb.BeliefBase;
+import jason.pl.PlanLibrary;
+
 import static chatbdi.Tools.*;
 
 /**
@@ -32,10 +35,30 @@ public class EmbeddingSpace {
      * The agent domain
      */
     private Map<String, List<Literal>> agDomain;
+    private Map<String, BeliefBase> agBBs;
+    private Map<String, PlanLibrary> agPLs;
     /**
      * The ollama instance to use
      */
     private Ollama ollama;
+
+    public void print() {
+        String es = "";
+        es += "..:: EMBEDDING SPACE ::..\n";
+        es += " --- Plans ---\n";
+        for ( Literal plan : plans.keySet() ) 
+            es += " + " + plan + "\n";
+        es += " --- Terms ---\n";
+        for ( Literal term : terms.keySet() )
+            es += " + " + term + "\n";
+        es += "\n --- Agent Domains ---\n";
+        for ( String ag: agDomain.keySet() ) {
+            es += " + Agent: " + ag + "\n";
+            for ( Literal lit : agDomain.get(ag) ) 
+                es += "     - " + lit + "\n";
+        }
+        System.out.println( es );
+    }
 
     /** Build an embedding space with the ollama object to use
      * @param ollama the Ollama object to use for embeddings
@@ -45,6 +68,55 @@ public class EmbeddingSpace {
         this.terms = new HashMap<>();
         this.agDomain = new HashMap<>();
         this.ollama = ollama;
+        this.agBBs = new HashMap<>();
+        this.agPLs = new HashMap<>();
+    }
+
+    protected void update( String agName, BeliefBase bb, PlanLibrary pl ) {
+        if ( !agBBs.containsKey( agName ) )
+            agBBs.put( agName, bb );
+        if ( !agPLs.containsKey( agName ) )
+            agPLs.put( agName, pl );
+        // TODO: After first time the update should add and remove bbs and pls with a difference.
+
+        for ( Literal bel : bb ) {
+            if ( bel.toString().contains( "kqml::" ) )
+                continue;
+            if ( containsTerm( bel ) )
+                continue;
+            if ( bel.isRule() ) { 
+                Literal head = ( (Rule) bel ).getHead();
+                addTerm( agName, head );
+                LogicalFormula body = ( (Rule) bel ).getBody();
+                List<Pred> preds = formulaToList( body );
+                for ( Pred p : preds )
+                    addTerm( agName, p );
+                continue; // necessary to do not call the addTerm this line + 2
+            }
+            addTerm( agName, bel );
+        }
+        for ( Plan plan : pl ) {
+            if ( plan.toString().contains( "@kqml" ) )
+                continue;
+            Literal triggerLit = plan.getTrigger().getLiteral();
+            LogicalFormula context = plan.getContext();
+            if ( context != null ) {
+                System.out.println( "[DEBUG] Plan " + triggerLit + " Context " + context );
+                List<Pred> contextList = formulaToList( context );
+                for ( Pred pred : contextList ) {
+                    System.out.println( "[DEBUG] Plan " + triggerLit + " Context: " + pred );
+                    addTerm( agName, pred );
+                }
+            }
+            if ( plan.getTrigger().isAchvGoal() && containsPlan( triggerLit ) )
+                continue;
+            if ( !plan.getTrigger().isAchvGoal() && containsTerm( triggerLit ) )
+                continue;
+            if ( plan.getTrigger().isAchvGoal() )
+                addPlan( agName, triggerLit );
+            else
+                addTerm( agName, triggerLit );
+        }
     }
 
     /**

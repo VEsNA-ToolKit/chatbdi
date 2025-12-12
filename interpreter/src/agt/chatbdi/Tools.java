@@ -13,6 +13,7 @@ import org.json.JSONArray;
 
 import jason.asSyntax.parser.ParseException;
 import static jason.asSyntax.ASSyntax.*;
+import jason.NoValueException;
 
 /**
  * This class provides a set of static methods to use inside the whole project
@@ -106,26 +107,48 @@ public class Tools {
      */
     public static List<Pred> formulaToList( LogicalFormula formula ) {
         List<Pred> preds = new ArrayList<>();
-        if ( formula instanceof Pred ) {
-            if ( formula.isNumeric() || formula.isVar() ) //! In the original version there was even isVar. Consider it.
-                return preds;
-            if ( formula.isList() ) {
-                for ( Term t : (ListTerm) formula )
-                    preds.addAll( formulaToList( (LogicalFormula) t ) );
-                return preds;
-            }
-        } else if ( formula instanceof Pred ) {
+        if ( formula.isPred() ) {
+            System.out.println( "[DEBUG] " + formula + " is a PRED!" );
             preds.add( (Pred) formula );
+        }
+        if ( formula.isNumeric() || formula.isString() )
+            return preds;
+        if ( formula.isVar() || formula.isUnnamedVar() )
+            return preds;
+        if ( formula.isList() ) {
+            for ( Term t : (ListTerm) formula ) 
+                preds.addAll( formulaToList( (LogicalFormula) t ) );
             return preds;
         }
-        if ( formula instanceof Structure ) {
+        if ( formula.isInternalAction() ) {
             Structure s = (Structure) formula;
-            for ( Term t : s.getTerms() ) {
-                if ( t.isNumeric() )
-                    continue;
-                preds.addAll( formulaToList( (LogicalFormula) t ) );
+            System.out.println( "[DEBUG] Internal Action: " + s );
+            if ( s.hasTerm() ) {
+                for ( Term t : s.getTerms() ) {
+                    System.out.println( "[DEBUG] IA preds before: " + preds );
+                    if ( t.isNumeric() || t.isString() )
+                        continue;
+                    preds.addAll( formulaToList( (LogicalFormula) t ) );
+                    System.out.println( "[DEBUG] IA | " + t );
+                    System.out.println( "[DEBUG] IA preds after : " + preds );
+                }
             }
         }
+        if ( formula.isStructure() ) {
+            Structure s = (Structure) formula;
+            if ( s.hasTerm() ) {
+                for ( Term t : s.getTerms() ) {
+                    if ( t.isNumeric() || t.isString() )
+                        continue;
+                    preds.addAll( formulaToList( (LogicalFormula) t ) );
+                }
+                return preds;
+            } else {
+                preds.add( (Pred) s );
+                return preds;
+            }
+        } 
+
         return preds;
     }
 
@@ -147,14 +170,27 @@ public class Tools {
         return jsonMap;
     }
 
-    public static JSONObject mapToJson( Map<String, Term> map ) {
+    // public static JSONObject termToJSON( Literal term ) throws NoValueException {
+    //     JSONObject json = new JSONObject();
+    //     String functor = term.getFunctor();
+    //     json.put( "functor", functor );
+    //     for ( int i = 0; i < term.getArity(); i++ ) {
+    //         if ( term.getTerm(i).isNumeric() )
+    //             json.put( "arg" + i, ( (NumberTerm) ( term.getTerm(i) ) ).solve() ); 
+    //         else
+    //             json.put( "arg" + i, term.getTerm(i).toString() ); 
+    //     }
+    //     return json;
+    // }
+
+    public static JSONObject mapToJson( Map<String, Term> map ) throws NoValueException {
         JSONObject json = new JSONObject();
         for (String key: map.keySet() ) {
             Term value = map.get( key );
             if ( value.isString() ) {
                 json.put( key, value.toString() );
             } else if ( value.isNumeric() ) {
-                json.put( key, value.solve() );
+                json.put( key, ( ( NumberTerm ) value ).solve() );
             } else if ( value.isUnnamedVar() ) {
                 json.put( key, "_" );
             } else {
@@ -172,6 +208,7 @@ public class Tools {
      */
     public static Literal jsonToTerm( JSONObject json ) throws ParseException {
         // TODO: Consider that the arg can be also null or an Integer
+        System.out.println( "[DEBUG] Json object considered: " + json );
         if ( json.length() == 1 )
             return createLiteral( json.getString( "functor" ) );
         String term = json.getString( "functor" ) + "(";
@@ -201,18 +238,18 @@ public class Tools {
      * The schema is built iterating over all the arguments and creating a list of all the possible json types for the arg.
      * Null is used for underscore.
      */
-    public static JSONObject genJSONSchema( List<JSONObject> examples ) {
+    public static JSONObject genJSONSchema( List<Map<String, Term>> examples ) {
         JSONObject schema = new JSONObject();
         schema.put( "type", "object" );
         JSONObject properties = new JSONObject();
-        properties.put( "functor", new JSONObject().put( "const", examples.get( 0 ).getString( "functor" ) ) );
+        properties.put( "functor", new JSONObject().put( "const", examples.get( 0 ).get( "functor" ) ) );
 
         for ( String key : examples.get( 0 ).keySet() ) {
             Set<String> types = new HashSet<>();
             if ( key.equals( "functor" ) )
                 continue;
-            for ( JSONObject example : examples ) {
-                Term term = (Term) example.get( key );
+            for ( Map<String, Term> example : examples ) {
+                Term term = example.get( key );
                 if ( term.isString() || term.isAtom() || term.isVar() )
                     types.add( "string" );
                 else if ( term.isNumeric() )

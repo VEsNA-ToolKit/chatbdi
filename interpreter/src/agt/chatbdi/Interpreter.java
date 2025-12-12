@@ -19,8 +19,8 @@ import jason.asSemantics.Message;
 import jason.infra.local.RunLocalMAS;
 import jason.runtime.RuntimeServices;
 import jason.runtime.Settings;
-import jason.bb.*;
-import jason.pl.*;
+import jason.bb.BeliefBase;
+import jason.pl.PlanLibrary;
 
 import jason.asSyntax.parser.ParseException;
 import java.net.ConnectException;
@@ -219,47 +219,25 @@ public class Interpreter extends AgArch {
     private void initEmbeddingSpace() throws RemoteException {
         logInfo( "Initializing content of the Embedding Space" );
         Collection<String> agNames = getRuntimeServices().getAgentsName();
-        logInfo( "Agents: " + getRuntimeServices().getAgentsName().toString() );
+        for ( String agName : agNames ) {
+            logInfo( "Considering " + agName );
+            Agent ag = RunLocalMAS.getRunner().getAg( agName ).getTS().getAg();
+            BeliefBase bb = ag.getBB().clone();
+            PlanLibrary pl = ag.getPL().clone();
+            embSpace.update( agName, bb, pl );
+        }
+        embSpace.print();
+    }
+
+    private void updateEmbeddingSpace() throws RemoteException {
+        logInfo( "Updating content of the Embedding Space" );
+        Collection<String> agNames = getRuntimeServices().getAgentsName();
         for ( String agName : agNames ) {
             logInfo( "Considering " + agName );
             Agent ag = RunLocalMAS.getRunner().getAg( agName ).getTS().getAg();
             BeliefBase bb = ag.getBB().clone();
             PlanLibrary pl = ag.getPL().clone();
 
-            List<Literal> agDomain = new ArrayList<>();
-            for ( Literal bel : bb ) {
-                if ( bel.toString().contains( "kqml::" ) )
-                    continue;
-                if ( embSpace.containsTerm( bel ) )
-                    continue;
-                if ( bel.isRule() ) { 
-                    Literal head = ( (Rule) bel ).getHead();
-                    embSpace.addTerm( agName, head );
-                    LogicalFormula body = ( (Rule) bel ).getBody();
-                    List<Pred> preds = formulaToList( body );
-                    for ( Pred p : preds )
-                        embSpace.addTerm( agName, p );
-                    continue; // necessary to do not call the addTerm this line + 2
-                }
-                embSpace.addTerm( agName, bel );
-            }
-            for ( Plan plan : pl ) {
-                if ( plan.toString().contains( "@kqml" ) )
-                    continue;
-                Literal triggerLit = plan.getTrigger().getLiteral();
-                if ( plan.getTrigger().isAchvGoal() && embSpace.containsPlan( triggerLit ) )
-                    continue;
-                if ( !plan.getTrigger().isAchvGoal() && embSpace.containsTerm( triggerLit ) )
-                    continue;
-                LogicalFormula context = plan.getContext();
-                List<Pred> contextList = formulaToList( context );
-                for ( Pred pred : contextList )
-                    embSpace.addTerm( agName, pred );
-                if ( plan.getTrigger().isAchvGoal() )
-                    embSpace.addPlan( agName, triggerLit );
-                else
-                    embSpace.addTerm( agName, triggerLit );
-            }
         }
     }
 
