@@ -104,9 +104,12 @@ public class Interpreter extends AgArch {
      * @param msg the message written on the chat
      * @throws Exception if broadcast or sendMsg raise it
      */
-    protected int handleUserMsg( List<String> receivers, String msg ) throws Exception {
+    protected int handleUserMsg( List<String> receivers, String msg ) throws Exception, ParseException {
         Collection<String> agNames = getRuntimeServices().getAgentsName();
         logInfo("Starting");
+
+        updateEmbeddingSpace();
+
         boolean partial = false;
         if (!receivers.isEmpty() ) {
             logInfo("There are receivers" );
@@ -207,8 +210,6 @@ public class Interpreter extends AgArch {
             return ollama.generate( msg, nearest, ilf, examples );
         } catch( IOException ioe ) {
             throw new IllegalArgumentException( "Prompt loading caused a IO Exception: check the file path. Full error: " + ioe.getMessage() );
-        } catch( ParseException pe ) {
-            throw new ParseException( "The generated property was not a valid Jason term." );
         }
     }
 
@@ -237,7 +238,7 @@ public class Interpreter extends AgArch {
             Agent ag = RunLocalMAS.getRunner().getAg( agName ).getTS().getAg();
             BeliefBase bb = ag.getBB().clone();
             PlanLibrary pl = ag.getPL().clone();
-
+            embSpace.update( agName, bb, pl );
         }
     }
 

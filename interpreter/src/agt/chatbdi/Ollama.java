@@ -287,17 +287,22 @@ public class Ollama {
             .replace( "NEAREST_JSON", nearestJson.toString() )
             .replace( "ILF", ilf.toString() )
             .replace( "EXAMPLES", jsonExamples.toString() );
-		// List variable names: they may have meaningful names
-        List<Set<Term>> varNames = getVarNames( examples );
-        for ( int i = 0; i < varNames.size(); i++ )
-            if ( !varNames.get( i ).isEmpty() )
-                prompt += " - arg" + i + " should contain " + varNames.get( i ) +
-                "; if this piece of information is in the sentence place it here, otherwise place underscore or null";
+		// // List variable names: they may have meaningful names
+        // // List<Set<Term>> varNames = getVarNames( examples );
+        // // for ( int i = 0; i < varNames.size(); i++ )
+        // //     if ( !varNames.get( i ).isEmpty() )
+        // //         prompt += " - arg" + i + " should contain " + varNames.get( i ) +
+        // //         "; if this piece of information is in the sentence place it here, otherwise place underscore or null";
         
 		// Generate the new term
         JSONObject answer = new JSONObject( generate( GEN_MODEL, prompt, schema ) );
         JSONObject response = new JSONObject( answer.getString( "response" ) );
-        return jsonToTerm( response );
+		try {
+			Literal responseTerm = jsonToTerm( response );
+			return responseTerm;
+		} catch ( ParseException pe ) {
+			throw new ParseException( "LLM error! Generated: " + response + ". It is not a valid Jason term." );
+		}
 	}
 
 	/**

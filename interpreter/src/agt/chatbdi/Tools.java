@@ -21,6 +21,30 @@ import jason.NoValueException;
  */
 public class Tools {
 
+    private static final JSONObject ATOM;
+    private static final JSONObject VAR;
+    private static final JSONObject STRING;
+    private static final JSONObject NUMBER;
+    private static final JSONObject LIST;
+    private static final JSONObject NULL;
+
+    static {
+        ATOM = new JSONObject()
+            .put("type", "string")
+            .put("pattern", "^[a-z][A-Za-z0-9_]*$")
+            .put("format", "prolog-atom");
+
+        VAR = new JSONObject()
+            .put("type", "string")
+            .put("pattern", "^[A-Z][A-Za-z0-9_]*$")
+            .put("format", "prolog-variable");
+
+        STRING = new JSONObject().put("type", "string");
+        NUMBER = new JSONObject().put("type", "number");
+        LIST = new JSONObject().put("type", "array");
+        NULL = new JSONObject().put("type", "null");
+    }
+
     /**
      * Given a literal preprocess it for being embedded
      * @param lit the literal to preprocess
@@ -194,7 +218,10 @@ public class Tools {
             } else if ( value.isUnnamedVar() ) {
                 json.put( key, "_" );
             } else {
-                json.put( key, value.toString() );
+                if ( value.toString().startsWith( "_" ) )
+                    json.put( key, "_" );
+                else
+                    json.put( key, value.toString() );
             }
         }
         return json;
@@ -218,6 +245,8 @@ public class Tools {
             Object value = json.get( "arg" + i );
             if ( value instanceof String ) {
                 if ( json.getString( "arg" + i ).equals( "null" ) )
+                    term += " _, ";
+                else if ( json.getString( "arg" + i ).startsWith( "_" ) )
                     term += " _, ";
                 else
                     term += json.getString( "arg" + i ) + ", ";
@@ -244,47 +273,78 @@ public class Tools {
         JSONObject properties = new JSONObject();
         properties.put( "functor", new JSONObject().put( "const", examples.get( 0 ).get( "functor" ) ) );
 
+        System.out.println( "[DEBUG] Before examples: " + schema );
+        System.out.println( "[DEBUG] Before examples properties: " + properties );
         for ( String key : examples.get( 0 ).keySet() ) {
-            Set<String> types = new HashSet<>();
+            System.out.println( "[DEBUG] Considering " + key );
+            // // Set<String> types = new HashSet<>();
+            Set<JSONObject> types = new HashSet<>();
+            Set<String> hints = new HashSet<>();
             if ( key.equals( "functor" ) )
                 continue;
             for ( Map<String, Term> example : examples ) {
                 Term term = example.get( key );
-                if ( term.isString() || term.isAtom() || term.isVar() )
-                    types.add( "string" );
-                else if ( term.isNumeric() )
-                    types.add( "number" );
-                else if ( term.isList() )
-                    types.add( "list" );
+                if ( term.isString() )
+                    types.add( STRING );
+                else if ( term.isAtom() )
+                    types.add( ATOM );
                 else if ( term.isUnnamedVar() )
-                    types.add( "null" );
+                    types.add( NULL );
+                else if ( term.isVar() ) {
+                    types.add( VAR );
+                    hints.add( term.toString() );
+                } else if ( term.isNumeric() )
+                    types.add( NUMBER );
+                else if ( term.isList() )
+                    types.add( LIST );
+                // // if ( term.isString() || term.isAtom() || term.isVar() ) {
+                //     // types.add( "string" );
+                //     // if ( term.isVar() )
+                //         // hints.add( term.toString() );
+                // // }
+                // // else if ( term.isNumeric() )
+                //     // types.add( "number" );
+                // // else if ( term.isList() )
+                //     // types.add( "list" );
+                // // else if ( term.isUnnamedVar() )
+                //     // types.add( "null" );
             }
-            List<JSONObject> jsonTypes = new ArrayList<>();
-            for ( String type : types )
-                jsonTypes.add( new JSONObject().put( "type", type ) );
-            if ( !types.contains( "null" ) )
-                jsonTypes.add( new JSONObject().put( "type", "null" ) );
-            properties.put( key, new JSONObject().put( "anyOf", jsonTypes.toArray() ) );
+            System.out.println( "[DEBUG] Extracted types: " + types );
+            System.out.println( "[DEBUG] Extracted hints: " + hints );
+            // // List<JSONObject> jsonTypes = new ArrayList<>();
+            // // for ( String type : types )
+            // //     jsonTypes.add( new JSONObject().put( "type", type ) );
+            // // if ( !types.contains( "null" ) )
+            // //     jsonTypes.add( new JSONObject().put( "type", "null" ) );
+            JSONObject field = new JSONObject();
+            if ( !hints.isEmpty() ) {
+                field.put( "description", "This field contains: " + String.join( " or ", hints ) );
+            }
+            field.put( "anyOf", new JSONArray( types.toArray() ) );
+            properties.put( key, field );
+            System.out.println("[DEBUG] Properties: " + properties );
         }
         schema.put( "properties", properties );
+        schema.put( "required", new JSONArray( examples.get( 0 ).keySet().toArray() ) );
+        System.out.println( "[DEBUG] Generated Schema: " + schema.toString() );
         return schema;
     }
 
-    /**
-     * Given the set of examples returns a list of all the found var names for each argument.
-     * This is useful for the LLM to help translation
-     * @param examples the list of all the literals
-     * @return a list of set of terms, one set for each argument
-     */
-    public static List<Set<Term>> getVarNames( List<Literal> examples ) {
-        List<Set<Term>> varNames = new ArrayList<>();
-        for ( int i = 0; i < examples.get( 0 ).getArity(); i++ )
-            varNames.add( new HashSet<>() );
-        for ( Literal example : examples ) {
-            for ( int i = 0; i < example.getArity(); i++ )
-                if ( example.getTerm(i).isVar() )
-                    varNames.get( i ).add( example.getTerm( i ) );
-        }
-        return varNames;
-    }
+    // // /**
+    // //  * Given the set of examples returns a list of all the found var names for each argument.
+    // //  * This is useful for the LLM to help translation
+    // //  * @param examples the list of all the literals
+    // //  * @return a list of set of terms, one set for each argument
+    // //  */
+    // // public static List<Set<Term>> getVarNames( List<Literal> examples ) {
+    // //     List<Set<Term>> varNames = new ArrayList<>();
+    // //     for ( int i = 0; i < examples.get( 0 ).getArity(); i++ )
+    // //         varNames.add( new HashSet<>() );
+    // //     for ( Literal example : examples ) {
+    // //         for ( int i = 0; i < example.getArity(); i++ )
+    // //             if ( example.getTerm(i).isVar() )
+    // //                 varNames.get( i ).add( example.getTerm( i ) );
+    // //     }
+    // //     return varNames;
+    // // }
 }

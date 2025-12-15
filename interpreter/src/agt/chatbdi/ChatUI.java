@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import jason.infra.local.RunLocalMAS;
+import jason.asSyntax.parser.ParseException;
 
 import com.github.rjeschke.txtmark.Processor;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -136,8 +137,10 @@ public class ChatUI {
                     return ag.handleUserMsg( entry.getReceivers(), plainContent );
                 } catch( IOException ioe ) {
                     ag.logSevere("Cannot handle user message: " + ioe.getMessage());
+                } catch( ParseException pe ) {
+
                 } catch ( Exception e ) {
-                    // ag.logSevere( "Cannot translate or send the current message. Error: " + e.getStackTrace().toString() );
+                    ag.logSevere( "Cannot translate or send the current message. Error: " + e.getStackTrace().toString() );
                     e.printStackTrace();
                 }
                 return -1;
@@ -321,12 +324,13 @@ public class ChatUI {
                 noticeLabel.setOpaque(false);
                 noticeLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
                 noticeLabel.setForeground(Color.GRAY);
-                String html = "<html><div style='max-width:300px;color:gray;font-size:small;'>" + contentHtml + "</div></html>";
+                String html = "<html><div style='width:250px;color:gray;font-size:small;word-wrap:break-word;'>" + contentHtml + "</div></html>";
                 noticeLabel.setText(html);
                 // wrap label inside a panel to preserve padding similar to bubbles
                 JPanel wrapper = new JPanel(new BorderLayout());
                 wrapper.setOpaque(false);
                 wrapper.setBorder(new EmptyBorder(8,12,8,12));
+                wrapper.setMaximumSize(new java.awt.Dimension(270, Integer.MAX_VALUE));
                 wrapper.add(noticeLabel, BorderLayout.CENTER);
                 contentComp = wrapper;
             } else {
@@ -334,13 +338,14 @@ public class ChatUI {
                 BubblePanel bubble = new BubblePanel(bubbleColor);
                 bubble.setLayout(new BorderLayout());
                 bubble.setBorder(new EmptyBorder(8,12,8,12));
+                bubble.setMaximumSize(new java.awt.Dimension(270, Integer.MAX_VALUE));
 
                 JLabel label = new JLabel();
                 label.setOpaque(false);
                 label.setFont(new Font("SansSerif", Font.PLAIN, 12));
                 label.setForeground(textColor);
 
-                String html = "<html><div style='max-width:300px;'>" +
+                String html = "<html><div style='width:230px;word-wrap:break-word;overflow-wrap:break-word;'>" +
                               "<b>" + sender + "</b><br/>" + contentHtml;
                 if ( value.isSending() ) {
                     html += "<div style='font-size:small;color:gray'><i>sending...</i></div>";

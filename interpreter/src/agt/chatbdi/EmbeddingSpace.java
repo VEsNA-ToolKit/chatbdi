@@ -73,11 +73,20 @@ public class EmbeddingSpace {
     }
 
     protected void update( String agName, BeliefBase bb, PlanLibrary pl ) {
-        if ( !agBBs.containsKey( agName ) )
+        if ( !agBBs.containsKey( agName ) ) {
             agBBs.put( agName, bb );
-        if ( !agPLs.containsKey( agName ) )
+        } else {
+            for ( Literal belief : this.agBBs.get( agName ) ) {
+                bb.remove( belief );
+            }
+        }
+        if ( !agPLs.containsKey( agName ) ) {
             agPLs.put( agName, pl );
-        // TODO: After first time the update should add and remove bbs and pls with a difference.
+        } else {
+            for ( Plan plan : this.agPLs.get( agName ) ) {
+                pl.remove( plan.getLabel() );
+            }
+        }
 
         for ( Literal bel : bb ) {
             if ( bel.toString().contains( "kqml::" ) )
