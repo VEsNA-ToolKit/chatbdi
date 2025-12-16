@@ -88,14 +88,16 @@ public class Interpreter extends AgArch {
         if ( mbox.isEmpty() )
             return;
         
-        Message m = mbox.peek();
-        String sender = m.getSender();
-        
-        chatUI.setTyping(sender, true);
-        String msg = kqml2nl( m );
-            // ensure any typing indicator for this sender is removed when the actual message arrives
-        chatUI.setTyping(sender, false);
-        chatUI.showMsg( m.getSender(), msg );
+        while( !mbox.isEmpty() ) {
+            Message m = mbox.poll();
+            new Thread( () -> {
+                String sender = m.getSender();
+                chatUI.setTyping(sender, true);
+                String msg = kqml2nl( m );
+                chatUI.setTyping(sender, false);
+                chatUI.showMsg( sender, msg );
+            }).start();
+        }
     }
 
     /**
@@ -133,6 +135,13 @@ public class Interpreter extends AgArch {
         if ( m == null ) {
             logInfo( "The generated message is null");
             return -1;
+        }
+        // show the generated KQML translation under the user's message
+        try {
+            if ( chatUI != null )
+                chatUI.showKqmlTranslation( getAgName(), m.getIlForce(), m.getPropCont().toString() );
+        } catch ( Exception e ) {
+            logSevere( "Cannot show KQML translation: " + e.getMessage() );
         }
         // Broadcast if no receivers are set
         if ( receivers.isEmpty() ) {

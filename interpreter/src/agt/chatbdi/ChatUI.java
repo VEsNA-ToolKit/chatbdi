@@ -280,6 +280,24 @@ public class ChatUI {
         messageList.ensureIndexIsVisible(listModel.size() - 1);
     }
 
+    /** Show the KQML translation in gray under the current message. */
+    public void showKqmlTranslation( String sender, String ilf, String msg ) {
+        String content = "<i>ilf: " + escapeHtml(ilf) + ", content: " + escapeHtml(msg) + "</i>";
+        ChatEntry note = new ChatEntry(sender, content );
+        note.setSystemNotice(true);
+        SwingUtilities.invokeLater(() -> {
+            listModel.addElement(note);
+            messageList.ensureIndexIsVisible(listModel.size() - 1);
+        });
+    }
+
+    private String escapeHtml(String s) {
+        if ( s == null ) return "";
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
+    }
+
     private class ChatCellRenderer implements ListCellRenderer<ChatEntry> {
         ChatCellRenderer() {
         }
@@ -393,7 +411,10 @@ public class ChatUI {
             }
 
             if ( value.isSystemNotice() ) {
-                panel.add(sidePanel, BorderLayout.EAST);
+                if ( value.getSender() != null && value.getSender().equals( myName ) )
+                    panel.add(sidePanel, BorderLayout.EAST);
+                else
+                    panel.add(sidePanel, BorderLayout.WEST);
             } else if ( value.isTyping() ) {
                 panel.add(sidePanel, BorderLayout.WEST);
             } else if ( sender.equals( myName ) ) {
