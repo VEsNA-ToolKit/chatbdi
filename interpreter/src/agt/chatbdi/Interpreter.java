@@ -1,23 +1,25 @@
 package chatbdi;
 
 import java.util.List;
-import java.util.Map;
+// // import java.util.Map;
 import java.util.logging.Level;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.ArrayList;
+// // import java.util.logging.Logger;
+// // import java.util.HashMap;
+// // import java.util.Set;
+// // import java.util.HashSet;
+// // import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Queue;
+import java.util.UUID;
 
 import jason.asSyntax.*;
-import jason.asSemantics.*;
+// // import jason.asSemantics.*;
 import jason.architecture.AgArch;
 import static jason.asSyntax.ASSyntax.*;
 import jason.asSemantics.Agent;
 import jason.asSemantics.Message;
 import jason.infra.local.RunLocalMAS;
-import jason.runtime.RuntimeServices;
+// // import jason.runtime.RuntimeServices;
 import jason.runtime.Settings;
 import jason.bb.BeliefBase;
 import jason.pl.PlanLibrary;
@@ -27,10 +29,10 @@ import java.net.ConnectException;
 import java.io.IOException;
 import java.rmi.RemoteException;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+// // import org.json.JSONArray;
+// // import org.json.JSONObject;
 
-import static chatbdi.Tools.*;
+// // import static chatbdi.Tools.*;
 
 /**
  * Interpreter is an Agent Architecture that enables the user to interact with the agents in the mas
@@ -40,8 +42,8 @@ public class Interpreter extends AgArch {
 
     /** Supported Illocutionary forces for the classifier */
     private final String[] SUPPORTED_ILF = { "tell", "askOne", "askAll" };
-    /** Logging file */
-    private final String DEBUG_LOG = "interpreter.log";
+    // // /** Logging file */
+    // // private final String DEBUG_LOG = "interpreter.log";
 
     /** Ollama manages the connection with the daemon */
     private Ollama ollama;
@@ -59,7 +61,9 @@ public class Interpreter extends AgArch {
      * </ul>
      */
     @Override
-    public void init() {
+    public void init() throws Exception {
+        super.init();
+        logFine( "init: supported ilfs: " + SUPPORTED_ILF );
         try {
             Settings stts = getTS().getSettings();
             ollama = new Ollama( SUPPORTED_ILF, getAgName(), stts );
@@ -67,11 +71,13 @@ public class Interpreter extends AgArch {
             embSpace = new EmbeddingSpace( ollama );
             initEmbeddingSpace();
             logInfo( "Initializing the Embedding Space" );
-            chatUI = new ChatUI( getAgName() );
+            chatUI = new ChatUI( getTS().getLogger(), getAgName() );
         } catch ( ConnectException ce ) {
             logSevere( ce.getMessage() );
+            logFine( ce.getStackTrace().toString() );
         } catch ( RemoteException re ) {
             logSevere( "REMOTE EXCEPTION! " + re.getMessage() );
+            logFine( re.getStackTrace().toString() );
         }
     }
 
@@ -106,7 +112,7 @@ public class Interpreter extends AgArch {
      * @param msg the message written on the chat
      * @throws Exception if broadcast or sendMsg raise it
      */
-    protected int handleUserMsg( List<String> receivers, String msg ) throws Exception, ParseException {
+    protected int handleUserMsg( UUID id, List<String> receivers, String msg ) throws Exception, ParseException {
         Collection<String> agNames = getRuntimeServices().getAgentsName();
         logInfo("Starting");
 
@@ -251,6 +257,18 @@ public class Interpreter extends AgArch {
         }
     }
 
+
+    /** Prints ERROR on the agent log
+     * @param msg what to print
+     */
+    protected void logSevere( String msg ) {
+        getTS().getLogger().log( Level.SEVERE, msg );
+    }
+
+    protected void logWarning( String msg ) {
+        getTS().getLogger().log( Level.WARNING, msg );
+    }
+
     /** Prints INFO on the agent log 
      * @param msg what to print
     */
@@ -258,11 +276,20 @@ public class Interpreter extends AgArch {
         getTS().getLogger().log( Level.INFO, msg );
     }
 
-    /** Prints ERROR on the agent log
-     * @param msg what to print
-     */
-    protected void logSevere( String msg ) {
-        getTS().getLogger().log( Level.SEVERE, msg );
+    protected void logConfig( String msg ) {
+        getTS().getLogger().log( Level.CONFIG, msg );
+    }
+
+    protected void logFine( String msg ) {
+        getTS().getLogger().log( Level.FINE, msg );
+    }
+
+    protected void logFiner( String msg ) {
+        getTS().getLogger().log( Level.FINER, msg );
+    }
+
+    protected void logFinest( String msg ) {
+        getTS().getLogger().log( Level.FINEST, msg );
     }
 
 }

@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.UUID;
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -43,8 +46,9 @@ public class ChatUI {
 
     /** The main window frame */
     private JFrame chatView;
-    private DefaultListModel<ChatEntry> listModel;
-    /** Chat: a list of messages */
+    /** Contains all the messages */
+    private DefaultListModel<ChatEntry> messageListModel;
+    /** JList visualizes the messages in messageListModel */
     private JList<ChatEntry> messageList;
     /** The input field for messages */
     private JTextField inputField;
@@ -52,18 +56,23 @@ public class ChatUI {
     private JButton sendButton;
     /** The interpreter agent name */
     private String myName;
+    // private Interpreter ag;
+    private Logger logger;
 
-    public ChatUI( String myName ) {
+    public ChatUI( Logger agLogger, String agName ) {
+
+        this.logger = agLogger;
 
         // Initialize FlatLaf Look and Feel
         try {
             FlatLightLaf.setup();
         } catch (Exception e) {
-            System.err.println("Failed to initialize FlatLaf: " + e.getMessage());
+            // ag.logSevere( "Failed to initialize FlatLaf: " + e.getMessage());
+            logger.log( Level.SEVERE, "Failed to initialize FlatLaf: " + e.getMessage() );
         }
 
         // init the interpreter agent name
-        this.myName = myName;
+        this.myName = agName;
 
         // Create the frame window
         chatView = new JFrame();
@@ -74,8 +83,10 @@ public class ChatUI {
         chatView.setSize( 400, 500 );
         chatView.setLayout( new BorderLayout() );
 
-        listModel = new DefaultListModel<>();
-        messageList = new JList<>( listModel );
+        // Create the empty list of messages and its UI twin
+        // The messages present in the messageListModel will be displayed using ChatCellRenderer
+        messageListModel = new DefaultListModel<>();
+        messageList = new JList<>( messageListModel );
         messageList.setCellRenderer( new ChatCellRenderer() );
         messageList.setFixedCellWidth(350);
         messageList.setVisibleRowCount(10);
@@ -122,7 +133,8 @@ public class ChatUI {
     private void handleSendMsg( ) {
         // Get the text from the input field
         String msg = inputField.getText();
-        // Get the agent casted to Interpreter
+
+        // Get the Interpreter to call the translation function
         Interpreter ag = (Interpreter) RunLocalMAS.getRunner().getAg( myName ).getTS().getAgArch();
         
         // show the message on the chat formatted with receivers highlighet (and take them)
@@ -134,14 +146,14 @@ public class ChatUI {
             protected Integer doInBackground() {
                 try {
                     String plainContent = entry.getContent().replaceAll("<[^>]*>", "");
-                    return ag.handleUserMsg( entry.getReceivers(), plainContent );
+                        UUID id = UUID.randomUUID();
+                    return ag.handleUserMsg( id, entry.getReceivers(), plainContent );
                 } catch( IOException ioe ) {
-                    ag.logSevere("Cannot handle user message: " + ioe.getMessage());
+                    logger.log( Level.SEVERE, "Cannot handle user message: " + ioe.getMessage());
                 } catch( ParseException pe ) {
 
                 } catch ( Exception e ) {
-                    ag.logSevere( "Cannot translate or send the current message. Error: " + e.getStackTrace().toString() );
-                    e.printStackTrace();
+                    logger.log( Level.SEVERE, "Cannot translate or send the current message. Error: " + e.getStackTrace().toString() );
                 }
                 return -1;
             }
@@ -150,16 +162,24 @@ public class ChatUI {
             @Override
             public void done() {
                 try {
+                    // The result of the translation can be -1, 0 or 1
+                    // -1 if failed
+                    // 0 if partially failed
+                    // 1 if success
                     int result = get();
+                    // remove the sending placeholder
                     entry.setSending(false);
+
                     if ( result == 0 )
                         entry.setWarning( true );
                     else if ( result == -1 )
                         entry.setError( true );
+
                     chatView.revalidate();
                     chatView.repaint();
+
                 } catch ( InterruptedException | ExecutionException e ) {
-                    ag.logSevere( e.toString() );
+                    logger.log( Level.SEVERE, e.toString() );
                 }
             }
         }.execute();
@@ -177,39 +197,37 @@ public class ChatUI {
         ChatEntry entry = new ChatEntry( sender, content );
         if ( sender.equals( myName ) ) {
             entry.setSending(true);
-            listModel.addElement( entry );
+            messageListModel.addElement( entry );
         } else {
-            listModel.addElement( entry );
+            messageListModel.addElement( entry );
         }
 
         // scroll to bottom
-        // messageList.ensureIndexIsVisible( listModel.size() - 1 );
+        messageList.ensureIndexIsVisible( messageListModel.size() - 1 );
 
         return entry;
     }
 
     /** Add or remove a "typing" indicator for a sender. Can be called from other classes (e.g., Interpreter). */
     public void setTyping(String sender, boolean typing) {
-        SwingUtilities.invokeLater(() -> {
-            int idx = findTypingIndex(sender);
-            if ( typing ) {
-                if ( idx == -1 ) {
-                    ChatEntry e = new ChatEntry(sender, "<i>typing...</i>" );
-                    e.setTyping(true);
-                    listModel.addElement(e);
-                    messageList.ensureIndexIsVisible(listModel.size()-1);
-                }
-            } else {
-                if ( idx != -1 ) {
-                    listModel.remove(idx);
-                }
+        int idx = findTypingIndex(sender);
+        if ( typing ) {
+            if ( idx == -1 ) {
+                ChatEntry e = new ChatEntry(sender, "<i>typing...</i>" );
+                e.setTyping(true);
+                messageListModel.addElement(e);
+                messageList.ensureIndexIsVisible(messageListModel.size()-1);
             }
-        });
+        } else {
+            if ( idx != -1 ) {
+                messageListModel.remove(idx);
+            }
+        }
     }
 
     private int findTypingIndex(String sender) {
-        for ( int i=0; i<listModel.size(); i++ ) {
-            ChatEntry e = listModel.get(i);
+        for ( int i=0; i<messageListModel.size(); i++ ) {
+            ChatEntry e = messageListModel.get(i);
             if ( e.isTyping() && e.getSender().equals(sender) )
                 return i;
         }
@@ -272,12 +290,12 @@ public class ChatUI {
     }
 
     /** Show a small system notice under the current message when a tagged agent does not exist. */
-    public void showAgentNotFoundNotice(String agentName) {
-        String content = "<i>agent @" + agentName + " does not exist</i>";
+    public void showAgentNotFoundNotice(String agName) {
+        String content = "<i>agent @" + agName + " does not exist</i>";
         ChatEntry note = new ChatEntry("", content );
         note.setSystemNotice(true);
-        listModel.addElement(note);
-        messageList.ensureIndexIsVisible(listModel.size() - 1);
+        messageListModel.addElement(note);
+        messageList.ensureIndexIsVisible(messageListModel.size() - 1);
     }
 
     /** Show the KQML translation in gray under the current message. */
@@ -285,10 +303,10 @@ public class ChatUI {
         String content = "<i>ilf: " + escapeHtml(ilf) + ", content: " + escapeHtml(msg) + "</i>";
         ChatEntry note = new ChatEntry(sender, content );
         note.setSystemNotice(true);
-        SwingUtilities.invokeLater(() -> {
-            listModel.addElement(note);
-            messageList.ensureIndexIsVisible(listModel.size() - 1);
-        });
+        // SwingUtilities.invokeLater(() -> {
+        messageListModel.addElement(note);
+        messageList.ensureIndexIsVisible(messageListModel.size() - 1);
+        // });
     }
 
     private String escapeHtml(String s) {
@@ -303,7 +321,7 @@ public class ChatUI {
         }
 
         @Override
-        public Component getListCellRendererComponent(JList<? extends ChatEntry> list, ChatEntry value, int index, boolean isSelected, boolean cellHasFocus) {
+        public Component getListCellRendererComponent(JList<? extends ChatEntry> list, ChatEntry value, int _index, boolean _isSelected, boolean _cellHasFocus) {
             String sender = value.getSender();
             String contentHtml = Processor.process( value.getContent() );
 
