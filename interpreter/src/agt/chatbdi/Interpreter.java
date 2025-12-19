@@ -98,10 +98,10 @@ public class Interpreter extends AgArch {
             Message m = mbox.poll();
             new Thread( () -> {
                 String sender = m.getSender();
-                chatUI.setTyping(sender, true);
+                UUID id = chatUI.genUUID();
+                chatUI.showMsg( id, sender );
                 String msg = kqml2nl( m );
-                chatUI.setTyping(sender, false);
-                chatUI.showMsg( sender, msg );
+                chatUI.setMsg( id ,msg );
             }).start();
         }
     }
@@ -119,13 +119,13 @@ public class Interpreter extends AgArch {
         updateEmbeddingSpace();
 
         boolean partial = false;
-        if (!receivers.isEmpty() ) {
+        if ( !receivers.isEmpty() ) {
             logInfo("There are receivers" );
             for ( int i=0; i<receivers.size(); i++ ) {
                 if ( !agNames.contains( receivers.get(i) ) ) {
                     logInfo("The agent " + receivers.get(i) + " does not exist" );
                     partial = true;
-                    chatUI.showAgentNotFoundNotice( receivers.get(i) );
+                    chatUI.showAgentNotFoundNotice( id, receivers.get(i) );
                     receivers.remove( receivers.get(i) );
                 }
             }
@@ -145,7 +145,7 @@ public class Interpreter extends AgArch {
         // show the generated KQML translation under the user's message
         try {
             if ( chatUI != null )
-                chatUI.showKqmlTranslation( getAgName(), m.getIlForce(), m.getPropCont().toString() );
+                chatUI.setKQML( id, m.getIlForce(), m.getPropCont().toString() );
         } catch ( Exception e ) {
             logSevere( "Cannot show KQML translation: " + e.getMessage() );
         }
