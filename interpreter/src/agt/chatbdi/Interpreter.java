@@ -29,11 +29,6 @@ import java.net.ConnectException;
 import java.io.IOException;
 import java.rmi.RemoteException;
 
-// // import org.json.JSONArray;
-// // import org.json.JSONObject;
-
-// // import static chatbdi.Tools.*;
-
 /**
  * Interpreter is an Agent Architecture that enables the user to interact with the agents in the mas
  * @author Andrea Gatti
@@ -42,8 +37,6 @@ public class Interpreter extends AgArch {
 
     /** Supported Illocutionary forces for the classifier */
     private final String[] SUPPORTED_ILF = { "tell", "askOne", "askAll" };
-    // // /** Logging file */
-    // // private final String DEBUG_LOG = "interpreter.log";
 
     /** Ollama manages the connection with the daemon */
     private Ollama ollama;
