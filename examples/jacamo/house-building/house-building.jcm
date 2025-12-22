@@ -8,8 +8,6 @@ mas house_building {
 
    agent giacomo     // the agent that wants to build a house
 
-   agent bob
-
    agent companyA   // builder agents (see their code for details)
    agent companyB
    agent companyC {
@@ -19,4 +17,15 @@ mas house_building {
       instances: 13
    }
    agent companyE
+
+    agent user : user.asl {
+        nl2log_prompt : "../../../interpreter/src/agt/chatbdi/modelfiles/nl2logPrompt.txt"
+        log2nl_prompt : "../../../interpreter/src/agt/chatbdi/modelfiles/log2nlPrompt.txt"
+        nl2log_model : "../../../interpreter/src/agt/chatbdi/modelfiles/nl2log.txt"
+        log2nl_model : "../../../interpreter/src/agt/chatbdi/modelfiles/log2nl.txt"
+        class_model : "../../../interpreter/src/agt/chatbdi/modelfiles/classifier.txt"
+        gen_model : "qwen2.5-coder"
+        emb_model : "all-minilm"
+        ag-arch : chatbdi.Interpreter
+    }
 }

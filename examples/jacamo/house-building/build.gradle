@@ -13,7 +13,7 @@ plugins {
 
 defaultTasks 'run'
 
-// apply from: '.jcm-deps.gradle' // this file contains dependencies declared in the .jcm files
+apply from: '.jcm-deps.gradle' // this file contains dependencies declared in the .jcm files
 
 version '1.0'
 group   'org.jacamo'
@@ -39,6 +39,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.json/json
     implementation("org.json:json:20230227")
     implementation 'com.formdev:flatlaf:3.0'
+    implementation group: 'com.github.rjeschke', name: 'txtmark', version: '0.13'
 }
 
 sourceSets {
@@ -49,6 +50,7 @@ sourceSets {
             srcDir 'src/org'
             srcDir 'src/int'
             srcDir 'src/java'
+            srcDir '../../../interpreter/src/agt'
         }
         resources {
             srcDir 'src/resources'

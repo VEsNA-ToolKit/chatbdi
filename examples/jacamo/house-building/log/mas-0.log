@@ -1,5 +1,83 @@
-[bob] Message to [giacomo]
-[CAgentArch] Action failed: generate_property("@giacomo I want to build a houce",NewBelief), in namespace default, operation ( generate_property @giacomo I want to build a houce cartago.OpFeedbackParam@3ac4986 )
-[bob] Could not finish intention: intention 327: 
-    +user_msg([giacomo],"@giacomo I want to build a houce")[artifact_id(cobj_2),artifact_name(chat),percept_type(obs_ev),source(percept),workspace("/main",cobj_0)] <- ... generate_property(Msg,NewBelief); .print("Generated Property: ",NewBelief); .foreach(.member(Recipient,Recipients),!manage_msg(Recipient,NewBelief)) / {Msg="@giacomo I want to build a houce", Recipients=[giacomo]}
-	Trigger: +user_msg([giacomo],"@giacomo I want to build a houce")[artifact_id(cobj_2),artifact_name(chat),code(generate_property("@giacomo I want to build a houce",_2845)),code_line(57),code_src("file:src/agt/bob.asl"),env_failure_reason(env_failure(action_failed(generate_property,op(default,"( generate_property @giacomo I want to build a houce cartago.OpFeedbackParam@3ac4986 )")))),error(action_failed),error_msg("Action failed: generate_property("@giacomo I want to build a houce",NewBelief), in namespace default, operation ( generate_property @giacomo I want to build a houce cartago.OpFeedbackParam@3ac4986 )"),percept_type(obs_ev),source(percept),workspace("/main",cobj_0)]
+[user] Initializing Ollama models
+[user] Initializing content of the Embedding Space
+[user] Considering companyD1
+[user] Considering companyC1
+[user] Considering companyD2
+[user] Considering companyA
+[user] Considering companyC4
+[user] Considering companyD5
+[user] Considering companyB
+[user] Considering companyC5
+[user] Considering companyD6
+[user] Considering companyC2
+[user] Considering companyD3
+[user] Considering companyC3
+[user] Considering companyD4
+[user] Considering companyE
+[user] Considering companyD13
+[user] Considering companyD12
+[user] Considering companyD9
+[user] Considering giacomo
+[user] Considering companyD7
+[user] Considering companyD8
+[user] Considering companyD11
+[user] Considering companyD10
+[user] Initializing the Embedding Space
+[companyB] I am obliged to commit to prepare_site on bhsch... doing so
+[companyE] I am obliged to commit to lay_floors on bhsch... doing so
+[companyA] I am obliged to commit to install_plumbing on bhsch... doing so
+[companyD3] I am obliged to commit to fit_windows on bhsch... doing so
+[companyC3] I am obliged to commit to install_electrical_system on bhsch... doing so
+[companyE] I am obliged to commit to build_walls on bhsch... doing so
+[companyC3] I am obliged to commit to paint_house on bhsch... doing so
+[companyD3] I am obliged to commit to fit_doors on bhsch... doing so
+[companyE] I am obliged to commit to build_roof on bhsch... doing so
+[user] Starting
+[user] Updating content of the Embedding Space
+[user] Considering companyD1
+[user] Considering companyC1
+[user] Considering companyD2
+[user] Considering companyA
+[user] Considering companyC4
+[user] Considering companyD5
+[user] Considering companyB
+[user] Considering companyC5
+[user] Considering companyD6
+[user] Considering companyC2
+[user] Considering companyD3
+[user] Considering companyC3
+[user] Considering companyD4
+[user] Considering companyE
+[user] Considering companyD13
+[user] Considering companyD12
+[user] Considering companyD9
+[user] Considering giacomo
+[user] Considering companyD7
+[user] Considering companyD8
+[user] Considering user
+[user] Considering companyD11
+[user] Considering companyD10
+[user] There are receivers
+[user] Translating the message
+[user] Generated: 
+ ilf: askOne
+ term: i_am_winning(Art)
+[GroupBoard] companyA has quit, role plumber removed by the platform!
+[SchemeBoard] companyA has quit, mission install_plumbing removed by the platform!
+[GroupBoard] companyB has quit, role site_prep_contractor removed by the platform!
+[SchemeBoard] companyB has quit, mission prepare_site removed by the platform!
+[GroupBoard] companyD3 has quit, role door_fitter removed by the platform!
+[GroupBoard] companyD3 has quit, role window_fitter removed by the platform!
+[SchemeBoard] companyD3 has quit, mission fit_doors removed by the platform!
+[SchemeBoard] companyD3 has quit, mission fit_windows removed by the platform!
+[GroupBoard] companyC3 has quit, role electrician removed by the platform!
+[GroupBoard] companyC3 has quit, role painter removed by the platform!
+[SchemeBoard] companyC3 has quit, mission install_electrical_system removed by the platform!
+[SchemeBoard] companyC3 has quit, mission paint_house removed by the platform!
+[GroupBoard] companyE has quit, role bricklayer removed by the platform!
+[GroupBoard] companyE has quit, role roofer removed by the platform!
+[SchemeBoard] companyE has quit, mission build_roof removed by the platform!
+[SchemeBoard] companyE has quit, mission build_walls removed by the platform!
+[SchemeBoard] companyE has quit, mission lay_floors removed by the platform!
+[GroupBoard] giacomo has quit, role house_owner removed by the platform!
+[SchemeBoard] giacomo has quit, mission management_of_house_building removed by the platform!

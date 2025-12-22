@@ -177,7 +177,8 @@ public class EmbeddingSpace {
      * @return true if contined, false otherwise
      */
     protected boolean isInAgDomain( String agName, Literal l ) {
-        return this.agDomain.get( agName ).contains( l );
+        List<Literal> domain = this.agDomain.get( agName );
+        return domain != null && domain.contains( l );
     }
 
     /**

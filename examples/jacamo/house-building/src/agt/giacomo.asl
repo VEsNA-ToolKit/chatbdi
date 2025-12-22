@@ -10,27 +10,17 @@ number_of_tasks(NS) :- .findall( S, task(S), L) & .length(L,NS).
 
 /* Initial goals */
 
-// !have_a_house.
+!have_a_house.
 
-+want_to_build_house
-   :  interpreter( Interpreter )
-   <- .send( Interpreter, tell, i_say( "Got it, I will hold an auction with companies and build your future house" ) );
-      !have_a_house.
 
 /* Plans */
 
 +!have_a_house
-   :  interpreter( Interpreter )
    <- !contract; // hire the companies that will build the house
       !execute;  // (simulates) the execution of the construction
-      .print("Done!");
-      .send( Interpreter, tell, i_say( "Your house is ready, you can enter") ).
-
+   .
 -!have_a_house[error(E),error_msg(Msg),code(Cmd),code_src(Src),code_line(Line)]
-   :  interpreter( Interpreter )
-   <- .print("Failed to build a house due to: ",Msg," (",E,"). Command: ",Cmd, " on ",Src,":", Line);
-      .concat( "Failed to build a house due to: ",Msg," (",E,"). Command: ",Cmd, " on ",Src,":", Line, ErrorMsg );
-      .send( Interpreter, tell, describe( ErrorMsg ) ).
+   <- .print("Failed to build a house due to: ",Msg," (",E,"). Command: ",Cmd, " on ",Src,":", Line).
 
 
 /* Plans for Contracting */

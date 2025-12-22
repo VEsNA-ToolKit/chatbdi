@@ -393,7 +393,7 @@ public class ChatUI {
             label.setFont( new Font( "SansSerif", Font.PLAIN, 12 ) );
             label.setForeground( textColor );
 
-            String html = "<html><div style='word-wrap:break-word;overflow-wrap:break-word;'>";
+            String html = "<html><div style='width:250px;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;'>";
             html += "<b>" + sender + "</b><br/>" + contentHtml + "</div></html>";
             label.setText( html );
 
