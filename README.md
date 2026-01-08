@@ -41,137 +41,112 @@ gradle run
 
 The framework provides:
 
-- a chat GUI artifact;
-- an Interpreter artifact interface;
-- an set of interpreter actions.
+- a chat GUI component;
+- an Agent Architecture (AgArch) for natural language interpretation;
+- integration with LLM models for translation between natural language and logical properties.
 
 The structure of the project should follow this:
 ```
 ├── build.gradle
-├── your_mas.jcm
+├── your_mas.mas2j (or .jcm for JaCaMo)
 └── src
     ├── agt
     │   ├── agent_1.asl
     │   ├── ...
     │   ├── agent_n.asl
-    │   │
-    │   ├── interpreter
-    │   │   ├── list_beliefs.java
-    │   │   ├── list_plans.java
-    │   │   └── list_useful_literals.java
-    │   └── interpreter.asl
+    │   └── chatbdi
+    │       ├── Interpreter.java
+    │       ├── ChatUI.java
+    │       ├── Ollama.java
+    │       ├── EmbeddingSpace.java
+    │       ├── Tools.java
+    │       └── modelfiles/
+    │           ├── nl2logPrompt.txt
+    │           ├── log2nlPrompt.txt
+    │           ├── nl2log.txt
+    │           ├── log2nl.txt
+    │           └── classifier.txt
     └── env
-        ├── your_classes.java
-        └── interpreter
-            ├── ChatArtifact.java
-            ├── Interpreter.java
-            └── YourInterpreter.java
+        └── your_classes.java
 ```
 
-Inside the `src/agt/` folder the `interpreter` folder contains a set of custom `InternalActions` used only with the instrumentation active. The folder `interpreter` insider `src/env/` instead contains the `Artifacts` used by ChatBDI.
+The `src/agt/chatbdi/` folder contains the `Interpreter` agent architecture class and all supporting components for natural language interaction.
 
 ### Turning a Jason Agent into a natural language interpreter
 
 > [!NOTE]
 >
-> Remember to follow these three steps:
+> Remember to follow these steps:
 >
-> 1. include the `interpreter.asl` file;
-> 2. add the beliefs for instrumentation and interpreter class;
-> 3. define the io plans.
+> 1. configure the agent with the `chatbdi.Interpreter` agent architecture;
+> 2. provide model file paths and model names in the agent configuration;
+> 3. define the message handling plans.
 
-Placed the framework files as shown, to make an agent an interpreter it is sufficient to add this line to your code:
+To make an agent an interpreter, configure it in your `.mas2j` (Jason) or `.jcm` (JaCaMo) file with the agent architecture and required parameters:
 
+```mas2j
+agents:
+    your_agent your_agent.asl [
+        nl2log_prompt = "path/to/nl2logPrompt.txt",
+        log2nl_prompt = "path/to/log2nlPrompt.txt",
+        nl2log_model = "path/to/nl2log.txt",
+        log2nl_model = "path/to/log2nl.txt",
+        class_model = "path/to/classifier.txt",
+        gen_model = "qwen2.5-coder",
+        emb_model = "all-minilm"
+    ]
+    agentArchClass chatbdi.Interpreter;
 ```
-{ include( "interpreter.asl" ) }
-```
 
-The agent should then have two beliefs:
+The agent architecture **automatically**:
+- Captures user input from the chat UI
+- Classifies the performative (tell, askOne, askAll) using the LLM
+- Translates natural language to logical properties using embeddings
+- Sends messages to the appropriate agents
+- Intercepts incoming KQML messages and translates them to natural language
+- Displays all messages in the chat interface
 
-- `instrumentation(true|false)`: if true the agent will send to all the other agents the instrumentation;
-- `interpreter_class( "[YourPackage.]YourInterpreter" )`: this belief tells the agent the name of the class to be used as interpreter artifact.
-
-The agent can handle messages sent from the user with two triggering events:
-
-- `user_msg( Msg )`: the user sent a broadcast message `Msg`;
-- `user_msg( Recipients, Msg )`: the user sent a message `Msg` to `Recipients`.
-
-The agent can handle the other agents messages with a custom plan:
-
-- `+!kqml_received( Sender, Performative, Msg, MsgId )`: user received a message `Msg` from `Sender` with `Performative` .
+Your agent file can be completely empty - the agent architecture handles all the natural language interaction.
 
 #### Example
 
-An example of ChatBDI agent is:
+The simplest ChatBDI agent file can be completely empty:
 
-```
-{ include( "interpreter.asl" ) }
-
-instrumentation( true ).
-interpreter_class( "LLMInterpreter" )
-
-+user_msg( Msg )
-	<-  classify_performative( Msg, Performative );
-			generate_property( Msg, Property );
-			.broadcast( Performative, Msg ).
-        
-+!kqml( Sender, Performative, Msg, MsgId )
-	<-	generate_sentence( Performative, Msg, Sentence );
-			msg( Sender, Sentence ).
+```jason
+// The agent architecture handles all natural language interaction
 ```
 
-The chat interface provides an operation `msg( Sender, Msg )` that displays the message `Msg` with sender `Sender` on the chat.
+All the work is done by the `Interpreter` agent architecture, which:
+- Automatically captures user input from the chat interface
+- Translates natural language → logical properties using LLM and embeddings
+- Classifies performatives and sends KQML messages to other agents
+- Intercepts all incoming messages and translates them to natural language
+- Displays everything in the chat UI
 
-> [!CAUTION]
->
-> If you have activated the instrumentation, you should also provide a plan
->
-> ```
-> +!update_kn_base( X )
-> ```
->
-> where X can unify with `beliefs( B )`, `plans( P )` or `literals( L )`. This plan should be used by the ChatBDI agent to correctly update the Interpreter class depending on your implementation.
+You can still add custom plans to your agent for domain-specific behavior - the architecture just adds the natural language layer on top.
 
-#### Instrumentation
+### Understanding the Interpreter Architecture
 
-The instrumentation sends to each agent:
+The `Interpreter` class extends Jason's `AgArch` (Agent Architecture) and provides:
 
-- the name of the ChatBDI agent, `interpreter( Name )`
-- a plan to list the agent plans on the chat for explainability purposes;
-- a plan that triggers the custom `InternalAction`s: each agent sends to ChatBDI the list of its beliefs, plans and other useful literals ( for example context ones );
-- a triggering event `+_`: for each new belief the beliefs are updated;
-- a plan that handles the fact that the user can say something on the chat that does not mean anything for the agent: in that case an `error_message` is sent back.
+1. **Automatic Knowledge Base Management**: The architecture automatically accesses all agents' belief bases and plan libraries to build an embedding space for translation.
 
-### Write the Interpreter class
+2. **LLM Integration**: Uses Ollama to:
+   - Classify user messages into performatives (tell, askOne, askAll)
+   - Generate logical properties from natural language input
+   - Generate natural language from KQML messages
 
-The Interpreter class should implement the `Interpreter.java` interface, and it should provide these methods to the ChatBDI agent:
+3. **Chat Interface**: The `ChatUI` component displays messages and provides user interaction.
 
-- `generate_property( Sentence, Property )`: given `Sentence` it produces a logical property in the feedback parameter `Property`;
-- `generate_sentence( Performative, Literal, Sentence)`: given `Performative` the performative of the kqml message, `Literal` the literal received it produces a sentence in the feedback parameter `Sentence`;
--  `classify_performative( Sentence, Performative )`: given `Sentence` it infers the performative in the feedback parameter `Performative`. For a simple implementation you can always set it to `tell`.
+4. **Embedding Space**: Uses embeddings to find the most similar beliefs/plans to user input for context-aware translation.
 
-An example can be found at `interpreter/src/env/SampleInterpreter.java`.
+The main internal methods:
+- `nl2kqml()`: translates natural language to KQML messages (uses classification + generation)
+- `kqml2nl()`: translates KQML messages to natural language
+- `handleUserMsg()`: processes user input and sends to agents
+- `checkMail()`: intercepts agent messages and displays them
 
-> [!CAUTION]
->
-> If your agent has instrumentation on, you should add a few details to the Interpreter class:
->
-> - you should write an `init` function (without overwriting), as follows:
->
->   ```java
->   void init( Object[] literals ) {
->   	...
->   }
->   ```
->
-> - the `init` function should define a new belief `running` that tells the agent if the initialization of the artifact was successful or not. This should be done as follows:
->
->   ```java
->   defineObsProperty( "running", true ) // if everything goes well
->   defineObsProperty( "running", false ) // if something goes wrong
->   ```
->
->   If the property is false, all the agents of the mas are killed. The mas is not stopped for debugging purposes.
+The architecture implementation can be found at [interpreter/src/agt/chatbdi/Interpreter.java](interpreter/src/agt/chatbdi/Interpreter.java).
 
 ## Examples
 
@@ -181,17 +156,22 @@ In this repo are present two examples taken from the JaCaMo repository and adapt
 - **Domestic Robot**: one owner, one robot and one supermarket, the user is added only to understand which are the agent and what they can do (adapted to JaCaMo from https://github.com/jason-lang/jason/tree/main/examples/domestic-robot);
 - **House Building**: one house builder, many companies and one user that wants to build a house (taken from https://github.com/jacamo-lang/jacamo/tree/main/examples/house-building).
 
-These three projects use an interpreter artifact that uses LLM and embeddings to translate from natural language to logical properties and only the LLM from logical property to natural language.
+These three projects use the `Interpreter` agent architecture that uses LLM and embeddings to translate from natural language to logical properties and vice versa.
 
-To run these examples you need a further step, install **Ollama** (https://ollama.com/) and pull `codegemma` and `nomic-embed-text` models (you can change them in the Interpreter file if you want).
+To run these examples you need a further step, install **Ollama** (https://ollama.com/) and pull the required models. The default configuration uses `qwen2.5-coder` for generation and `all-minilm` for embeddings (you can change them in the agent configuration in the .mas2j or .jcm file).
 
 ```bash
-ollama pull codegemma
-ollama pull nomic-embed-text
+ollama pull qwen2.5-coder
+ollama pull all-minilm
 ollama serve
 ```
 
-Next you can start the project with gradle as the interpreter one.
+Next you can start the project with gradle:
+
+```bash
+cd examples/jason/auction  # or examples/jacamo/auction, etc.
+gradle run
+```
 
 ## Bibtex 
 
