@@ -425,8 +425,6 @@ public class ChatUI {
                 contentComp = bubble;
             }
 
-            System.out.println( html );
-
             // place the content component according to message type
             // Wrap the content in a side panel so we can append an icon to the right
             JPanel sidePanel = new JPanel(new BorderLayout());

@@ -8,7 +8,7 @@ Agents and Multiagent Systems (AAMAS 2025). International Foundation for Autonom
 
 | Hello World |
 |---|
-| ![Hello World Mas](./docs/img/chatbdi-sample.png) |
+| ![Hello World Mas](./docs/img/chatbdi_sample_v2.png) |
 
 With ChatBDI you can insert the user inside your multi-agent system. ChatBDI provides a chat interface:
  - each message sent via broadcast or sent specifically to the ChatBDI agent is displayed on the chat;
